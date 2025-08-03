@@ -12,25 +12,25 @@ option java_multiple_files = true;
 option java_outer_classname = "A2ARegistry";
 option java_package = "dev.allenday.a2a.v1.registry";
 
+// Trust levels for agent verification
+enum TrustLevel {
+  TRUST_LEVEL_UNSPECIFIED = 0;
+  TRUST_LEVEL_UNVERIFIED = 1;   // No verification performed
+  TRUST_LEVEL_COMMUNITY = 2;    // Basic verification passed
+  TRUST_LEVEL_VERIFIED = 3;     // Full verification including domain + signatures
+  TRUST_LEVEL_OFFICIAL = 4;     // Official agent from well-known organization
+}
+
 // Registry-specific metadata for agent cards
 message RegistryMetadata {
   // Registration information
   google.protobuf.Timestamp registered_at = 1;
-  google.protobuf.Timestamp last_seen = 2;
-  string registrar_id = 3;
+  google.protobuf.Timestamp last_updated = 2;
   
-  // Health and status tracking
-  string status = 4;
-  int32 health_score = 5;
-  int32 response_time_ms = 6;
-  
-  // Discovery and networking
-  repeated string contact_endpoints = 7;
-  repeated string preferred_regions = 8;
-  bool discovery_enabled = 9;
-  
-  // Additional metadata
-  map<string, string> extended_metadata = 10;
+  // Verification status (for production mode)
+  bool domain_verified = 3;
+  bool signature_verified = 4;
+  TrustLevel trust_level = 5;
 }
 
 // Enhanced agent card for registry purposes
@@ -61,31 +61,46 @@ message AgentSearchCriteria {
   // Status filters
   repeated string allowed_statuses = 9;
   
+  // Trust and verification filters
+  repeated TrustLevel trust_levels = 10;
+  bool require_domain_verified = 11;
+  bool require_signature_verified = 12;
+  
   // Pagination
-  int32 page_size = 10;
-  string page_token = 11;
+  int32 page_size = 13;
+  string page_token = 14;
+}
+
+// Extension discovery response (using A2A AgentExtension + provenance)
+message ExtensionInfo {
+  // Original A2A extension from agent
+  a2a.v1.AgentExtension extension = 1;
+  
+  // Registry provenance tracking
+  string first_declared_by_agent = 2;
+  google.protobuf.Timestamp first_declared_at = 3;
+  TrustLevel trust_level = 4; // Inherited from declaring agent
+  repeated string declaring_agents = 5; // All agents using this URI
+  int32 usage_count = 6;
 }
 
 // Service definitions for A2A Agent Registry
 service A2ARegistryService {
-  // Get a specific agent card by ID
+  // Agent Card operations
   rpc GetAgentCard(GetAgentCardRequest) returns (GetAgentCardResponse);
-  
-  // Register or update an agent card
   rpc StoreAgentCard(StoreAgentCardRequest) returns (StoreAgentCardResponse);
-  
-  // Search for agents based on criteria
   rpc SearchAgents(SearchAgentsRequest) returns (SearchAgentsResponse);
-  
-  // Remove an agent from the registry
   rpc DeleteAgentCard(DeleteAgentCardRequest) returns (google.protobuf.Empty);
+  rpc ListAllAgents(ListAllAgentsRequest) returns (ListAllAgentsResponse);
+  rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse);
+  
+  // Extension discovery operations
+  rpc GetExtensionInfo(GetExtensionInfoRequest) returns (GetExtensionInfoResponse);
+  rpc ListExtensions(ListExtensionsRequest) returns (ListExtensionsResponse);
+  rpc GetAgentExtensions(GetAgentExtensionsRequest) returns (GetAgentExtensionsResponse);
   
   // Health check and agent discovery
   rpc PingAgent(PingAgentRequest) returns (PingAgentResponse);
-  
-  // Bulk operations
-  rpc ListAllAgents(ListAllAgentsRequest) returns (ListAllAgentsResponse);
-  rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse);
 }
 
 // Request/Response message definitions
@@ -161,4 +176,41 @@ message UpdateAgentStatusResponse {
   bool success = 1;
   string message = 2;
   RegistryAgentCard updated_card = 3;
+}
+
+// Extension discovery request/response messages
+
+message GetExtensionInfoRequest {
+  string uri = 1;
+}
+
+message GetExtensionInfoResponse {
+  ExtensionInfo extension_info = 1;
+  bool found = 2;
+}
+
+message ListExtensionsRequest {
+  // Optional filters
+  string uri_pattern = 1; // Simple pattern matching
+  repeated string declaring_agents = 2;
+  repeated TrustLevel trust_levels = 3;
+  
+  // Pagination
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message ListExtensionsResponse {
+  repeated ExtensionInfo extensions = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message GetAgentExtensionsRequest {
+  string agent_id = 1;
+}
+
+message GetAgentExtensionsResponse {
+  repeated ExtensionInfo extensions = 1;
+  string agent_id = 2;
 }
