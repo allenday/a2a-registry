@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package a2a.v1.registry;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "a2a.proto";
+
+option csharp_namespace = "A2a.V1.Registry";
+option go_package = "dev.allenday/a2a-registry/v1";
+option java_multiple_files = true;
+option java_outer_classname = "A2ARegistry";
+option java_package = "dev.allenday.a2a.v1.registry";
+
+// Registry-specific metadata for agent cards
+message RegistryMetadata {
+  // Registration information
+  google.protobuf.Timestamp registered_at = 1;
+  google.protobuf.Timestamp last_seen = 2;
+  string registrar_id = 3;
+  
+  // Health and status tracking
+  string status = 4;
+  int32 health_score = 5;
+  int32 response_time_ms = 6;
+  
+  // Discovery and networking
+  repeated string contact_endpoints = 7;
+  repeated string preferred_regions = 8;
+  bool discovery_enabled = 9;
+  
+  // Additional metadata
+  map<string, string> extended_metadata = 10;
+}
+
+// Enhanced agent card for registry purposes
+message RegistryAgentCard {
+  // Core A2A agent card
+  a2a.v1.AgentCard agent_card = 1;
+  
+  // Registry-specific metadata
+  RegistryMetadata registry_metadata = 2;
+}
+
+// Search criteria for finding agents
+message AgentSearchCriteria {
+  // Basic filters
+  repeated string agent_ids = 1;
+  repeated string agent_names = 2;
+  repeated string required_capabilities = 3;
+  repeated string required_skills = 4;
+  
+  // Geographic and network filters
+  repeated string preferred_regions = 5;
+  bool require_discovery = 6;
+  
+  // Performance requirements
+  uint32 min_health_score = 7;
+  uint32 max_response_time_ms = 8;
+  
+  // Status filters
+  repeated string allowed_statuses = 9;
+  
+  // Pagination
+  int32 page_size = 10;
+  string page_token = 11;
+}
+
+// Service definitions for A2A Agent Registry
+service A2ARegistryService {
+  // Get a specific agent card by ID
+  rpc GetAgentCard(GetAgentCardRequest) returns (GetAgentCardResponse);
+  
+  // Register or update an agent card
+  rpc StoreAgentCard(StoreAgentCardRequest) returns (StoreAgentCardResponse);
+  
+  // Search for agents based on criteria
+  rpc SearchAgents(SearchAgentsRequest) returns (SearchAgentsResponse);
+  
+  // Remove an agent from the registry
+  rpc DeleteAgentCard(DeleteAgentCardRequest) returns (google.protobuf.Empty);
+  
+  // Health check and agent discovery
+  rpc PingAgent(PingAgentRequest) returns (PingAgentResponse);
+  
+  // Bulk operations
+  rpc ListAllAgents(ListAllAgentsRequest) returns (ListAllAgentsResponse);
+  rpc UpdateAgentStatus(UpdateAgentStatusRequest) returns (UpdateAgentStatusResponse);
+}
+
+// Request/Response message definitions
+
+message GetAgentCardRequest {
+  string agent_id = 1;
+  bool include_registry_metadata = 2;
+}
+
+message GetAgentCardResponse {
+  RegistryAgentCard registry_agent_card = 1;
+  bool found = 2;
+}
+
+message StoreAgentCardRequest {
+  RegistryAgentCard registry_agent_card = 1;
+  bool upsert = 2;
+}
+
+message StoreAgentCardResponse {
+  bool success = 1;
+  string message = 2;
+  RegistryAgentCard stored_card = 3;
+}
+
+message SearchAgentsRequest {
+  AgentSearchCriteria criteria = 1;
+}
+
+message SearchAgentsResponse {
+  repeated RegistryAgentCard agents = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message DeleteAgentCardRequest {
+  string agent_id = 1;
+  string requester_id = 2;
+}
+
+message PingAgentRequest {
+  string agent_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message PingAgentResponse {
+  bool responsive = 1;
+  int32 response_time_ms = 2;
+  string status = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message ListAllAgentsRequest {
+  bool include_inactive = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListAllAgentsResponse {
+  repeated RegistryAgentCard agents = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message UpdateAgentStatusRequest {
+  string agent_id = 1;
+  string status = 2;
+  int32 health_score = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message UpdateAgentStatusResponse {
+  bool success = 1;
+  string message = 2;
+  RegistryAgentCard updated_card = 3;
+}

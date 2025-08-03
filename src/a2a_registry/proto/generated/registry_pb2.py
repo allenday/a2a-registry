@@ -22,58 +22,55 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
-from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from . import a2a_pb2 as a2a__pb2
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+import a2a_pb2 as a2a__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregistry.proto\x12\x0f\x61\x32\x61_registry.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\ta2a.proto\"\x9a\x03\n\x11\x41gentRegistration\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12%\n\nagent_card\x18\x02 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12\x31\n\rregistered_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12-\n\tlast_seen\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\x11last_health_check\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x34\n\rhealth_status\x18\x06 \x01(\x0e\x32\x1d.a2a_registry.v1.HealthStatus\x12)\n\x08metadata\x18\x07 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x0c\n\x04tags\x18\x08 \x03(\t\x12\x0f\n\x07\x64omains\x18\t \x03(\t\x12\x33\n\tendpoints\x18\n \x03(\x0b\x32 .a2a_registry.v1.NetworkEndpoint\"\x81\x01\n\x0fNetworkEndpoint\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\x05\x12\x10\n\x08protocol\x18\x03 \x01(\t\x12\x12\n\nis_primary\x18\x04 \x01(\x08\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"\xa5\x01\n\nHealthInfo\x12-\n\x06status\x18\x01 \x01(\x0e\x32\x1d.a2a_registry.v1.HealthStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12(\n\x07metrics\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct\"\xce\x01\n\x14RegisterAgentRequest\x12%\n\nagent_card\x18\x01 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12\x0c\n\x04tags\x18\x02 \x03(\t\x12\x0f\n\x07\x64omains\x18\x03 \x03(\t\x12\x33\n\tendpoints\x18\x04 \x03(\x0b\x32 .a2a_registry.v1.NetworkEndpoint\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x10\n\x08\x61gent_id\x18\x06 \x01(\t\"t\n\x15RegisterAgentResponse\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x38\n\x0cregistration\x18\x02 \x01(\x0b\x32\".a2a_registry.v1.AgentRegistration\x12\x0f\n\x07\x63reated\x18\x03 \x01(\x08\"\xcc\x01\n\x12UpdateAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12%\n\nagent_card\x18\x02 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12\x0c\n\x04tags\x18\x03 \x03(\t\x12\x0f\n\x07\x64omains\x18\x04 \x03(\t\x12\x33\n\tendpoints\x18\x05 \x03(\x0b\x32 .a2a_registry.v1.NetworkEndpoint\x12)\n\x08metadata\x18\x06 \x01(\x0b\x32\x17.google.protobuf.Struct\"O\n\x13UpdateAgentResponse\x12\x38\n\x0cregistration\x18\x01 \x01(\x0b\x32\".a2a_registry.v1.AgentRegistration\"C\n\x0fGetAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x1e\n\x16include_health_history\x18\x02 \x01(\x08\"\x81\x01\n\x10GetAgentResponse\x12\x38\n\x0cregistration\x18\x01 \x01(\x0b\x32\".a2a_registry.v1.AgentRegistration\x12\x33\n\x0ehealth_history\x18\x02 \x03(\x0b\x32\x1b.a2a_registry.v1.HealthInfo\"\xef\x01\n\x13SearchAgentsRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x0c\n\x04tags\x18\x02 \x03(\t\x12\x0f\n\x07\x64omains\x18\x03 \x03(\t\x12\x14\n\x0c\x63\x61pabilities\x18\x04 \x03(\t\x12\x11\n\tskill_ids\x18\x05 \x03(\t\x12\x36\n\x0fhealth_statuses\x18\x06 \x03(\x0e\x32\x1d.a2a_registry.v1.HealthStatus\x12\x11\n\tpage_size\x18\x07 \x01(\x05\x12\x12\n\npage_token\x18\x08 \x01(\t\x12\x0f\n\x07sort_by\x18\t \x01(\t\x12\x11\n\tsort_desc\x18\n \x01(\x08\"x\n\x14SearchAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a_registry.v1.AgentRegistration\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\"\xc4\x01\n\x11ListAgentsRequest\x12\x0f\n\x07\x64omains\x18\x01 \x03(\t\x12\x36\n\x0fhealth_statuses\x18\x02 \x03(\x0e\x32\x1d.a2a_registry.v1.HealthStatus\x12\x11\n\tpage_size\x18\x03 \x01(\x05\x12\x12\n\npage_token\x18\x04 \x01(\t\x12\x0f\n\x07sort_by\x18\x05 \x01(\t\x12\x11\n\tsort_desc\x18\x06 \x01(\x08\x12\x1b\n\x13include_health_info\x18\x07 \x01(\x08\"v\n\x12ListAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a_registry.v1.AgentRegistration\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\"6\n\x12\x44\x65leteAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x0e\n\x06reason\x18\x02 \x01(\t\"\x88\x01\n\x13HealthReportRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x30\n\x0bhealth_info\x18\x02 \x01(\x0b\x32\x1b.a2a_registry.v1.HealthInfo\x12-\n\x0cload_metrics\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"n\n\x14HealthReportResponse\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x33\n\x0fnext_check_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x90\x02\n\x14RegistryInfoResponse\x12\x14\n\x0ctotal_agents\x18\x01 \x01(\x05\x12\x16\n\x0ehealthy_agents\x18\x02 \x01(\x05\x12\x18\n\x10unhealthy_agents\x18\x03 \x01(\x05\x12\x37\n\x13registry_start_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x18\n\x10registry_version\x18\x05 \x01(\t\x12\x32\n\x0c\x64omain_stats\x18\x06 \x03(\x0b\x32\x1c.a2a_registry.v1.DomainStats\x12)\n\x08metadata\x18\x07 \x01(\x0b\x32\x17.google.protobuf.Struct\"_\n\x0b\x44omainStats\x12\x0e\n\x06\x64omain\x18\x01 \x01(\t\x12\x13\n\x0b\x61gent_count\x18\x02 \x01(\x05\x12\x15\n\rhealthy_count\x18\x03 \x01(\x05\x12\x14\n\x0c\x63\x61pabilities\x18\x04 \x03(\t*u\n\x0cHealthStatus\x12\x12\n\x0eHEALTH_UNKNOWN\x10\x00\x12\x12\n\x0eHEALTH_HEALTHY\x10\x01\x12\x13\n\x0fHEALTH_DEGRADED\x10\x02\x12\x14\n\x10HEALTH_UNHEALTHY\x10\x03\x12\x12\n\x0eHEALTH_OFFLINE\x10\x04\x32\xce\x05\n\x12\x41\x32\x41RegistryService\x12^\n\rRegisterAgent\x12%.a2a_registry.v1.RegisterAgentRequest\x1a&.a2a_registry.v1.RegisterAgentResponse\x12X\n\x0bUpdateAgent\x12#.a2a_registry.v1.UpdateAgentRequest\x1a$.a2a_registry.v1.UpdateAgentResponse\x12O\n\x08GetAgent\x12 .a2a_registry.v1.GetAgentRequest\x1a!.a2a_registry.v1.GetAgentResponse\x12[\n\x0cSearchAgents\x12$.a2a_registry.v1.SearchAgentsRequest\x1a%.a2a_registry.v1.SearchAgentsResponse\x12U\n\nListAgents\x12\".a2a_registry.v1.ListAgentsRequest\x1a#.a2a_registry.v1.ListAgentsResponse\x12J\n\x0b\x44\x65leteAgent\x12#.a2a_registry.v1.DeleteAgentRequest\x1a\x16.google.protobuf.Empty\x12[\n\x0cReportHealth\x12$.a2a_registry.v1.HealthReportRequest\x1a%.a2a_registry.v1.HealthReportResponse\x12P\n\x0fGetRegistryInfo\x12\x16.google.protobuf.Empty\x1a%.a2a_registry.v1.RegistryInfoResponseBO\n\x1a\x64\x65v.allendy.a2aregistry.v1B\x0b\x41\x32\x41RegistryP\x01Z\"github.com/allendy/a2a-registry/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregistry.proto\x12\x0f\x61\x32\x61.v1.registry\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\ta2a.proto\"\xa8\x03\n\x10RegistryMetadata\x12\x31\n\rregistered_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12-\n\tlast_seen\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0cregistrar_id\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x14\n\x0chealth_score\x18\x05 \x01(\x05\x12\x18\n\x10response_time_ms\x18\x06 \x01(\x05\x12\x19\n\x11\x63ontact_endpoints\x18\x07 \x03(\t\x12\x19\n\x11preferred_regions\x18\x08 \x03(\t\x12\x19\n\x11\x64iscovery_enabled\x18\t \x01(\x08\x12R\n\x11\x65xtended_metadata\x18\n \x03(\x0b\x32\x37.a2a.v1.registry.RegistryMetadata.ExtendedMetadataEntry\x1a\x37\n\x15\x45xtendedMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"x\n\x11RegistryAgentCard\x12%\n\nagent_card\x18\x01 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12<\n\x11registry_metadata\x18\x02 \x01(\x0b\x32!.a2a.v1.registry.RegistryMetadata\"\xa4\x02\n\x13\x41gentSearchCriteria\x12\x11\n\tagent_ids\x18\x01 \x03(\t\x12\x13\n\x0b\x61gent_names\x18\x02 \x03(\t\x12\x1d\n\x15required_capabilities\x18\x03 \x03(\t\x12\x17\n\x0frequired_skills\x18\x04 \x03(\t\x12\x19\n\x11preferred_regions\x18\x05 \x03(\t\x12\x19\n\x11require_discovery\x18\x06 \x01(\x08\x12\x18\n\x10min_health_score\x18\x07 \x01(\r\x12\x1c\n\x14max_response_time_ms\x18\x08 \x01(\r\x12\x18\n\x10\x61llowed_statuses\x18\t \x03(\t\x12\x11\n\tpage_size\x18\n \x01(\x05\x12\x12\n\npage_token\x18\x0b \x01(\t\"J\n\x13GetAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12!\n\x19include_registry_metadata\x18\x02 \x01(\x08\"f\n\x14GetAgentCardResponse\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\r\n\x05\x66ound\x18\x02 \x01(\x08\"h\n\x15StoreAgentCardRequest\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x0e\n\x06upsert\x18\x02 \x01(\x08\"s\n\x16StoreAgentCardResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x37\n\x0bstored_card\x18\x03 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\"M\n\x13SearchAgentsRequest\x12\x36\n\x08\x63riteria\x18\x01 \x01(\x0b\x32$.a2a.v1.registry.AgentSearchCriteria\"x\n\x14SearchAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\"@\n\x16\x44\x65leteAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\"S\n\x10PingAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x80\x01\n\x11PingAgentResponse\x12\x12\n\nresponsive\x18\x01 \x01(\x08\x12\x18\n\x10response_time_ms\x18\x02 \x01(\x05\x12\x0e\n\x06status\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"W\n\x14ListAllAgentsRequest\x12\x18\n\x10include_inactive\x18\x01 \x01(\x08\x12\x11\n\tpage_size\x18\x02 \x01(\x05\x12\x12\n\npage_token\x18\x03 \x01(\t\"y\n\x15ListAllAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\"\x81\x01\n\x18UpdateAgentStatusRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x14\n\x0chealth_score\x18\x03 \x01(\x05\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"w\n\x19UpdateAgentStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x38\n\x0cupdated_card\x18\x03 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard2\xa5\x05\n\x12\x41\x32\x41RegistryService\x12[\n\x0cGetAgentCard\x12$.a2a.v1.registry.GetAgentCardRequest\x1a%.a2a.v1.registry.GetAgentCardResponse\x12\x61\n\x0eStoreAgentCard\x12&.a2a.v1.registry.StoreAgentCardRequest\x1a\'.a2a.v1.registry.StoreAgentCardResponse\x12[\n\x0cSearchAgents\x12$.a2a.v1.registry.SearchAgentsRequest\x1a%.a2a.v1.registry.SearchAgentsResponse\x12R\n\x0f\x44\x65leteAgentCard\x12\'.a2a.v1.registry.DeleteAgentCardRequest\x1a\x16.google.protobuf.Empty\x12R\n\tPingAgent\x12!.a2a.v1.registry.PingAgentRequest\x1a\".a2a.v1.registry.PingAgentResponse\x12^\n\rListAllAgents\x12%.a2a.v1.registry.ListAllAgentsRequest\x1a&.a2a.v1.registry.ListAllAgentsResponse\x12j\n\x11UpdateAgentStatus\x12).a2a.v1.registry.UpdateAgentStatusRequest\x1a*.a2a.v1.registry.UpdateAgentStatusResponseB]\n\x1c\x64\x65v.allenday.a2a.v1.registryB\x0b\x41\x32\x41RegistryP\x01Z\x1c\x64\x65v.allenday/a2a-registry/v1\xaa\x02\x0f\x41\x32\x61.V1.Registryb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'registry_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'\n\032dev.allendy.a2aregistry.v1B\013A2ARegistryP\001Z\"github.com/allendy/a2a-registry/v1'
-  _globals['_HEALTHSTATUS']._serialized_start=3029
-  _globals['_HEALTHSTATUS']._serialized_end=3146
-  _globals['_AGENTREGISTRATION']._serialized_start=139
-  _globals['_AGENTREGISTRATION']._serialized_end=549
-  _globals['_NETWORKENDPOINT']._serialized_start=552
-  _globals['_NETWORKENDPOINT']._serialized_end=681
-  _globals['_HEALTHINFO']._serialized_start=684
-  _globals['_HEALTHINFO']._serialized_end=849
-  _globals['_REGISTERAGENTREQUEST']._serialized_start=852
-  _globals['_REGISTERAGENTREQUEST']._serialized_end=1058
-  _globals['_REGISTERAGENTRESPONSE']._serialized_start=1060
-  _globals['_REGISTERAGENTRESPONSE']._serialized_end=1176
-  _globals['_UPDATEAGENTREQUEST']._serialized_start=1179
-  _globals['_UPDATEAGENTREQUEST']._serialized_end=1383
-  _globals['_UPDATEAGENTRESPONSE']._serialized_start=1385
-  _globals['_UPDATEAGENTRESPONSE']._serialized_end=1464
-  _globals['_GETAGENTREQUEST']._serialized_start=1466
-  _globals['_GETAGENTREQUEST']._serialized_end=1533
-  _globals['_GETAGENTRESPONSE']._serialized_start=1536
-  _globals['_GETAGENTRESPONSE']._serialized_end=1665
-  _globals['_SEARCHAGENTSREQUEST']._serialized_start=1668
-  _globals['_SEARCHAGENTSREQUEST']._serialized_end=1907
-  _globals['_SEARCHAGENTSRESPONSE']._serialized_start=1909
-  _globals['_SEARCHAGENTSRESPONSE']._serialized_end=2029
-  _globals['_LISTAGENTSREQUEST']._serialized_start=2032
-  _globals['_LISTAGENTSREQUEST']._serialized_end=2228
-  _globals['_LISTAGENTSRESPONSE']._serialized_start=2230
-  _globals['_LISTAGENTSRESPONSE']._serialized_end=2348
-  _globals['_DELETEAGENTREQUEST']._serialized_start=2350
-  _globals['_DELETEAGENTREQUEST']._serialized_end=2404
-  _globals['_HEALTHREPORTREQUEST']._serialized_start=2407
-  _globals['_HEALTHREPORTREQUEST']._serialized_end=2543
-  _globals['_HEALTHREPORTRESPONSE']._serialized_start=2545
-  _globals['_HEALTHREPORTRESPONSE']._serialized_end=2655
-  _globals['_REGISTRYINFORESPONSE']._serialized_start=2658
-  _globals['_REGISTRYINFORESPONSE']._serialized_end=2930
-  _globals['_DOMAINSTATS']._serialized_start=2932
-  _globals['_DOMAINSTATS']._serialized_end=3027
-  _globals['_A2AREGISTRYSERVICE']._serialized_start=3149
-  _globals['_A2AREGISTRYSERVICE']._serialized_end=3867
+  _globals['DESCRIPTOR']._serialized_options = b'\n\034dev.allenday.a2a.v1.registryB\013A2ARegistryP\001Z\034dev.allenday/a2a-registry/v1\252\002\017A2a.V1.Registry'
+  _globals['_REGISTRYMETADATA_EXTENDEDMETADATAENTRY']._loaded_options = None
+  _globals['_REGISTRYMETADATA_EXTENDEDMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_REGISTRYMETADATA']._serialized_start=109
+  _globals['_REGISTRYMETADATA']._serialized_end=533
+  _globals['_REGISTRYMETADATA_EXTENDEDMETADATAENTRY']._serialized_start=478
+  _globals['_REGISTRYMETADATA_EXTENDEDMETADATAENTRY']._serialized_end=533
+  _globals['_REGISTRYAGENTCARD']._serialized_start=535
+  _globals['_REGISTRYAGENTCARD']._serialized_end=655
+  _globals['_AGENTSEARCHCRITERIA']._serialized_start=658
+  _globals['_AGENTSEARCHCRITERIA']._serialized_end=950
+  _globals['_GETAGENTCARDREQUEST']._serialized_start=952
+  _globals['_GETAGENTCARDREQUEST']._serialized_end=1026
+  _globals['_GETAGENTCARDRESPONSE']._serialized_start=1028
+  _globals['_GETAGENTCARDRESPONSE']._serialized_end=1130
+  _globals['_STOREAGENTCARDREQUEST']._serialized_start=1132
+  _globals['_STOREAGENTCARDREQUEST']._serialized_end=1236
+  _globals['_STOREAGENTCARDRESPONSE']._serialized_start=1238
+  _globals['_STOREAGENTCARDRESPONSE']._serialized_end=1353
+  _globals['_SEARCHAGENTSREQUEST']._serialized_start=1355
+  _globals['_SEARCHAGENTSREQUEST']._serialized_end=1432
+  _globals['_SEARCHAGENTSRESPONSE']._serialized_start=1434
+  _globals['_SEARCHAGENTSRESPONSE']._serialized_end=1554
+  _globals['_DELETEAGENTCARDREQUEST']._serialized_start=1556
+  _globals['_DELETEAGENTCARDREQUEST']._serialized_end=1620
+  _globals['_PINGAGENTREQUEST']._serialized_start=1622
+  _globals['_PINGAGENTREQUEST']._serialized_end=1705
+  _globals['_PINGAGENTRESPONSE']._serialized_start=1708
+  _globals['_PINGAGENTRESPONSE']._serialized_end=1836
+  _globals['_LISTALLAGENTSREQUEST']._serialized_start=1838
+  _globals['_LISTALLAGENTSREQUEST']._serialized_end=1925
+  _globals['_LISTALLAGENTSRESPONSE']._serialized_start=1927
+  _globals['_LISTALLAGENTSRESPONSE']._serialized_end=2048
+  _globals['_UPDATEAGENTSTATUSREQUEST']._serialized_start=2051
+  _globals['_UPDATEAGENTSTATUSREQUEST']._serialized_end=2180
+  _globals['_UPDATEAGENTSTATUSRESPONSE']._serialized_start=2182
+  _globals['_UPDATEAGENTSTATUSRESPONSE']._serialized_end=2301
+  _globals['_A2AREGISTRYSERVICE']._serialized_start=2304
+  _globals['_A2AREGISTRYSERVICE']._serialized_end=2981
 # @@protoc_insertion_point(module_scope)

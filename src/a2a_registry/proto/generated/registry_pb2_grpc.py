@@ -4,7 +4,7 @@ import grpc
 import warnings
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from . import registry_pb2 as registry__pb2
+import registry_pb2 as registry__pb2
 
 GRPC_GENERATED_VERSION = '1.74.0'
 GRPC_VERSION = grpc.__version__
@@ -27,8 +27,7 @@ if _version_not_supported:
 
 
 class A2ARegistryServiceStub(object):
-    """A2ARegistryService provides centralized service discovery for A2A agents.
-    Agents can register themselves, discover other agents, and manage their availability.
+    """Service definitions for A2A Agent Registry
     """
 
     def __init__(self, channel):
@@ -37,105 +36,91 @@ class A2ARegistryServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.RegisterAgent = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/RegisterAgent',
-                request_serializer=registry__pb2.RegisterAgentRequest.SerializeToString,
-                response_deserializer=registry__pb2.RegisterAgentResponse.FromString,
+        self.GetAgentCard = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/GetAgentCard',
+                request_serializer=registry__pb2.GetAgentCardRequest.SerializeToString,
+                response_deserializer=registry__pb2.GetAgentCardResponse.FromString,
                 _registered_method=True)
-        self.UpdateAgent = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/UpdateAgent',
-                request_serializer=registry__pb2.UpdateAgentRequest.SerializeToString,
-                response_deserializer=registry__pb2.UpdateAgentResponse.FromString,
-                _registered_method=True)
-        self.GetAgent = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/GetAgent',
-                request_serializer=registry__pb2.GetAgentRequest.SerializeToString,
-                response_deserializer=registry__pb2.GetAgentResponse.FromString,
+        self.StoreAgentCard = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/StoreAgentCard',
+                request_serializer=registry__pb2.StoreAgentCardRequest.SerializeToString,
+                response_deserializer=registry__pb2.StoreAgentCardResponse.FromString,
                 _registered_method=True)
         self.SearchAgents = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/SearchAgents',
+                '/a2a.v1.registry.A2ARegistryService/SearchAgents',
                 request_serializer=registry__pb2.SearchAgentsRequest.SerializeToString,
                 response_deserializer=registry__pb2.SearchAgentsResponse.FromString,
                 _registered_method=True)
-        self.ListAgents = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/ListAgents',
-                request_serializer=registry__pb2.ListAgentsRequest.SerializeToString,
-                response_deserializer=registry__pb2.ListAgentsResponse.FromString,
-                _registered_method=True)
-        self.DeleteAgent = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/DeleteAgent',
-                request_serializer=registry__pb2.DeleteAgentRequest.SerializeToString,
+        self.DeleteAgentCard = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/DeleteAgentCard',
+                request_serializer=registry__pb2.DeleteAgentCardRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
-        self.ReportHealth = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/ReportHealth',
-                request_serializer=registry__pb2.HealthReportRequest.SerializeToString,
-                response_deserializer=registry__pb2.HealthReportResponse.FromString,
+        self.PingAgent = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/PingAgent',
+                request_serializer=registry__pb2.PingAgentRequest.SerializeToString,
+                response_deserializer=registry__pb2.PingAgentResponse.FromString,
                 _registered_method=True)
-        self.GetRegistryInfo = channel.unary_unary(
-                '/a2a_registry.v1.A2ARegistryService/GetRegistryInfo',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=registry__pb2.RegistryInfoResponse.FromString,
+        self.ListAllAgents = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/ListAllAgents',
+                request_serializer=registry__pb2.ListAllAgentsRequest.SerializeToString,
+                response_deserializer=registry__pb2.ListAllAgentsResponse.FromString,
+                _registered_method=True)
+        self.UpdateAgentStatus = channel.unary_unary(
+                '/a2a.v1.registry.A2ARegistryService/UpdateAgentStatus',
+                request_serializer=registry__pb2.UpdateAgentStatusRequest.SerializeToString,
+                response_deserializer=registry__pb2.UpdateAgentStatusResponse.FromString,
                 _registered_method=True)
 
 
 class A2ARegistryServiceServicer(object):
-    """A2ARegistryService provides centralized service discovery for A2A agents.
-    Agents can register themselves, discover other agents, and manage their availability.
+    """Service definitions for A2A Agent Registry
     """
 
-    def RegisterAgent(self, request, context):
-        """Register an agent with the registry
+    def GetAgentCard(self, request, context):
+        """Get a specific agent card by ID
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def UpdateAgent(self, request, context):
-        """Update an existing agent registration
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetAgent(self, request, context):
-        """Get information about a specific agent by ID
+    def StoreAgentCard(self, request, context):
+        """Register or update an agent card
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SearchAgents(self, request, context):
-        """Search for agents based on capabilities, domain, or tags
+        """Search for agents based on criteria
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ListAgents(self, request, context):
-        """List all registered agents with optional filtering
+    def DeleteAgentCard(self, request, context):
+        """Remove an agent from the registry
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def DeleteAgent(self, request, context):
-        """Unregister an agent from the registry
+    def PingAgent(self, request, context):
+        """Health check and agent discovery
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ReportHealth(self, request, context):
-        """Health check - agent reports its current health status
+    def ListAllAgents(self, request, context):
+        """Bulk operations
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetRegistryInfo(self, request, context):
-        """Get registry statistics and metadata
-        """
+    def UpdateAgentStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -143,61 +128,55 @@ class A2ARegistryServiceServicer(object):
 
 def add_A2ARegistryServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'RegisterAgent': grpc.unary_unary_rpc_method_handler(
-                    servicer.RegisterAgent,
-                    request_deserializer=registry__pb2.RegisterAgentRequest.FromString,
-                    response_serializer=registry__pb2.RegisterAgentResponse.SerializeToString,
+            'GetAgentCard': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAgentCard,
+                    request_deserializer=registry__pb2.GetAgentCardRequest.FromString,
+                    response_serializer=registry__pb2.GetAgentCardResponse.SerializeToString,
             ),
-            'UpdateAgent': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateAgent,
-                    request_deserializer=registry__pb2.UpdateAgentRequest.FromString,
-                    response_serializer=registry__pb2.UpdateAgentResponse.SerializeToString,
-            ),
-            'GetAgent': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAgent,
-                    request_deserializer=registry__pb2.GetAgentRequest.FromString,
-                    response_serializer=registry__pb2.GetAgentResponse.SerializeToString,
+            'StoreAgentCard': grpc.unary_unary_rpc_method_handler(
+                    servicer.StoreAgentCard,
+                    request_deserializer=registry__pb2.StoreAgentCardRequest.FromString,
+                    response_serializer=registry__pb2.StoreAgentCardResponse.SerializeToString,
             ),
             'SearchAgents': grpc.unary_unary_rpc_method_handler(
                     servicer.SearchAgents,
                     request_deserializer=registry__pb2.SearchAgentsRequest.FromString,
                     response_serializer=registry__pb2.SearchAgentsResponse.SerializeToString,
             ),
-            'ListAgents': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListAgents,
-                    request_deserializer=registry__pb2.ListAgentsRequest.FromString,
-                    response_serializer=registry__pb2.ListAgentsResponse.SerializeToString,
-            ),
-            'DeleteAgent': grpc.unary_unary_rpc_method_handler(
-                    servicer.DeleteAgent,
-                    request_deserializer=registry__pb2.DeleteAgentRequest.FromString,
+            'DeleteAgentCard': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteAgentCard,
+                    request_deserializer=registry__pb2.DeleteAgentCardRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'ReportHealth': grpc.unary_unary_rpc_method_handler(
-                    servicer.ReportHealth,
-                    request_deserializer=registry__pb2.HealthReportRequest.FromString,
-                    response_serializer=registry__pb2.HealthReportResponse.SerializeToString,
+            'PingAgent': grpc.unary_unary_rpc_method_handler(
+                    servicer.PingAgent,
+                    request_deserializer=registry__pb2.PingAgentRequest.FromString,
+                    response_serializer=registry__pb2.PingAgentResponse.SerializeToString,
             ),
-            'GetRegistryInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetRegistryInfo,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=registry__pb2.RegistryInfoResponse.SerializeToString,
+            'ListAllAgents': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListAllAgents,
+                    request_deserializer=registry__pb2.ListAllAgentsRequest.FromString,
+                    response_serializer=registry__pb2.ListAllAgentsResponse.SerializeToString,
+            ),
+            'UpdateAgentStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateAgentStatus,
+                    request_deserializer=registry__pb2.UpdateAgentStatusRequest.FromString,
+                    response_serializer=registry__pb2.UpdateAgentStatusResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'a2a_registry.v1.A2ARegistryService', rpc_method_handlers)
+            'a2a.v1.registry.A2ARegistryService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('a2a_registry.v1.A2ARegistryService', rpc_method_handlers)
+    server.add_registered_method_handlers('a2a.v1.registry.A2ARegistryService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
 class A2ARegistryService(object):
-    """A2ARegistryService provides centralized service discovery for A2A agents.
-    Agents can register themselves, discover other agents, and manage their availability.
+    """Service definitions for A2A Agent Registry
     """
 
     @staticmethod
-    def RegisterAgent(request,
+    def GetAgentCard(request,
             target,
             options=(),
             channel_credentials=None,
@@ -210,9 +189,9 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/RegisterAgent',
-            registry__pb2.RegisterAgentRequest.SerializeToString,
-            registry__pb2.RegisterAgentResponse.FromString,
+            '/a2a.v1.registry.A2ARegistryService/GetAgentCard',
+            registry__pb2.GetAgentCardRequest.SerializeToString,
+            registry__pb2.GetAgentCardResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -224,7 +203,7 @@ class A2ARegistryService(object):
             _registered_method=True)
 
     @staticmethod
-    def UpdateAgent(request,
+    def StoreAgentCard(request,
             target,
             options=(),
             channel_credentials=None,
@@ -237,36 +216,9 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/UpdateAgent',
-            registry__pb2.UpdateAgentRequest.SerializeToString,
-            registry__pb2.UpdateAgentResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def GetAgent(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/a2a_registry.v1.A2ARegistryService/GetAgent',
-            registry__pb2.GetAgentRequest.SerializeToString,
-            registry__pb2.GetAgentResponse.FromString,
+            '/a2a.v1.registry.A2ARegistryService/StoreAgentCard',
+            registry__pb2.StoreAgentCardRequest.SerializeToString,
+            registry__pb2.StoreAgentCardResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -291,7 +243,7 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/SearchAgents',
+            '/a2a.v1.registry.A2ARegistryService/SearchAgents',
             registry__pb2.SearchAgentsRequest.SerializeToString,
             registry__pb2.SearchAgentsResponse.FromString,
             options,
@@ -305,7 +257,7 @@ class A2ARegistryService(object):
             _registered_method=True)
 
     @staticmethod
-    def ListAgents(request,
+    def DeleteAgentCard(request,
             target,
             options=(),
             channel_credentials=None,
@@ -318,35 +270,8 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/ListAgents',
-            registry__pb2.ListAgentsRequest.SerializeToString,
-            registry__pb2.ListAgentsResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def DeleteAgent(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/a2a_registry.v1.A2ARegistryService/DeleteAgent',
-            registry__pb2.DeleteAgentRequest.SerializeToString,
+            '/a2a.v1.registry.A2ARegistryService/DeleteAgentCard',
+            registry__pb2.DeleteAgentCardRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -359,7 +284,7 @@ class A2ARegistryService(object):
             _registered_method=True)
 
     @staticmethod
-    def ReportHealth(request,
+    def PingAgent(request,
             target,
             options=(),
             channel_credentials=None,
@@ -372,9 +297,9 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/ReportHealth',
-            registry__pb2.HealthReportRequest.SerializeToString,
-            registry__pb2.HealthReportResponse.FromString,
+            '/a2a.v1.registry.A2ARegistryService/PingAgent',
+            registry__pb2.PingAgentRequest.SerializeToString,
+            registry__pb2.PingAgentResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -386,7 +311,7 @@ class A2ARegistryService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetRegistryInfo(request,
+    def ListAllAgents(request,
             target,
             options=(),
             channel_credentials=None,
@@ -399,9 +324,36 @@ class A2ARegistryService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/a2a_registry.v1.A2ARegistryService/GetRegistryInfo',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            registry__pb2.RegistryInfoResponse.FromString,
+            '/a2a.v1.registry.A2ARegistryService/ListAllAgents',
+            registry__pb2.ListAllAgentsRequest.SerializeToString,
+            registry__pb2.ListAllAgentsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateAgentStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/a2a.v1.registry.A2ARegistryService/UpdateAgentStatus',
+            registry__pb2.UpdateAgentStatusRequest.SerializeToString,
+            registry__pb2.UpdateAgentStatusResponse.FromString,
             options,
             channel_credentials,
             insecure,
