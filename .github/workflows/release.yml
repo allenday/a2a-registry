@@ -44,7 +44,7 @@ jobs:
     - name: Validate version
       run: |
         # Check if version matches the input
-        CURRENT_VERSION=$(python -c "from a2a_registry import __version__; print(__version__)")
+        CURRENT_VERSION=$(.venv/bin/python -c "from a2a_registry import __version__; print(__version__)")
         if [ "$CURRENT_VERSION" != "${{ github.event.inputs.version }}" ]; then
           echo "Error: Version mismatch!"
           echo "Current version in code: $CURRENT_VERSION"
