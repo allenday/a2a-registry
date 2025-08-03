@@ -47,13 +47,13 @@ format: ## Format code with black
 	$(PYTHON_VENV) -m black $(SRC_DIR)
 	$(PYTHON_VENV) -m ruff check --fix $(SRC_DIR)
 
-lint: ## Run linting with ruff
+lint: install-dev ## Run linting with ruff
 	$(PYTHON_VENV) -m ruff check $(SRC_DIR)
 
-typecheck: ## Run type checking with mypy
+typecheck: install-dev ## Run type checking with mypy
 	$(PYTHON_VENV) -m mypy $(SRC_DIR)
 
-test: ## Run tests
+test: install-dev ## Run tests
 	$(PYTHON_VENV) -m pytest
 
 test-cov: ## Run tests with coverage
