@@ -63,15 +63,18 @@ proto: ## Generate protobuf files
 	@echo "Generating protobuf files..."
 	mkdir -p $(GENERATED_DIR)
 	$(PYTHON_VENV) -m grpc_tools.protoc \
+		--proto_path=proto \
 		--proto_path=$(THIRD_PARTY)/a2a/specification/grpc \
 		--proto_path=$(THIRD_PARTY)/api-common-protos \
 		--python_out=$(GENERATED_DIR) \
 		--grpc_python_out=$(GENERATED_DIR) \
+		proto/*.proto \
 		$(THIRD_PARTY)/a2a/specification/grpc/*.proto
 	@echo "Protobuf generation complete"
 
-build: clean ## Build distribution packages
+build: clean install-dev ## Build distribution packages
 	$(PYTHON_VENV) -m build
+	$(PYTHON_VENV) -m twine check dist/*
 
 publish-test: build ## Publish to TestPyPI
 	$(PYTHON_VENV) -m twine upload --repository testpypi dist/*
