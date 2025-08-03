@@ -1,4 +1,4 @@
-.PHONY: help install install-dev clean lint format type-check test test-cov build proto submodules setup
+.PHONY: help install install-dev clean lint format typecheck test test-cov build proto submodules setup
 .DEFAULT_GOAL := help
 
 # Python and virtual environment
@@ -50,7 +50,7 @@ format: ## Format code with black
 lint: ## Run linting with ruff
 	$(PYTHON_VENV) -m ruff check $(SRC_DIR)
 
-type-check: ## Run type checking with mypy
+typecheck: ## Run type checking with mypy
 	$(PYTHON_VENV) -m mypy $(SRC_DIR)
 
 test: ## Run tests
@@ -82,9 +82,9 @@ publish-test: build ## Publish to TestPyPI
 publish: build ## Publish to PyPI
 	$(PYTHON_VENV) -m twine upload dist/*
 
-dev-check: lint type-check test ## Run all development checks
+dev-check: lint typecheck test ## Run all development checks
 
-ci: install-dev lint type-check test ## Run CI pipeline locally
+ci: install-dev lint typecheck test ## Run CI pipeline locally
 
 # Documentation commands
 docs-install: $(VENV) ## Install documentation dependencies
@@ -108,7 +108,7 @@ dev-setup-complete: setup ## Complete development setup including pre-commit hoo
 	@echo "Development environment setup complete!"
 	@echo "Try: make dev-server"
 
-check-all: lint type-check test docs-build ## Run all checks (linting, typing, tests, docs)
+check-all: lint typecheck test docs-build ## Run all checks (linting, typing, tests, docs)
 
 pre-commit: ## Run pre-commit hooks on all files
 	$(PYTHON_VENV) -m pre-commit run --all-files

@@ -103,7 +103,7 @@ make format
 make lint
 
 # Type checking
-make type-check
+make typecheck
 ```
 
 ### Testing

@@ -265,7 +265,7 @@ async def health_check() -> Result:
         return Error(code=-32603, message=str(e))
 
 
-def get_jsonrpc_methods():
+def get_jsonrpc_methods() -> list[str]:
     """Get list of available JSON-RPC methods for introspection."""
     return [
         "register_agent",

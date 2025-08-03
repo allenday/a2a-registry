@@ -61,7 +61,7 @@ make format
 make lint
 
 # Run type checking
-make type-check
+make typecheck
 
 # Run tests
 make test
