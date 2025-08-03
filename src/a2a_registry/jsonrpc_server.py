@@ -148,7 +148,8 @@ async def search_agents(query: str, skills: Optional[list[str]] = None) -> Resul
         results = []
         query_lower = query.lower() if query else ""
 
-        for agent in storage._agents.values():
+        agents = await storage.list_agents()
+        for agent in agents:
             matches = False
 
             # Search by query in name, description
@@ -249,7 +250,8 @@ async def health_check() -> Result:
         Success with health status
     """
     try:
-        agents_count = len(storage._agents)
+        agents = await storage.list_agents()
+        agents_count = len(agents)
         return Success(
             {
                 "status": "healthy",
