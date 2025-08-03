@@ -1,0 +1,155 @@
+# Project information
+site_name: A2A Registry
+site_url: https://allenday.github.io/a2a-registry/
+site_description: >-
+  A comprehensive Agent-to-Agent (A2A) Registry server for seamless agent discovery, registration, and management.
+site_dir: site
+
+# Repository
+repo_name: allendy/a2a-registry
+repo_url: https://github.com/allendy/a2a-registry
+
+# Copyright
+copyright: Copyright &copy; 2025 Allen Day
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Overview: getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Configuration: getting-started/configuration.md
+  - Concepts:
+    - Agent Discovery: concepts/agent-discovery.md
+    - Registry Architecture: concepts/architecture.md
+    - Protocol Support: concepts/protocols.md
+  - API Reference:
+    - Overview: api/overview.md
+    - Endpoints: api/endpoints.md
+    - Client Libraries: api/clients.md
+    - Examples: api/examples.md
+    - API Documentation: api/reference.md
+  - Developer Guide:
+    - Contributing: developer/contributing.md
+    - Development Setup: developer/setup.md
+    - Testing Strategy: developer/testing.md
+    - Release Process: developer/releases.md
+    - Debugging: developer/debugging.md
+  - Examples:
+    - Basic Usage: examples/basic-usage.md
+    - Agent Registration: examples/agent-registration.md
+    - Agent Discovery: examples/agent-discovery.md
+    - Advanced Scenarios: examples/advanced.md
+  - Troubleshooting:
+    - Common Issues: troubleshooting/common-issues.md
+    - Performance Tuning: troubleshooting/performance.md
+    - Logging and Monitoring: troubleshooting/logging.md
+
+# Configuration
+theme:
+  name: material
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+    admonition:
+      note: fontawesome/solid/note-sticky
+      abstract: fontawesome/solid/book
+      info: fontawesome/solid/circle-info
+      tip: fontawesome/solid/bullhorn
+      success: fontawesome/solid/check
+      question: fontawesome/solid/circle-question
+      warning: fontawesome/solid/triangle-exclamation
+      failure: fontawesome/solid/bomb
+      danger: fontawesome/solid/skull
+      bug: fontawesome/solid/robot
+      example: fontawesome/solid/flask
+      quote: fontawesome/solid/quote-left
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - announce.dismiss
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+
+# Extensions
+markdown_extensions:
+  - footnotes
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - def_list
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      url_download: true
+      dedent_subsections: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+
+# Plugins
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: false
+            show_object_full_path: false
+            show_if_no_docstring: true
+            filters: ["!^_"]
+            docstring_style: google
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_submodules: true
