@@ -171,3 +171,9 @@ logs/
 .claude/
 
 *.un~
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
