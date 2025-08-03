@@ -96,8 +96,8 @@ docs-serve: docs-install ## Serve documentation locally
 docs-build: docs-install ## Build documentation
 	$(PYTHON_VENV) -m mkdocs build
 
-docs-deploy: docs-install ## Deploy documentation to GitHub Pages
-	$(PYTHON_VENV) -m mkdocs gh-deploy --force
+docs-deploy: docs-build ## Build documentation (deployment handled by GitHub Actions)
+	@echo "Documentation built successfully. Deployment is handled automatically by GitHub Actions when pushing to master."
 
 # Development scripts
 dev-server: install-dev ## Start development server with auto-reload
