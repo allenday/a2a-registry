@@ -140,10 +140,12 @@ resource "google_compute_health_check" "a2a_registry" {
   }
 }
 
-# Cloud Build Trigger - Commented out due to configuration issues
+# Cloud Build Trigger - Commented out due to GitHub connection issues
+# Will use GitHub Actions for deployment instead
 # resource "google_cloudbuild_trigger" "a2a_registry" {
 #   name        = "a2a-registry-build"
 #   description = "Build and deploy A2A Registry"
+#   location    = "global"
 # 
 #   github {
 #     owner = "allenday"
