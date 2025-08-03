@@ -106,9 +106,9 @@ class FileStorage(StorageBackend):
         """Load agents from file."""
         try:
             if self.agents_file.exists():
-                with open(self.agents_file, "r", encoding="utf-8") as f:
+                with open(self.agents_file, encoding="utf-8") as f:
                     data = json.load(f)
-                    self._agents = {k: v for k, v in data.items()}
+                    self._agents = dict(data.items())
                 logger.info(f"Loaded {len(self._agents)} agents from {self.agents_file}")
         except Exception as e:
             logger.warning(f"Failed to load agents from file: {e}")
@@ -174,7 +174,7 @@ def get_storage_backend() -> StorageBackend:
     """Get the appropriate storage backend based on environment configuration."""
     storage_type = os.getenv("STORAGE_TYPE", "memory").lower()
     data_dir = os.getenv("STORAGE_DATA_DIR", "/data")
-    
+
     if storage_type == "file":
         logger.info(f"Using file storage backend with data directory: {data_dir}")
         return FileStorage(data_dir)
