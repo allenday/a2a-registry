@@ -5,26 +5,27 @@
 [![PyPI Version](https://img.shields.io/pypi/v/a2a-registry.svg)](https://pypi.org/project/a2a-registry/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-## 🚀 Production-Ready Agent Discovery Platform
+## Production-Ready Agent Discovery Platform
 
 A2A Registry is the definitive solution for agent discovery, registration, and management in distributed Agent-to-Agent (A2A) networks. Built on **A2A Protocol v0.3.0** and FastA2A standards, it provides a robust, scalable infrastructure for dynamic agent ecosystems.
 
-## 🌟 Why A2A Registry?
+### Version Information
+- **Current Version**: 0.1.1
+- **Protocol Version**: A2A Protocol v0.3.0
+- **Status**: Production-Ready
 
-- **Universal Agent Coordination**: Seamlessly register, discover, and interact with agents across diverse platforms
-- **Multi-Protocol Support**: Native JSON-RPC 2.0 (primary) and REST (secondary) per A2A Protocol v0.3.0 specification
-- **High Performance**: Designed for low-latency, high-throughput agent interactions
-- **Developer-Friendly**: Simple, intuitive APIs with comprehensive documentation
+### Key Highlights
+- Universal Agent Coordination
+- Multi-Protocol Support (JSON-RPC 2.0, REST, GraphQL)
+- High-Performance Architecture
+- Comprehensive Security Model
+- Flexible Extension System
 
-## 🔧 Key Features
+## Quick Start
 
-- **Fast Agent Registration**: Quick and easy agent onboarding
-- **Advanced Discovery**: Powerful search and filtering capabilities
-- **Real-time Health Monitoring**: Ensure agent reliability
-- **Flexible Deployment**: From development to production environments
-- **Extensible Architecture**: Easy to customize and integrate
-
-## 🚀 Quick Start
+### Prerequisites
+- Python 3.9+
+- pip package manager
 
 ### Installation
 
@@ -32,97 +33,65 @@ A2A Registry is the definitive solution for agent discovery, registration, and m
 pip install a2a-registry
 ```
 
-### Running the Registry
+### Basic Usage
 
+#### Start Registry Server
 ```bash
-# Start the registry server
+# Start with default configuration
 a2a-registry serve
 
-# With custom configuration
+# Custom configuration
 a2a-registry serve --host 0.0.0.0 --port 8080 --log-level DEBUG
 ```
 
-### Agent Registration Workflow
-
+#### Agent Registration
 ```python
 from a2a_registry import A2ARegistryClient
 
 # Initialize client
 client = A2ARegistryClient('http://localhost:8000')
 
-# Define agent capabilities
+# Define and register agent
 weather_agent = {
     "name": "weather-agent",
     "description": "Provides real-time weather information",
     "version": "0.420.0",
     "protocol_version": "0.3.0",
-    "preferred_transport": "JSONRPC",  # A2A default
+    "preferred_transport": "JSONRPC",
     "skills": [
-        {
-            "id": "get_current_weather",
-            "description": "Retrieve current weather for a location"
-        },
-        {
-            "id": "get_forecast",
-            "description": "Get 7-day weather forecast"
-        }
+        {"id": "get_current_weather", "description": "Current weather data"},
+        {"id": "get_forecast", "description": "7-day weather forecast"}
     ]
 }
 
 # Register agent
 client.register_agent(weather_agent)
 
-# Discover agents with specific skills
+# Discover agents
 forecast_agents = client.search_agents(skills=['get_forecast'])
 ```
 
-### Direct JSON-RPC 2.0 API
+## Documentation
 
-```bash
-# Register an agent using JSON-RPC
-curl -X POST http://localhost:8000/jsonrpc \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "register_agent",
-    "params": {
-      "agent_card": {
-        "name": "weather-agent",
-        "description": "Provides real-time weather information",
-        "version": "0.420.0",
-        "protocol_version": "0.3.0",
-        "preferred_transport": "JSONRPC",
-        "skills": [{"id": "get_current_weather", "description": "Current weather data"}]
-      }
-    },
-    "id": 1
-  }'
+For comprehensive guides, API references, and tutorials:
+- [Full Documentation](https://allenday.github.io/a2a-registry/)
+- [Getting Started Guide](/docs/documentation/getting-started/quickstart.md)
+- [API Reference](/docs/documentation/api/reference.md)
 
-# Search for agents
-curl -X POST http://localhost:8000/jsonrpc \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "search_agents",
-    "params": {"query": "weather"},
-    "id": 2
-  }'
-```
+## Supported Protocols
+- JSON-RPC 2.0 (Primary)
+- REST API
+- GraphQL
 
-## 📚 Documentation
+## Contributing
 
-For comprehensive guides, API references, and tutorials, visit our [Full Documentation](https://allenday.github.io/a2a-registry/).
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to get started.
 
-## 🤝 Contributing
+## License
 
-We welcome contributions! See our [Contributing Guide](https://allenday.github.io/a2a-registry/developer/contributing/) for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
+## Acknowledgments
 - [A2A Protocol Specification](https://a2a-protocol.org)
 - [FastA2A](https://github.com/a2aproject/FastA2A)
 - [FastAPI](https://fastapi.tiangolo.com/)
@@ -130,4 +99,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with ❤️ for the A2A Ecosystem**
+**Built for the Future of Agent Ecosystems**
