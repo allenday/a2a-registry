@@ -85,3 +85,38 @@ publish: build ## Publish to PyPI
 dev-check: lint type-check test ## Run all development checks
 
 ci: install-dev lint type-check test ## Run CI pipeline locally
+
+# Documentation commands
+docs-install: $(VENV) ## Install documentation dependencies
+	$(PIP_VENV) install -e ".[docs]"
+
+docs-serve: docs-install ## Serve documentation locally
+	$(PYTHON_VENV) -m mkdocs serve
+
+docs-build: docs-install ## Build documentation
+	$(PYTHON_VENV) -m mkdocs build
+
+docs-deploy: docs-install ## Deploy documentation to GitHub Pages
+	$(PYTHON_VENV) -m mkdocs gh-deploy --force
+
+# Development scripts
+dev-server: install-dev ## Start development server with auto-reload
+	$(PYTHON_VENV) -c "from a2a_registry.server import create_app; import uvicorn; uvicorn.run(create_app(), host='127.0.0.1', port=8000, reload=True, factory=True)"
+
+dev-setup-complete: setup ## Complete development setup including pre-commit hooks
+	$(PYTHON_VENV) -m pre-commit install
+	@echo "Development environment setup complete!"
+	@echo "Try: make dev-server"
+
+check-all: lint type-check test docs-build ## Run all checks (linting, typing, tests, docs)
+
+pre-commit: ## Run pre-commit hooks on all files
+	$(PYTHON_VENV) -m pre-commit run --all-files
+
+update-deps: ## Update all dependencies to latest versions
+	$(PIP_VENV) install --upgrade pip setuptools wheel
+	$(PIP_VENV) install --upgrade -e ".[dev,docs]"
+
+reset-env: clean ## Reset development environment
+	rm -rf $(VENV)
+	make setup
