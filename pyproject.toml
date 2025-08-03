@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a2a-registry"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A2A Registry - Protocol buffer definitions and Python client for A2A message registry"
 readme = "README.md"
 license = {text = "MIT"}
@@ -77,6 +77,9 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "a2a_registry.proto.generated" = ["*.proto"]
+
+[tool.setuptools.dynamic]
+version = {attr = "a2a_registry.__version__"}
 
 [tool.black]
 line-length = 88

@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from jsonrpcserver import async_dispatch
 from pydantic import BaseModel
+from . import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="A2A Registry",
         description="Agent-to-Agent Registry Service",
-        version="1.0.0",
+        version=__version__,
     )
 
     @app.post("/agents", response_model=dict[str, Any])
@@ -192,7 +193,7 @@ def create_app() -> FastAPI:
         """Root endpoint with service information."""
         return {
             "service": "A2A Registry",
-            "version": "1.0.0",
+            "version": __version__,
             "description": "Agent-to-Agent Registry Service with dual transport support",
             "protocols": {
                 "primary": {

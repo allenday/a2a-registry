@@ -180,7 +180,7 @@ curl -f http://localhost:8000/health
 # Register test agent
 curl -X POST http://localhost:8000/agents \
   -H "Content-Type: application/json" \
-  -d '{"agent_card": {"name": "test", "description": "test", "url": "http://test", "version": "1.0.0", "protocol_version": "1.0.0", "skills": []}}'
+  -d '{"agent_card": {"name": "test", "description": "test", "url": "http://test", "version": "0.420.0", "protocol_version": "0.3.0", "skills": []}}'
 
 # List agents
 curl -f http://localhost:8000/agents

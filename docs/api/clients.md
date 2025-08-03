@@ -27,8 +27,8 @@ async def main():
         "name": "my-agent",
         "description": "A sample agent",
         "url": "http://localhost:3000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "capabilities": {
             "streaming": False,
             "push_notifications": False,
@@ -171,8 +171,8 @@ curl -X POST http://localhost:8000/agents \
       "name": "curl-agent",
       "description": "Agent registered via cURL",
       "url": "http://localhost:3000",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "capabilities": {
         "streaming": false,
         "push_notifications": false,
@@ -274,8 +274,8 @@ async function example() {
             name: "js-agent",
             description: "JavaScript-based agent",
             url: "http://localhost:3001",
-            version: "1.0.0",
-            protocol_version: "1.0.0",
+            version: "0.420.0",
+            protocol_version: "0.3.0",
             capabilities: {
                 streaming: false,
                 push_notifications: false,
@@ -402,7 +402,7 @@ func main() {
         Description:       "Go-based agent",
         URL:               "http://localhost:3002",
         Version:           "1.0.0",
-        ProtocolVersion:   "1.0.0",
+        ProtocolVersion:   "0.3.0",
         Capabilities: map[string]bool{
             "streaming":                  false,
             "push_notifications":         false,
@@ -662,8 +662,8 @@ async def test_full_agent_lifecycle():
         "name": "test-lifecycle-agent",
         "description": "Agent for testing lifecycle",
         "url": "http://localhost:9999",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": [{"id": "test", "description": "Test skill"}]
     }
     

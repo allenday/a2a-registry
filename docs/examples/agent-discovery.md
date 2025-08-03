@@ -4,10 +4,24 @@ This guide demonstrates various strategies and patterns for discovering agents i
 
 ## Basic Discovery
 
+The A2A Registry supports both JSON-RPC 2.0 (primary) and REST (secondary) protocols. All examples show JSON-RPC first as it's the default transport per the **A2A Protocol v0.3.0** specification.
+
 ### Search by Name
 
-Find agents by their name:
+Find agents by their name using JSON-RPC:
 
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "search_agents",
+    "params": {"query": "weather"},
+    "id": 1
+  }'
+```
+
+REST alternative:
 ```bash
 curl -X POST http://localhost:8000/agents/search \
   -H "Content-Type: application/json" \
@@ -16,8 +30,20 @@ curl -X POST http://localhost:8000/agents/search \
 
 ### Search by Description
 
-Find agents by keywords in their description:
+Find agents by keywords in their description using JSON-RPC:
 
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "search_agents",
+    "params": {"query": "natural language processing"},
+    "id": 2
+  }'
+```
+
+REST alternative:
 ```bash
 curl -X POST http://localhost:8000/agents/search \
   -H "Content-Type: application/json" \
@@ -26,8 +52,20 @@ curl -X POST http://localhost:8000/agents/search \
 
 ### Search by Skills
 
-Find agents with specific capabilities:
+Find agents with specific capabilities using JSON-RPC:
 
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "search_agents",
+    "params": {"query": "translate"},
+    "id": 3
+  }'
+```
+
+REST alternative:
 ```bash
 curl -X POST http://localhost:8000/agents/search \
   -H "Content-Type: application/json" \
@@ -36,7 +74,7 @@ curl -X POST http://localhost:8000/agents/search \
 
 ## Advanced Discovery Patterns
 
-### Python Discovery Client
+### Python Discovery Client with JSON-RPC
 
 ```python
 import requests
@@ -55,9 +93,43 @@ class AgentSearchCriteria:
 class AgentDiscoveryClient:
     def __init__(self, registry_url="http://localhost:8000"):
         self.registry_url = registry_url
+        self.request_id = 0
+    
+    def _next_id(self) -> int:
+        """Generate next JSON-RPC request ID."""
+        self.request_id += 1
+        return self.request_id
+    
+    def _jsonrpc_request(self, method: str, params: dict = None) -> dict:
+        """Make a JSON-RPC 2.0 request."""
+        payload = {
+            "jsonrpc": "2.0",
+            "method": method,
+            "id": self._next_id()
+        }
+        if params:
+            payload["params"] = params
+        
+        response = requests.post(
+            f"{self.registry_url}/jsonrpc",
+            json=payload,
+            headers={"Content-Type": "application/json"}
+        )
+        response.raise_for_status()
+        result = response.json()
+        
+        if "error" in result:
+            raise Exception(f"JSON-RPC Error: {result['error']}")
+        
+        return result.get("result", {})
     
     def find_agents_by_skill(self, skill_id: str) -> List[Dict[str, Any]]:
-        """Find all agents that have a specific skill."""
+        """Find all agents that have a specific skill using JSON-RPC."""
+        result = self._jsonrpc_request("search_agents", {"query": skill_id})
+        return result.get("agents", [])
+    
+    def find_agents_by_skill_rest(self, skill_id: str) -> List[Dict[str, Any]]:
+        """Find all agents that have a specific skill using REST (fallback)."""
         response = requests.post(
             f"{self.registry_url}/agents/search",
             json={"query": skill_id}
@@ -100,19 +172,27 @@ class AgentDiscoveryClient:
         return matching_agents
     
     def get_all_agents(self) -> List[Dict[str, Any]]:
-        """Get all registered agents."""
+        """Get all registered agents using JSON-RPC."""
+        result = self._jsonrpc_request("list_agents")
+        return result.get("agents", [])
+    
+    def get_all_agents_rest(self) -> List[Dict[str, Any]]:
+        """Get all registered agents using REST (fallback)."""
         response = requests.get(f"{self.registry_url}/agents")
         response.raise_for_status()
         return response.json()["agents"]
     
     def find_similar_agents(self, reference_agent_id: str) -> List[Dict[str, Any]]:
-        """Find agents similar to a reference agent."""
+        """Find agents similar to a reference agent using JSON-RPC."""
         # Get reference agent
-        response = requests.get(f"{self.registry_url}/agents/{reference_agent_id}")
-        if response.status_code == 404:
+        try:
+            result = self._jsonrpc_request("get_agent", {"agent_name": reference_agent_id})
+            reference_agent = result.get("agent_card")
+        except Exception:
             return []
         
-        reference_agent = response.json()["agent_card"]
+        if not reference_agent:
+            return []
         reference_skills = {skill["id"] for skill in reference_agent.get("skills", [])}
         
         # Find agents with overlapping skills

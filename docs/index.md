@@ -1,10 +1,10 @@
 # A2A Registry
 
-A FastA2A-compatible Agent-to-Agent Registry server that allows A2A agents to register and discover each other.
+A FastA2A-compatible Agent-to-Agent Registry server that allows A2A agents to register and discover each other. Built on **A2A Protocol v0.3.0**.
 
 ## Overview
 
-The A2A Registry is a central service that enables agent discovery and registration in Agent-to-Agent (A2A) networks. It provides a RESTful API for agents to:
+The A2A Registry is a central service that enables agent discovery and registration in Agent-to-Agent (A2A) networks. It provides both JSON-RPC 2.0 (primary) and REST (secondary) APIs for agents to:
 
 - **Register** themselves with their capabilities and metadata
 - **Discover** other agents by searching through registered agents
@@ -13,8 +13,8 @@ The A2A Registry is a central service that enables agent discovery and registrat
 
 ## Key Features
 
-- **FastA2A Compatible**: Built using FastA2A schemas for seamless integration
-- **RESTful API**: Clean, well-documented REST endpoints
+- **A2A Protocol Compliant**: Full support for A2A Protocol v0.3.0 with JSON-RPC 2.0 as default transport
+- **Dual Protocol Support**: JSON-RPC 2.0 (primary) and REST (secondary) endpoints
 - **In-Memory Storage**: Fast, lightweight storage for development and testing
 - **Search Capabilities**: Find agents by name, description, or capabilities
 - **Health Monitoring**: Built-in health check endpoints
@@ -38,22 +38,62 @@ The server will start on `http://localhost:8000` by default.
 
 ### Register an Agent
 
+Using JSON-RPC 2.0 (recommended):
+
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "register_agent",
+    "params": {
+      "agent_card": {
+        "name": "my-agent",
+        "description": "A sample agent",
+        "url": "http://localhost:3000",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
+        "preferred_transport": "JSONRPC",
+        "skills": []
+      }
+    },
+    "id": 1
+  }'
+```
+
+Using REST (alternative):
+
 ```bash
 curl -X POST http://localhost:8000/agents \
   -H "Content-Type: application/json" \
   -d '{
-    "agent_card": {
-      "name": "my-agent",
-      "description": "A sample agent",
-      "url": "http://localhost:3000",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
-      "skills": []
-    }
+          "agent_card": {
+        "name": "my-agent",
+        "description": "A sample agent",
+        "url": "http://localhost:3000",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
+        "preferred_transport": "JSONRPC",
+        "skills": []
+      }
   }'
 ```
 
 ### Discover Agents
+
+Using JSON-RPC 2.0:
+
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "list_agents",
+    "id": 2
+  }'
+```
+
+Using REST:
 
 ```bash
 curl http://localhost:8000/agents

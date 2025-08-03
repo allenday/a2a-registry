@@ -7,12 +7,12 @@
 
 ## 🚀 Production-Ready Agent Discovery Platform
 
-A2A Registry is the definitive solution for agent discovery, registration, and management in distributed Agent-to-Agent (A2A) networks. Built on FastA2A standards, it provides a robust, scalable infrastructure for dynamic agent ecosystems.
+A2A Registry is the definitive solution for agent discovery, registration, and management in distributed Agent-to-Agent (A2A) networks. Built on **A2A Protocol v0.3.0** and FastA2A standards, it provides a robust, scalable infrastructure for dynamic agent ecosystems.
 
 ## 🌟 Why A2A Registry?
 
 - **Universal Agent Coordination**: Seamlessly register, discover, and interact with agents across diverse platforms
-- **Multi-Protocol Support**: Native support for REST, gRPC, with planned JSON-RPC
+- **Multi-Protocol Support**: Native JSON-RPC 2.0 (primary) and REST (secondary) per A2A Protocol v0.3.0 specification
 - **High Performance**: Designed for low-latency, high-throughput agent interactions
 - **Developer-Friendly**: Simple, intuitive APIs with comprehensive documentation
 
@@ -54,7 +54,9 @@ client = A2ARegistryClient('http://localhost:8000')
 weather_agent = {
     "name": "weather-agent",
     "description": "Provides real-time weather information",
-    "version": "1.0.0",
+    "version": "0.420.0",
+    "protocol_version": "0.3.0",
+    "preferred_transport": "JSONRPC",  # A2A default
     "skills": [
         {
             "id": "get_current_weather",
@@ -72,6 +74,39 @@ client.register_agent(weather_agent)
 
 # Discover agents with specific skills
 forecast_agents = client.search_agents(skills=['get_forecast'])
+```
+
+### Direct JSON-RPC 2.0 API
+
+```bash
+# Register an agent using JSON-RPC
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "register_agent",
+    "params": {
+      "agent_card": {
+        "name": "weather-agent",
+        "description": "Provides real-time weather information",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
+        "preferred_transport": "JSONRPC",
+        "skills": [{"id": "get_current_weather", "description": "Current weather data"}]
+      }
+    },
+    "id": 1
+  }'
+
+# Search for agents
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "search_agents",
+    "params": {"query": "weather"},
+    "id": 2
+  }'
 ```
 
 ## 📚 Documentation

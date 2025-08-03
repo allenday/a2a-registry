@@ -1,6 +1,6 @@
 # Registry Architecture
 
-The A2A Registry is designed as a lightweight, scalable service that facilitates agent discovery in distributed systems.
+The A2A Registry is designed as a lightweight, scalable service that facilitates agent discovery in distributed systems. It implements **A2A Protocol v0.3.0** for seamless agent interoperability.
 
 ## High-Level Architecture
 
@@ -343,7 +343,7 @@ spec:
     spec:
       containers:
       - name: a2a-registry
-        image: a2a-registry:v1.0.0
+        image: a2a-registry:v0.1.0
         ports:
         - containerPort: 8000
         env:

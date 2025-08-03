@@ -4,6 +4,8 @@ Complex scenarios and advanced usage patterns for A2A Registry.
 
 ## Multi-Protocol Agent Discovery
 
+The A2A Registry supports both JSON-RPC 2.0 (primary) and REST (secondary) protocols per the **A2A Protocol v0.3.0** specification. Advanced clients should prefer JSON-RPC for full A2A compliance.
+
 ### Scenario: Protocol-Agnostic Service Discovery
 
 Build a client that can discover and connect to agents regardless of their transport protocol:
@@ -18,6 +20,11 @@ class UniversalAgentClient:
     def __init__(self, registry_url: str):
         self.registry = A2ARegistryClient(registry_url)
         self.protocol_handlers = {
+            'JSONRPC': self._handle_jsonrpc_agent,  # Primary A2A transport
+            'HTTP': self._handle_http_agent,
+            'GRPC': self._handle_grpc_agent,
+            'WEBSOCKET': self._handle_websocket_agent,
+            # Legacy aliases
             'http': self._handle_http_agent,
             'grpc': self._handle_grpc_agent,
             'websocket': self._handle_websocket_agent
@@ -44,13 +51,37 @@ class UniversalAgentClient:
     
     async def invoke_agent(self, agent: dict, skill: str, **kwargs):
         """Invoke a specific agent using appropriate protocol"""
-        transport = agent.get('preferred_transport', 'http')
+        transport = agent.get('preferred_transport', 'JSONRPC')  # Default per A2A spec
         handler = self.protocol_handlers.get(transport)
         
         if not handler:
             raise ValueError(f"Unsupported transport: {transport}")
         
         return await handler(agent, skill, **kwargs)
+    
+    async def _handle_jsonrpc_agent(self, agent: dict, skill: str, **kwargs):
+        """Handle JSON-RPC agent invocation per A2A protocol"""
+        url = agent['url']
+        
+        async with httpx.AsyncClient() as client:
+            # Standard A2A JSON-RPC 2.0 request
+            payload = {
+                "jsonrpc": "2.0",
+                "method": skill,
+                "params": kwargs,
+                "id": 1
+            }
+            response = await client.post(
+                f"{url}/jsonrpc",
+                json=payload
+            )
+            response.raise_for_status()
+            result = response.json()
+            
+            if "error" in result:
+                raise Exception(f"Agent error: {result['error']}")
+            
+            return result.get("result", {})
     
     async def _handle_http_agent(self, agent: dict, skill: str, **kwargs):
         """Handle HTTP/REST agent invocation"""
@@ -895,8 +926,8 @@ async def agent_mesh_example():
             "name": agent_id,
             "description": f"Mesh agent {i}",
             "url": f"http://localhost:300{i}",
-            "version": "1.0.0",
-            "protocol_version": "1.0.0",
+            "version": "0.420.0",
+            "protocol_version": "0.3.0",
             "skills": [
                 {"id": f"skill_{i}", "description": f"Specialized skill {i}"},
                 {"id": "common_skill", "description": "Common skill all agents have"}

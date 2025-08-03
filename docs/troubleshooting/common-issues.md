@@ -149,8 +149,8 @@ Connection refused when accessing http://localhost:8000
        "name": "my-agent",
        "description": "My test agent",
        "url": "http://localhost:3000",
-       "version": "1.0.0",
-       "protocol_version": "1.0.0",
+       "version": "0.420.0",
+       "protocol_version": "0.3.0",
        "capabilities": {
            "streaming": False,
            "push_notifications": False,
@@ -562,7 +562,7 @@ Expected response:
 ```json
 {
   "status": "healthy",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "agents_count": 5
 }
 ```
@@ -613,7 +613,7 @@ Example bug report template:
 **Environment:**
 - Python: 3.9.7
 - OS: Ubuntu 20.04
-- a2a-registry: 1.0.0
+- a2a-registry: 0.1.0
 
 **Issue:**
 Agent registration fails with validation error

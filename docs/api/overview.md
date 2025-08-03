@@ -1,6 +1,6 @@
 # API Overview
 
-The A2A Registry provides APIs for agent registration and discovery, supporting multiple transport protocols as defined in the [A2A Protocol Specification](https://a2a-protocol.org).
+The A2A Registry provides APIs for agent registration and discovery, supporting multiple transport protocols as defined in the [A2A Protocol Specification](https://a2a-protocol.org). This implementation follows **A2A Protocol v0.3.0**.
 
 ## Supported Protocols
 

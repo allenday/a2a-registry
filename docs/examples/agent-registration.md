@@ -2,11 +2,15 @@
 
 This guide demonstrates various agent registration patterns and best practices for the A2A Registry.
 
+## Protocol Support
+
+The A2A Registry supports both JSON-RPC 2.0 (primary) and REST (secondary) protocols. Agent cards default to `JSONRPC` as the preferred transport per the **A2A Protocol v0.3.0** specification.
+
 ## Basic Agent Registration
 
 ### Minimal Agent Card
 
-The simplest possible agent registration:
+The simplest possible agent registration using JSON-RPC:
 
 ```json
 {
@@ -14,11 +18,51 @@ The simplest possible agent registration:
     "name": "minimal-agent",
     "description": "A minimal example agent",
     "url": "http://localhost:3000",
-    "version": "1.0.0",
-    "protocol_version": "1.0.0",
+    "version": "0.420.0",
+    "protocol_version": "0.3.0",
+    "preferred_transport": "JSONRPC",
     "skills": []
   }
 }
+```
+
+Register using JSON-RPC:
+```bash
+curl -X POST http://localhost:8000/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "register_agent",
+    "params": {
+      "agent_card": {
+        "name": "minimal-agent",
+        "description": "A minimal example agent",
+        "url": "http://localhost:3000",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
+        "preferred_transport": "JSONRPC",
+        "skills": []
+      }
+    },
+    "id": 1
+  }'
+```
+
+REST alternative:
+```bash
+curl -X POST http://localhost:8000/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_card": {
+      "name": "minimal-agent",
+      "description": "A minimal example agent",
+      "url": "http://localhost:3000",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
+      "preferred_transport": "JSONRPC",
+      "skills": []
+    }
+  }'
 ```
 
 ### Complete Agent Card
@@ -32,7 +76,8 @@ A fully-featured agent card with all optional fields:
     "description": "A comprehensive agent with multiple capabilities",
     "url": "http://advanced-agent.example.com:8080",
     "version": "2.1.3",
-    "protocol_version": "1.0.0",
+    "protocol_version": "0.3.0",
+    "preferred_transport": "JSONRPC",
     "skills": [
       {
         "id": "natural_language_processing",
@@ -112,7 +157,7 @@ def register_ml_agent():
         "description": "Machine learning classification service with multiple model support",
         "url": "http://ml-service.internal:8000",
         "version": "3.2.1",
-        "protocol_version": "1.0.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "text_classification",
@@ -225,7 +270,7 @@ def register_data_processor():
         "description": "High-performance data processing and transformation service",
         "url": "http://data-processor.cluster.local:9000",
         "version": "1.4.0",
-        "protocol_version": "1.0.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "csv_processing",
@@ -312,7 +357,7 @@ def register_integration_service():
         "description": "Universal API integration and transformation service",
         "url": "https://integration-hub.company.com/api/v1",
         "version": "2.0.0",
-        "protocol_version": "1.0.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "rest_api_call",
@@ -581,8 +626,8 @@ def main():
         "name": "adaptive-nlp-agent",
         "description": "Natural language processing agent with dynamic capabilities",
         "url": "http://localhost:7000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": []
     }
     
@@ -697,8 +742,8 @@ def main():
         "name": "worker-agent",
         "description": "Scalable worker agent for distributed processing",
         "url": "http://worker-base:8000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "process_task",

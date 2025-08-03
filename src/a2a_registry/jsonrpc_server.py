@@ -6,6 +6,7 @@ from typing import Any, Optional
 from fasta2a.schema import AgentCard  # type: ignore
 from jsonrpcserver import method, Result, Success, Error, serve
 from .server import RegistryStorage
+from . import __version__, A2A_PROTOCOL_VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -200,8 +201,8 @@ async def get_agent_card() -> Result:
             "name": "A2A Registry",
             "description": "A central registry for Agent-to-Agent (A2A) discovery and coordination",
             "url": "http://localhost:8000",  # Will be configurable
-            "version": "1.0.0", 
-            "protocol_version": "1.0.0",
+            "version": __version__, 
+            "protocol_version": A2A_PROTOCOL_VERSION,
             "preferred_transport": "JSONRPC",  # A2A default
             "capabilities": {
                 "streaming": False,
@@ -255,7 +256,7 @@ async def health_check() -> Result:
             "service": "A2A Registry",
             "transport": "JSONRPC",
             "agents_count": agents_count,
-            "protocol_version": "1.0.0"
+            "protocol_version": A2A_PROTOCOL_VERSION
         })
         
     except Exception as e:

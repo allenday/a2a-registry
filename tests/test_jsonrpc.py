@@ -3,6 +3,7 @@
 import json
 from fastapi.testclient import TestClient
 from a2a_registry.server import create_app
+from a2a_registry import A2A_PROTOCOL_VERSION
 
 
 def test_jsonrpc_register_agent():
@@ -19,8 +20,8 @@ def test_jsonrpc_register_agent():
                 "name": "test-jsonrpc-agent",
                 "description": "Test agent via JSON-RPC",
                 "url": "http://localhost:3000",
-                "version": "1.0.0",
-                "protocol_version": "1.0.0",
+                "version": "0.420.0",
+                "protocol_version": A2A_PROTOCOL_VERSION,
                 "capabilities": {
                     "streaming": False,
                     "push_notifications": False,
@@ -61,8 +62,8 @@ def test_jsonrpc_get_agent():
                 "name": "get-test-agent",
                 "description": "Agent for get test",
                 "url": "http://localhost:3001",
-                "version": "1.0.0",
-                "protocol_version": "1.0.0",
+                "version": "0.420.0",
+                "protocol_version": A2A_PROTOCOL_VERSION,
                 "skills": []
             }
         },
@@ -105,8 +106,8 @@ def test_jsonrpc_list_agents():
                     "name": f"list-test-agent-{i}",
                     "description": f"Agent {i} for list test",
                     "url": f"http://localhost:300{i}",
-                    "version": "1.0.0",
-                    "protocol_version": "1.0.0",
+                    "version": "0.420.0",
+                    "protocol_version": A2A_PROTOCOL_VERSION,
                     "skills": []
                 }
             },
@@ -163,8 +164,8 @@ def test_jsonrpc_search_agents():
                 "agent_card": {
                     **agent_data,
                     "url": f"http://localhost:400{i}",
-                    "version": "1.0.0",
-                    "protocol_version": "1.0.0"
+                    "version": "0.420.0",
+                    "protocol_version": A2A_PROTOCOL_VERSION
                 }
             },
             "id": i + 1
@@ -223,8 +224,8 @@ def test_jsonrpc_unregister_agent():
                 "name": "unregister-test-agent",
                 "description": "Agent for unregister test",
                 "url": "http://localhost:3005",
-                "version": "1.0.0",
-                "protocol_version": "1.0.0",
+                "version": "0.420.0",
+                "protocol_version": A2A_PROTOCOL_VERSION,
                 "skills": []
             }
         },
@@ -288,7 +289,7 @@ def test_jsonrpc_get_agent_card():
     agent_card = result["result"]["agent_card"]
     assert agent_card["name"] == "A2A Registry"
     assert agent_card["preferred_transport"] == "JSONRPC"
-    assert agent_card["protocol_version"] == "1.0.0"
+    assert agent_card["protocol_version"] == A2A_PROTOCOL_VERSION
     assert len(agent_card["skills"]) > 0
     
     # Check that registry skills are properly defined
@@ -318,7 +319,7 @@ def test_jsonrpc_health_check():
     assert result["result"]["status"] == "healthy"
     assert result["result"]["service"] == "A2A Registry"
     assert result["result"]["transport"] == "JSONRPC"
-    assert result["result"]["protocol_version"] == "1.0.0"
+    assert result["result"]["protocol_version"] == A2A_PROTOCOL_VERSION
     assert "agents_count" in result["result"]
 
 
@@ -378,8 +379,8 @@ def test_dual_transport_consistency():
                 "name": "dual-transport-agent",
                 "description": "Test dual transport",
                 "url": "http://localhost:3010",
-                "version": "1.0.0",
-                "protocol_version": "1.0.0",
+                "version": "0.420.0",
+                "protocol_version": A2A_PROTOCOL_VERSION,
                 "skills": []
             }
         },

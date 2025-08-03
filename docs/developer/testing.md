@@ -103,8 +103,8 @@ def sample_agent_card():
         "name": "test-agent",
         "description": "A test agent",
         "url": "http://localhost:3000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "test_skill",
@@ -135,8 +135,8 @@ def test_register_agent_names(client, agent_name, expected_status):
         "name": agent_name,
         "description": "Test agent",
         "url": "http://localhost:3000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": []
     }
     response = client.post("/agents", json={"agent_card": agent_card})
@@ -268,8 +268,8 @@ def test_grpc_agent_registration(grpc_stub):
         name="grpc-test-agent",
         description="gRPC test agent",
         url="http://localhost:3000",
-        version="1.0.0",
-        protocol_version="1.0.0"
+        version="0.420.0",
+        protocol_version="0.3.0"
     )
     
     registry_card = registry_pb2.RegistryAgentCard(agent_card=agent_card)
@@ -379,8 +379,8 @@ def minimal_agent_card():
         "name": "minimal-agent",
         "description": "Minimal test agent",
         "url": "http://localhost:3000",
-        "version": "1.0.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": []
     }
 
@@ -389,8 +389,8 @@ def weather_agent_card():
         "name": "weather-agent",
         "description": "Weather information agent",
         "url": "http://weather.example.com",
-        "version": "2.1.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {"id": "get_weather", "description": "Get current weather"},
             {"id": "get_forecast", "description": "Get weather forecast"}

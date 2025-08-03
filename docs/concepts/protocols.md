@@ -1,6 +1,6 @@
 # Protocol Support
 
-A2A Registry supports multiple communication protocols to accommodate diverse agent architectures and requirements.
+A2A Registry supports multiple communication protocols to accommodate diverse agent architectures and requirements. The registry implements **A2A Protocol v0.3.0** as its core specification.
 
 ## Overview
 
@@ -23,7 +23,7 @@ Content-Type: application/json
     "name": "rest-agent",
     "url": "http://example.com:8080",
     "preferred_transport": "http",
-    "protocol_version": "1.0.0"
+    "protocol_version": "0.3.0"
   }
 }
 ```
@@ -62,7 +62,7 @@ Agents using gRPC can register with the registry:
   "description": "High-performance ML inference service",
   "url": "grpc://ml-service:50051",
   "preferred_transport": "grpc",
-  "protocol_version": "1.0.0"
+  "protocol_version": "0.3.0"
 }
 ```
 

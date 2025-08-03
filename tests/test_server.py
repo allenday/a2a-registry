@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from a2a_registry.server import create_app
+from a2a_registry import A2A_PROTOCOL_VERSION
 
 
 @pytest.fixture
@@ -20,8 +21,8 @@ def create_agent_card(name: str, description: str = "", url: str = "http://local
             "name": name,
             "description": description or f"Description for {name}",
             "url": url,
-            "version": "1.0.0",
-            "protocol_version": "1.0.0",
+            "version": "0.420.0",
+            "protocol_version": A2A_PROTOCOL_VERSION,
             "capabilities": {
                 "streaming": False,
                 "push_notifications": False,

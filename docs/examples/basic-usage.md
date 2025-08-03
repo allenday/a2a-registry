@@ -1,6 +1,6 @@
 # Basic Usage
 
-This guide demonstrates the fundamental operations of the A2A Registry with practical examples.
+This guide demonstrates the fundamental operations of the A2A Registry with practical examples. All examples follow **A2A Protocol v0.3.0** specifications.
 
 ## Starting the Registry
 
@@ -42,8 +42,8 @@ curl -X POST http://localhost:8000/agents \
       "name": "hello-world-agent",
       "description": "A simple greeting agent",
       "url": "http://localhost:3000",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "say_hello",
@@ -83,8 +83,8 @@ Response:
       "name": "hello-world-agent",
       "description": "A simple greeting agent",
       "url": "http://localhost:3000",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "say_hello",
@@ -112,14 +112,14 @@ curl http://localhost:8000/agents/hello-world-agent
 Response:
 ```json
 {
-  "agent_card": {
-    "name": "hello-world-agent",
-    "description": "A simple greeting agent",
-    "url": "http://localhost:3000",
-    "version": "1.0.0",
-    "protocol_version": "1.0.0",
-    "skills": [...]
-  }
+      "agent_card": {
+      "name": "hello-world-agent",
+      "description": "A simple greeting agent",
+      "url": "http://localhost:3000",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
+      "skills": [...]
+    }
 }
 ```
 
@@ -160,8 +160,8 @@ curl -X POST http://localhost:8000/agents \
       "name": "hello-world-agent",
       "description": "An improved greeting agent with more features",
       "url": "http://localhost:3000",
-      "version": "1.1.0",
-      "protocol_version": "1.0.0",
+      "version": "0.421.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "say_hello",
@@ -263,7 +263,7 @@ def main():
         "description": "Mathematical calculation agent",
         "url": "http://localhost:4000",
         "version": "2.0.0",
-        "protocol_version": "1.0.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "add",
@@ -382,7 +382,7 @@ async function example() {
         description: 'Web scraping and data extraction agent',
         url: 'http://localhost:5000',
         version: '1.3.0',
-        protocol_version: '1.0.0',
+        protocol_version: '0.3.0',
         skills: [
             {
                 id: 'scrape_webpage',
@@ -490,8 +490,8 @@ agent_card = {
     "name": "my-service-agent",
     "description": "My service agent",
     "url": "http://localhost:6000",
-    "version": "1.0.0",
-    "protocol_version": "1.0.0",
+    "version": "0.420.0",
+    "protocol_version": "0.3.0",
     "skills": []
 }
 

@@ -63,8 +63,8 @@ curl -X POST http://localhost:8000/agents \
       "name": "hello-world-agent",
       "description": "A simple greeting agent",
       "url": "http://localhost:3000",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "capabilities": {
         "streaming": false,
         "push_notifications": false,

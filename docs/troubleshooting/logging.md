@@ -352,7 +352,7 @@ REGISTRY_INFO = Info(
 
 # Set static info
 REGISTRY_INFO.info({
-    'version': '1.0.0',
+    'version': '0.420.0',
     'python_version': platform.python_version(),
     'platform': platform.platform()
 })
@@ -482,7 +482,7 @@ async def health_check():
         return {
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
-            "version": "1.0.0"
+            "version": "0.420.0"
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -562,7 +562,7 @@ async def detailed_health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "checks": checks,
         "uptime": time.time() - start_time,
-        "version": "1.0.0"
+        "version": "0.420.0"
     }
 ```
 
@@ -579,7 +579,7 @@ spec:
     spec:
       containers:
       - name: a2a-registry
-        image: a2a-registry:v1.0.0
+        image: a2a-registry:v0.1.0
         ports:
         - containerPort: 8000
         

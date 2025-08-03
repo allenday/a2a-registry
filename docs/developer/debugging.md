@@ -221,8 +221,8 @@ def test_debug_agent_registration(debug_client):
             "name": "debug-agent",
             "description": "Agent for debugging",
             "url": "http://localhost:3000",
-            "version": "1.0.0",
-            "protocol_version": "1.0.0",
+            "version": "0.420.0",
+            "protocol_version": "0.3.0",
             "capabilities": {
                 "streaming": False,
                 "push_notifications": False,
@@ -251,8 +251,8 @@ def test_debug_search_functionality(debug_client):
                 "name": f"search-test-{i}",
                 "description": f"Test agent {i} for searching",
                 "url": f"http://localhost:300{i}",
-                "version": "1.0.0",
-                "protocol_version": "1.0.0",
+                "version": "0.420.0",
+                "protocol_version": "0.3.0",
                 "skills": [
                     {"id": f"skill_{i}", "description": f"Skill number {i}"}
                 ]
@@ -700,7 +700,7 @@ class TestDataGenerator:
             "description": self.fake.text(max_nb_chars=200),
             "url": f"http://{self.fake.domain_name()}:{random.randint(3000, 9000)}",
             "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 9)}",
-            "protocol_version": "1.0.0",
+            "protocol_version": "0.3.0",
             "capabilities": {
                 "streaming": random.choice([True, False]),
                 "push_notifications": random.choice([True, False]),

@@ -503,8 +503,8 @@ class LoadTester:
             "name": f"test-agent-{agent_id}",
             "description": f"Load test agent {agent_id}",
             "url": f"http://localhost:300{agent_id % 10}",
-            "version": "1.0.0",
-            "protocol_version": "1.0.0",
+            "version": "0.420.0",
+            "protocol_version": "0.3.0",
             "skills": [{"id": "test", "description": "Test skill"}]
         }
         

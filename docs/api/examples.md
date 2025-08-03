@@ -19,8 +19,8 @@ agent_card = {
         "name": "weather-service",
         "description": "Provides weather information and forecasts",
         "url": "http://weather-agent.example.com:3000",
-        "version": "2.1.0",
-        "protocol_version": "1.0.0",
+        "version": "0.420.0",
+        "protocol_version": "0.3.0",
         "skills": [
             {
                 "id": "get_current_weather",
@@ -69,8 +69,8 @@ const agentCard = {
     name: "translation-service",
     description: "Multi-language translation agent",
     url: "http://translator.example.com:4000",
-    version: "1.5.2",
-    protocol_version: "1.0.0",
+    version: "0.420.0",
+    protocol_version: "0.3.0",
     skills: [
       {
         id: "translate_text",
@@ -123,7 +123,7 @@ curl -X POST http://localhost:8000/agents \
       "description": "Mathematical problem solving agent",
       "url": "http://math.example.com:5000",
       "version": "3.0.1",
-      "protocol_version": "1.0.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "solve_equation",
@@ -175,7 +175,7 @@ agent_card = a2a_pb2.AgentCard(
     description="Advanced data analysis and visualization agent",
     url="http://analyzer.example.com:6000",
     version="1.2.0",
-    protocol_version="1.0.0"
+    protocol_version="0.3.0"
 )
 
 # Add skills
@@ -292,7 +292,7 @@ func main() {
         Description:     "Document analysis and processing agent",
         Url:             "http://docs.example.com:7000",
         Version:         "2.3.1",
-        ProtocolVersion: "1.0.0",
+        ProtocolVersion: "0.3.0",
         Skills: []*pb.Skill{
             {
                 Id:          "extract_text",
@@ -477,8 +477,8 @@ agent_card = {
     "name": "my-agent",
     "description": "My autonomous agent",
     "url": "http://localhost:3000",
-    "version": "1.0.0",
-    "protocol_version": "1.0.0",
+    "version": "0.420.0",
+    "protocol_version": "0.3.0",
     "skills": []
 }
 

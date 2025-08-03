@@ -18,7 +18,7 @@ By default, the server will:
 
 ## Protocol Support
 
-The A2A Registry supports multiple transport protocols as defined in the A2A specification:
+The A2A Registry supports multiple transport protocols as defined in the **A2A Protocol v0.3.0** specification:
 
 - **REST/HTTP+JSON**: Traditional REST API endpoints for easy integration
 - **gRPC**: High-performance binary protocol using Protocol Buffers
@@ -54,8 +54,8 @@ curl -X POST http://localhost:8000/agents \
       "name": "weather-agent",
       "description": "An agent that provides weather information",
       "url": "http://localhost:3001",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "get_weather",
@@ -91,8 +91,8 @@ Expected response:
       "name": "weather-agent",
       "description": "An agent that provides weather information",
       "url": "http://localhost:3001",
-      "version": "1.0.0",
-      "protocol_version": "1.0.0",
+      "version": "0.420.0",
+      "protocol_version": "0.3.0",
       "skills": [
         {
           "id": "get_weather",
