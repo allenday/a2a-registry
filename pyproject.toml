@@ -38,6 +38,10 @@ dependencies = [
     "uvicorn>=0.20.0",
     "click>=8.0.0",
     "jsonrpcserver>=5.0.0",
+    # GraphQL dependencies
+    "strawberry-graphql[fastapi]>=0.234.0",
+    "pyjwt>=2.8.0",
+    "redis>=5.0.0",
 ]
 
 [project.optional-dependencies]

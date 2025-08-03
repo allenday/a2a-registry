@@ -1,6 +1,6 @@
 """A2A Registry - Protocol buffer definitions and Python client for A2A message registry."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Allen Day"
 __email__ = "allenday@users.github.com"
 
