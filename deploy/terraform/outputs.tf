@@ -9,8 +9,8 @@ output "cluster_endpoint" {
 }
 
 output "static_ip" {
-  description = "The static IP address for the load balancer"
-  value       = google_compute_global_address.a2a_registry.address
+  description = "The static IP address for the load balancer (if using direct SSL)"
+  value       = var.enable_direct_ssl ? google_compute_global_address.a2a_registry[0].address : "Not configured - using GKE ingress"
 }
 
 output "domain" {

@@ -89,53 +89,17 @@ resource "google_compute_managed_ssl_certificate" "a2a_registry" {
   count = var.enable_direct_ssl ? 1 : 0
 }
 
-# Frontend Config for HTTPS
-resource "google_compute_global_forwarding_rule" "a2a_registry" {
-  name       = "a2a-registry-frontend-config"
-  target     = google_compute_target_https_proxy.a2a_registry.id
-  port_range = "443"
-  ip_address = google_compute_global_address.a2a_registry.address
-}
+# Note: Frontend config and HTTPS proxy removed - will use GKE ingress controller instead
+# This simplifies the setup and avoids the complex load balancer configuration
 
-# HTTPS Proxy
-resource "google_compute_target_https_proxy" "a2a_registry" {
-  name             = "a2a-registry-https-proxy"
-  url_map          = google_compute_url_map.a2a_registry.id
-  ssl_certificates = var.enable_direct_ssl ? [google_compute_managed_ssl_certificate.a2a_registry[0].id] : []
-}
+# Note: URL Map removed - will use GKE ingress controller instead
+# This simplifies the setup and avoids the complex load balancer configuration
 
-# URL Map with host-based routing
-resource "google_compute_url_map" "a2a_registry" {
-  name = "a2a-registry-url-map"
+# Note: For GKE, we'll use the native ingress controller instead of manual load balancer setup
+# This simplifies the configuration and avoids the instance group issues
+# The application will be accessible via the GKE ingress controller
 
-  default_service = google_compute_backend_service.a2a_registry.id
-
-  host_rule {
-    hosts        = ["${var.api_subdomain}.${var.domain}", "${var.registry_subdomain}.${var.domain}"]
-    path_matcher = "api"
-  }
-
-  path_matcher {
-    name            = "api"
-    default_service = google_compute_backend_service.a2a_registry.id
-  }
-}
-
-# Backend Service
-resource "google_compute_backend_service" "a2a_registry" {
-  name        = "a2a-registry-backend"
-  protocol    = "HTTP"
-  port_name   = "http"
-  timeout_sec = 10
-
-  backend {
-    group = google_container_node_pool.a2a_registry_nodes.instance_group_urls[0]
-  }
-
-  health_checks = [google_compute_health_check.a2a_registry.id]
-}
-
-# Health Check
+# Health Check (kept for potential future use)
 resource "google_compute_health_check" "a2a_registry" {
   name = "a2a-registry-health-check"
 
@@ -157,5 +121,31 @@ resource "google_cloudbuild_trigger" "a2a_registry" {
     }
   }
 
-  filename = "deploy/cloudbuild/cloudbuild.yaml"
+  # Use inline build configuration instead of filename
+  build {
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = ["build", "-t", "gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA", "-f", "deploy/Dockerfile", "."]
+    }
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = ["push", "gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA"]
+    }
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = [
+        "container", "clusters", "get-credentials", 
+        google_container_cluster.a2a_registry.name, 
+        "--zone", var.region, 
+        "--project", var.project_id
+      ]
+    }
+    step {
+      name = "gcr.io/cloud-builders/kubectl"
+      args = [
+        "set", "image", "deployment/a2a-registry", 
+        "a2a-registry=gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA"
+      ]
+    }
+  }
 } 
