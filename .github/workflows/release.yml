@@ -35,11 +35,6 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install -e ".[dev]"
-
     - name: Run all checks
       run: |
         make lint
@@ -71,11 +66,6 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install -e ".[dev]"
-
     - name: Build package
       run: make build
 
@@ -100,11 +90,6 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install -e ".[dev]"
-
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -116,7 +101,7 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
-        python -m twine upload --repository testpypi dist/*
+        make publish-test
 
   publish-pypi:
     runs-on: ubuntu-latest
@@ -132,11 +117,6 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install -e ".[dev]"
-
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
@@ -148,7 +128,7 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        python -m twine upload dist/*
+        make publish
 
   create-release:
     runs-on: ubuntu-latest
