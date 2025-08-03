@@ -25,7 +25,7 @@ ERROR: Could not find a version that satisfies the requirement a2a-registry
 
 3. **Install from source**:
    ```bash
-   git clone https://github.com/allendy/a2a-registry.git
+   git clone https://github.com/allenday/a2a-registry.git
    cd a2a-registry
    pip install -e .
    ```
@@ -584,9 +584,9 @@ journalctl -u a2a-registry  # If running as service
 
 ### Community Support
 
-- [GitHub Issues](https://github.com/allendy/a2a-registry/issues) - Bug reports and feature requests
-- [GitHub Discussions](https://github.com/allendy/a2a-registry/discussions) - Questions and community support
-- [Documentation](https://allendy.github.io/a2a-registry/) - Complete documentation
+- [GitHub Issues](https://github.com/allenday/a2a-registry/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/allenday/a2a-registry/discussions) - Questions and community support
+- [Documentation](https://allenday.github.io/a2a-registry/) - Complete documentation
 
 ### Reporting Bugs
 

@@ -22,7 +22,7 @@ The fastest way to get started:
 
 ```bash
 # Clone and setup everything
-git clone https://github.com/allendy/a2a-registry.git
+git clone https://github.com/allenday/a2a-registry.git
 cd a2a-registry
 make setup
 ```
@@ -40,7 +40,7 @@ If you prefer to set things up step by step:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/allendy/a2a-registry.git
+git clone https://github.com/allenday/a2a-registry.git
 cd a2a-registry
 ```
 

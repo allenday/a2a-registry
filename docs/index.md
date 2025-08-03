@@ -68,9 +68,9 @@ curl http://localhost:8000/agents
 
 ## Support
 
-- [GitHub Issues](https://github.com/allendy/a2a-registry/issues) - Bug reports and feature requests
-- [GitHub Discussions](https://github.com/allendy/a2a-registry/discussions) - Questions and community support
+- [GitHub Issues](https://github.com/allenday/a2a-registry/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/allenday/a2a-registry/discussions) - Questions and community support
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/allendy/a2a-registry/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/allenday/a2a-registry/blob/master/LICENSE) file for details.

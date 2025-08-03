@@ -158,7 +158,7 @@ After each release:
 
 2. **Docker verification**:
    ```bash
-   docker run allendy/a2a-registry:1.2.0 --version
+   docker run allenday/a2a-registry:1.2.0 --version
    ```
 
 3. **Documentation check**: Verify docs site is updated
@@ -240,8 +240,8 @@ Each release produces:
 - Examples and tutorials
 
 ### Docker Images
-- `allendy/a2a-registry:latest`
-- `allendy/a2a-registry:1.2.0`
+- `allenday/a2a-registry:latest`
+- `allenday/a2a-registry:1.2.0`
 - Multi-architecture support (amd64, arm64)
 
 ## Version Support

@@ -1,6 +1,6 @@
 # A2A Registry
 
-[![CI](https://github.com/allendy/a2a-registry/workflows/CI/badge.svg)](https://github.com/allendy/a2a-registry/actions)
+[![CI](https://github.com/allenday/a2a-registry/workflows/CI/badge.svg)](https://github.com/allenday/a2a-registry/actions)
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/downloads/)
 [![PyPI Version](https://img.shields.io/pypi/v/a2a-registry.svg)](https://pypi.org/project/a2a-registry/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -76,11 +76,11 @@ forecast_agents = client.search_agents(skills=['get_forecast'])
 
 ## 📚 Documentation
 
-For comprehensive guides, API references, and tutorials, visit our [Full Documentation](https://allendy.github.io/a2a-registry/).
+For comprehensive guides, API references, and tutorials, visit our [Full Documentation](https://allenday.github.io/a2a-registry/).
 
 ## 🤝 Contributing
 
-We welcome contributions! See our [Contributing Guide](https://allendy.github.io/a2a-registry/developer/contributing/) for details.
+We welcome contributions! See our [Contributing Guide](https://allenday.github.io/a2a-registry/developer/contributing/) for details.
 
 ## 📄 License
 

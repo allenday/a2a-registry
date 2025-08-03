@@ -14,7 +14,7 @@ Thank you for your interest in contributing to the A2A Registry! This guide will
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/allendy/a2a-registry.git
+   git clone https://github.com/allenday/a2a-registry.git
    cd a2a-registry
    ```
 
@@ -282,8 +282,8 @@ Releases are handled by maintainers. The process includes:
 
 ## Getting Help
 
-- **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/allendy/a2a-registry/issues)
-- **Discussions**: Ask questions on [GitHub Discussions](https://github.com/allendy/a2a-registry/discussions)
+- **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/allenday/a2a-registry/issues)
+- **Discussions**: Ask questions on [GitHub Discussions](https://github.com/allenday/a2a-registry/discussions)
 - **Code Review**: All changes go through pull request review
 
 ## Code of Conduct

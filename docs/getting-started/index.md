@@ -30,7 +30,7 @@ pip install a2a-registry
 ### Option 2: From Source
 
 ```bash
-git clone https://github.com/allendy/a2a-registry.git
+git clone https://github.com/allenday/a2a-registry.git
 cd a2a-registry
 pip install -e .
 ```
@@ -117,4 +117,4 @@ Now that you have A2A Registry running, explore these topics:
 
 - Check our [Troubleshooting Guide](../troubleshooting/common-issues.md)
 - Browse [Examples](../examples/basic-usage.md)
-- Visit [GitHub Issues](https://github.com/allendy/a2a-registry/issues) for support
+- Visit [GitHub Issues](https://github.com/allenday/a2a-registry/issues) for support

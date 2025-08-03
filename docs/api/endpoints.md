@@ -286,7 +286,7 @@ message UpdateAgentStatusResponse {
 ## Protocol Buffer Definitions
 
 The complete Protocol Buffer definitions are available in:
-- [`proto/registry.proto`](https://github.com/allendy/a2a-registry/blob/master/proto/registry.proto) - Registry service definitions
+- [`proto/registry.proto`](https://github.com/allenday/a2a-registry/blob/master/proto/registry.proto) - Registry service definitions
 - [`third_party/a2a/specification/grpc/a2a.proto`](https://github.com/a2aproject/A2A/blob/main/specification/grpc/a2a.proto) - Core A2A types
 
 ## Error Responses

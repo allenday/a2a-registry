@@ -21,7 +21,7 @@ If you want to install from source or contribute to the project:
 
 ```bash
 # Clone the repository
-git clone https://github.com/allendy/a2a-registry.git
+git clone https://github.com/allenday/a2a-registry.git
 cd a2a-registry
 
 # Initialize submodules

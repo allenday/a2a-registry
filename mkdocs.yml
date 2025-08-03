@@ -6,8 +6,8 @@ site_description: >-
 site_dir: site
 
 # Repository
-repo_name: allendy/a2a-registry
-repo_url: https://github.com/allendy/a2a-registry
+repo_name: allenday/a2a-registry
+repo_url: https://github.com/allenday/a2a-registry
 
 # Copyright
 copyright: Copyright &copy; 2025 Allen Day
