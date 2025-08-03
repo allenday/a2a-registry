@@ -15,36 +15,38 @@ copyright: Copyright &copy; 2025 Allen Day
 # Navigation
 nav:
   - Home: index.md
-  - Getting Started:
-    - Overview: getting-started/index.md
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quickstart.md
-    - Configuration: getting-started/configuration.md
-  - Concepts:
-    - Agent Discovery: concepts/agent-discovery.md
-    - Registry Architecture: concepts/architecture.md
-    - Protocol Support: concepts/protocols.md
-  - API Reference:
-    - Overview: api/overview.md
-    - Endpoints: api/endpoints.md
-    - Client Libraries: api/clients.md
-    - Examples: api/examples.md
-    - API Documentation: api/reference.md
-  - Developer Guide:
-    - Contributing: developer/contributing.md
-    - Development Setup: developer/setup.md
-    - Testing Strategy: developer/testing.md
-    - Release Process: developer/releases.md
-    - Debugging: developer/debugging.md
-  - Examples:
-    - Basic Usage: examples/basic-usage.md
-    - Agent Registration: examples/agent-registration.md
-    - Agent Discovery: examples/agent-discovery.md
-    - Advanced Scenarios: examples/advanced.md
-  - Troubleshooting:
-    - Common Issues: troubleshooting/common-issues.md
-    - Performance Tuning: troubleshooting/performance.md
-    - Logging and Monitoring: troubleshooting/logging.md
+  - Documentation:
+    - Overview: documentation/index.md
+    - Getting Started:
+      - Overview: documentation/getting-started/index.md
+      - Installation: documentation/getting-started/installation.md
+      - Quick Start: documentation/getting-started/quickstart.md
+      - Configuration: documentation/getting-started/configuration.md
+    - Concepts:
+      - Agent Discovery: documentation/concepts/agent-discovery.md
+      - Registry Architecture: documentation/concepts/architecture.md
+      - Protocol Support: documentation/concepts/protocols.md
+    - API Reference:
+      - Overview: documentation/api/overview.md
+      - Endpoints: documentation/api/endpoints.md
+      - Client Libraries: documentation/api/clients.md
+      - Examples: documentation/api/examples.md
+      - API Documentation: documentation/api/reference.md
+    - Developer Guide:
+      - Contributing: documentation/developer/contributing.md
+      - Development Setup: documentation/developer/setup.md
+      - Testing Strategy: documentation/developer/testing.md
+      - Release Process: documentation/developer/releases.md
+      - Debugging: documentation/developer/debugging.md
+    - Examples:
+      - Basic Usage: documentation/examples/basic-usage.md
+      - Agent Registration: documentation/examples/agent-registration.md
+      - Agent Discovery: documentation/examples/agent-discovery.md
+      - Advanced Scenarios: documentation/examples/advanced.md
+    - Troubleshooting:
+      - Common Issues: documentation/troubleshooting/common-issues.md
+      - Performance Tuning: documentation/troubleshooting/performance.md
+      - Logging and Monitoring: documentation/troubleshooting/logging.md
 
 # Configuration
 theme:
