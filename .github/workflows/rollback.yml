@@ -1,0 +1,134 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Image tag to rollback to (leave empty for previous version)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  CLUSTER_NAME: ${{ secrets.GCP_CLUSTER_NAME }}
+  IMAGE_NAME: a2a-registry
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Get GKE credentials
+      run: |
+        gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }}
+
+    - name: Determine rollback image
+      id: rollback-image
+      run: |
+        if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+          echo "image_tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+        else
+          # Get the previous deployment image
+          PREV_IMAGE=$(kubectl rollout history deployment/${{ env.IMAGE_NAME }} --revision=2 -o jsonpath='{.spec.template.spec.containers[0].image}')
+          echo "image_tag=${PREV_IMAGE#*:}" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Rolling back to image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ steps.rollback-image.outputs.image_tag }}"
+
+    - name: Rollback deployment
+      run: |
+        # Rollback to previous version
+        kubectl rollout undo deployment/${{ env.IMAGE_NAME }}
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/${{ env.IMAGE_NAME }} --timeout=300s
+        
+        # Verify rollback
+        kubectl get pods -l app=${{ env.IMAGE_NAME }}
+        
+        # Check if all pods are ready
+        kubectl wait --for=condition=ready pod -l app=${{ env.IMAGE_NAME }} --timeout=300s
+
+    - name: Verify rollback health
+      run: |
+        # Get service URL
+        SERVICE_IP=$(kubectl get service ${{ env.IMAGE_NAME }}-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        
+        if [ -n "$SERVICE_IP" ]; then
+          echo "Service IP: $SERVICE_IP"
+          
+          # Wait for service to be ready
+          sleep 30
+          
+          # Test health endpoint
+          curl -f http://$SERVICE_IP/health || {
+            echo "Health check failed after rollback"
+            kubectl describe pods -l app=${{ env.IMAGE_NAME }}
+            kubectl logs -l app=${{ env.IMAGE_NAME }} --tail=50
+            exit 1
+          }
+          
+          echo "Health check passed after rollback"
+        else
+          echo "Service IP not available yet"
+          kubectl get service ${{ env.IMAGE_NAME }}-service
+        fi
+
+    - name: Verify rollback
+      run: |
+        echo "=== Rollback Summary ==="
+        echo "Environment: ${{ github.event.inputs.environment }}"
+        echo "Reason: ${{ github.event.inputs.reason }}"
+        echo "Rolled back to: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ steps.rollback-image.outputs.image_tag }}"
+        
+        echo "=== Pod Status ==="
+        kubectl get pods -l app=${{ env.IMAGE_NAME }}
+        
+        echo "=== Service Status ==="
+        kubectl get service ${{ env.IMAGE_NAME }}-service
+        
+        echo "=== Recent Logs ==="
+        kubectl logs -l app=${{ env.IMAGE_NAME }} --tail=20
+
+    - name: Notify rollback status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Rollback successful!"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ steps.rollback-image.outputs.image_tag }}"
+        else
+          echo "❌ Rollback failed!"
+          echo "Check the logs above for details"
+          exit 1
+        fi 
