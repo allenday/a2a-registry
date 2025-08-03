@@ -169,3 +169,5 @@ logs/
 
 # Claude Code
 .claude/
+
+*.un~
