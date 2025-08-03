@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Optional
 
-from fasta2a.schema import AgentCard
+from fasta2a.schema import AgentCard  # type: ignore
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
