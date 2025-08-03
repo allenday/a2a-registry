@@ -24,10 +24,20 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "grpcio>=1.50.0",
-    "grpcio-tools>=1.50.0",
-    "protobuf>=4.0.0",
-    "pydantic>=2.0.0",
+    "fastapi>=0.95.0",
+    "httpx>=0.28.1",
+    "httpx-sse>=0.4.0",
+    "pydantic>=2.11.3",
+    "sse-starlette",
+    "starlette",
+    "protobuf>=5.29.5",
+    "google-api-core>=1.26.0",
+    "grpcio>=1.60",
+    "grpcio-tools>=1.60",
+    "grpcio_reflection>=1.7.0",
+    "fasta2a",
+    "uvicorn>=0.20.0",
+    "click>=8.0.0",
 ]
 
 [project.optional-dependencies]
@@ -78,6 +88,19 @@ extend-exclude = '''
 [tool.ruff]
 target-version = "py39"
 line-length = 88
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "third_party",
+]
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -92,19 +115,8 @@ ignore = [
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
 ]
-exclude = [
-    ".eggs",
-    ".git",
-    ".mypy_cache",
-    ".ruff_cache",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-    "third_party",
-]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "src/a2a_registry/proto/generated/*" = ["ALL"]
 
