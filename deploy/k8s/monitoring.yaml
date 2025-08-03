@@ -1,0 +1,130 @@
+# Monitoring and alerting configuration for A2A Registry
+# This includes Prometheus service monitors and basic alerting rules
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: a2a-registry-monitor
+  labels:
+    app: a2a-registry
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: a2a-registry
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: http
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: a2a-registry-staging-monitor
+  labels:
+    app: a2a-registry-staging
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: a2a-registry-staging
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: http
+    path: /health
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: a2a-registry-alerts
+  labels:
+    app: a2a-registry
+    release: prometheus
+spec:
+  groups:
+  - name: a2a-registry.rules
+    rules:
+    - alert: A2ARegistryDown
+      expr: up{job="a2a-registry"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "A2A Registry is down"
+        description: "A2A Registry has been down for more than 1 minute"
+    
+    - alert: A2ARegistryHighErrorRate
+      expr: rate(http_requests_total{job="a2a-registry", status=~"5.."}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate detected"
+        description: "A2A Registry is returning high rate of 5xx errors"
+    
+    - alert: A2ARegistryHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="a2a-registry"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High latency detected"
+        description: "95th percentile latency is above 2 seconds"
+    
+    - alert: A2ARegistryHighMemoryUsage
+      expr: (container_memory_usage_bytes{container="a2a-registry"} / container_spec_memory_limit_bytes{container="a2a-registry"}) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage"
+        description: "A2A Registry is using more than 80% of allocated memory"
+    
+    - alert: A2ARegistryHighCPUUsage
+      expr: (rate(container_cpu_usage_seconds_total{container="a2a-registry"}[5m]) * 100) > 80
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage"
+        description: "A2A Registry is using more than 80% of allocated CPU"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: a2a-registry-staging-alerts
+  labels:
+    app: a2a-registry-staging
+    release: prometheus
+spec:
+  groups:
+  - name: a2a-registry-staging.rules
+    rules:
+    - alert: A2ARegistryStagingDown
+      expr: up{job="a2a-registry-staging"} == 0
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "A2A Registry Staging is down"
+        description: "A2A Registry staging environment has been down for more than 2 minutes"
+    
+    - alert: A2ARegistryStagingHighErrorRate
+      expr: rate(http_requests_total{job="a2a-registry-staging", status=~"5.."}[5m]) > 0.2
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate in staging"
+        description: "A2A Registry staging is returning high rate of 5xx errors" 
