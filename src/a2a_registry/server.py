@@ -1,10 +1,12 @@
-"""A2A Registry server using FastAPI and FastA2A schemas."""
+"""A2A Registry server using FastAPI and FastA2A schemas with dual transport support."""
 
 import logging
 from typing import Any, Optional
 
 from fasta2a.schema import AgentCard  # type: ignore
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from jsonrpcserver import async_dispatch
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -107,6 +109,10 @@ def create_app() -> FastAPI:
                 if field not in agent_card_dict:
                     raise ValueError(f"Missing required field: {field}")
 
+            # Set default transport to JSONRPC per A2A specification
+            if "preferred_transport" not in agent_card_dict:
+                agent_card_dict["preferred_transport"] = "JSONRPC"
+
             # Cast to AgentCard type for type safety
             agent_card: AgentCard = agent_card_dict  # type: ignore
             success = await storage.register_agent(agent_card)
@@ -162,6 +168,53 @@ def create_app() -> FastAPI:
     async def health_check() -> dict[str, str]:
         """Health check endpoint."""
         return {"status": "healthy", "service": "A2A Registry"}
+
+    @app.post("/jsonrpc")
+    async def jsonrpc_endpoint(request: Request) -> JSONResponse:
+        """JSON-RPC endpoint - primary A2A protocol transport."""
+        # Import here to avoid circular imports
+        from . import jsonrpc_server
+        
+        # Get request body
+        data = await request.body()
+        
+        # Dispatch to JSON-RPC handlers
+        response = await async_dispatch(data.decode())
+        
+        # The response from jsonrpcserver is a string, parse it to return proper JSON
+        import json
+        response_data = json.loads(response) if isinstance(response, str) else response
+        
+        return JSONResponse(content=response_data, media_type="application/json")
+
+    @app.get("/")
+    async def root() -> dict[str, Any]:
+        """Root endpoint with service information."""
+        return {
+            "service": "A2A Registry",
+            "version": "1.0.0",
+            "description": "Agent-to-Agent Registry Service with dual transport support",
+            "protocols": {
+                "primary": {
+                    "transport": "JSONRPC",
+                    "endpoint": "/jsonrpc",
+                    "description": "JSON-RPC 2.0 endpoint (A2A default)"
+                },
+                "secondary": {
+                    "transport": "HTTP+JSON", 
+                    "endpoints": {
+                        "register": "POST /agents",
+                        "get": "GET /agents/{id}",
+                        "list": "GET /agents",
+                        "search": "POST /agents/search",
+                        "unregister": "DELETE /agents/{id}"
+                    },
+                    "description": "REST API endpoints (convenience)"
+                }
+            },
+            "health_check": "/health",
+            "documentation": "/docs"
+        }
 
     return app
 

@@ -38,6 +38,7 @@ dependencies = [
     "fasta2a",
     "uvicorn>=0.20.0",
     "click>=8.0.0",
+    "jsonrpcserver>=5.0.0",
 ]
 
 [project.optional-dependencies]

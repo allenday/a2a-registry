@@ -1,0 +1,8 @@
+Requirement already satisfied: jsonrpcserver in ./.venv/lib/python3.13/site-packages (5.0.9)
+Requirement already satisfied: jsonschema<5 in ./.venv/lib/python3.13/site-packages (from jsonrpcserver) (4.25.0)
+Requirement already satisfied: oslash<1 in ./.venv/lib/python3.13/site-packages (from jsonrpcserver) (0.6.3)
+Requirement already satisfied: attrs>=22.2.0 in ./.venv/lib/python3.13/site-packages (from jsonschema<5->jsonrpcserver) (25.3.0)
+Requirement already satisfied: jsonschema-specifications>=2023.03.6 in ./.venv/lib/python3.13/site-packages (from jsonschema<5->jsonrpcserver) (2025.4.1)
+Requirement already satisfied: referencing>=0.28.4 in ./.venv/lib/python3.13/site-packages (from jsonschema<5->jsonrpcserver) (0.36.2)
+Requirement already satisfied: rpds-py>=0.7.1 in ./.venv/lib/python3.13/site-packages (from jsonschema<5->jsonrpcserver) (0.26.0)
+Requirement already satisfied: typing-extensions in ./.venv/lib/python3.13/site-packages (from oslash<1->jsonrpcserver) (4.14.1)
