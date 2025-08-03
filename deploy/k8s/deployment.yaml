@@ -16,30 +16,30 @@ spec:
     spec:
       containers:
       - name: a2a-registry
-        image: gcr.io/PROJECT_ID/a2a-registry:latest
+        image: gcr.io/a2a-registry-dev/a2a-registry:latest
         ports:
         - containerPort: 8000
-                       env:
-               - name: LOG_LEVEL
-                 value: "INFO"
-               - name: HOST
-                 value: "0.0.0.0"
-               - name: PORT
-                 value: "8000"
-               - name: STORAGE_TYPE
-                 value: "file"
-               - name: STORAGE_DATA_DIR
-                 value: "/data"
-               volumeMounts:
-               - name: registry-data
-                 mountPath: /data
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: STORAGE_TYPE
+          value: "file"
+        - name: STORAGE_DATA_DIR
+          value: "/data"
+        volumeMounts:
+        - name: registry-data
+          mountPath: /data
         resources:
-                           requests:
-                   memory: "128Mi"
-                   cpu: "100m"
-                 limits:
-                   memory: "256Mi"
-                   cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
         livenessProbe:
           httpGet:
             path: /health
@@ -51,13 +51,13 @@ spec:
             path: /health
             port: 8000
           initialDelaySeconds: 5
-                           periodSeconds: 5
-             volumes:
-             - name: registry-data
-               persistentVolumeClaim:
-                 claimName: registry-data-pvc
-       ---
-       apiVersion: v1
+          periodSeconds: 5
+      volumes:
+      - name: registry-data
+        persistentVolumeClaim:
+          claimName: registry-data-pvc
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: a2a-registry-service
@@ -69,23 +69,23 @@ spec:
   - port: 80
     targetPort: 8000
     protocol: TCP
-           selector:
-           app: a2a-registry
-       ---
-       apiVersion: v1
-       kind: PersistentVolumeClaim
-       metadata:
-         name: registry-data-pvc
-         labels:
-           app: a2a-registry
-       spec:
-         accessModes:
-           - ReadWriteOnce
-         resources:
-           requests:
-             storage: 1Gi
-       ---
-       apiVersion: networking.k8s.io/v1
+  selector:
+    app: a2a-registry
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry-data-pvc
+  labels:
+    app: a2a-registry
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: a2a-registry-ingress

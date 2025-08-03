@@ -50,6 +50,9 @@ jobs:
 
     - name: Deploy to GKE
       run: |
+        # Apply Kubernetes manifests
+        kubectl apply -f deploy/k8s/
+        # Update the image
         kubectl set image deployment/a2a-registry a2a-registry=gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }}
         kubectl rollout status deployment/a2a-registry
 
