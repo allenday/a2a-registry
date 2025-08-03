@@ -1,0 +1,32 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'deploy/Dockerfile', '-t', 'gcr.io/$PROJECT_ID/a2a-registry:$COMMIT_SHA', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/a2a-registry:$COMMIT_SHA']
+  
+  # Tag with 'latest'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'gcr.io/$PROJECT_ID/a2a-registry:$COMMIT_SHA', 'gcr.io/$PROJECT_ID/a2a-registry:latest']
+  
+  # Push 'latest' tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/a2a-registry:latest']
+  
+  # Deploy to GKE
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '--filename=deploy/k8s/'
+      - '--location=us-central1'
+      - '--cluster=a2a-registry-cluster'
+      - '--image=gcr.io/$PROJECT_ID/a2a-registry:$COMMIT_SHA'
+
+images:
+  - 'gcr.io/$PROJECT_ID/a2a-registry:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/a2a-registry:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY 

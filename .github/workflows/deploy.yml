@@ -1,0 +1,56 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: [ 'deploy/terraform/**' ]  # Skip if only Terraform changes
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if no changes'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  CLUSTER_NAME: ${{ secrets.GCP_CLUSTER_NAME }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+
+    - name: Build and push Docker image
+      run: |
+        docker build -f deploy/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }}
+        docker tag gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/a2a-registry:latest
+        docker push gcr.io/${{ env.PROJECT_ID }}/a2a-registry:latest
+
+
+
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
+
+    - name: Deploy to GKE
+      run: |
+        kubectl set image deployment/a2a-registry a2a-registry=gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }}
+        kubectl rollout status deployment/a2a-registry
+
+    - name: Verify deployment
+      run: |
+        kubectl get pods -l app=a2a-registry
+        kubectl get service a2a-registry-service 

@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a2a-registry
+  labels:
+    app: a2a-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: a2a-registry
+  template:
+    metadata:
+      labels:
+        app: a2a-registry
+    spec:
+      containers:
+      - name: a2a-registry
+        image: gcr.io/PROJECT_ID/a2a-registry:latest
+        ports:
+        - containerPort: 8000
+                       env:
+               - name: LOG_LEVEL
+                 value: "INFO"
+               - name: HOST
+                 value: "0.0.0.0"
+               - name: PORT
+                 value: "8000"
+               - name: STORAGE_TYPE
+                 value: "file"
+               - name: STORAGE_DATA_DIR
+                 value: "/data"
+               volumeMounts:
+               - name: registry-data
+                 mountPath: /data
+        resources:
+                           requests:
+                   memory: "128Mi"
+                   cpu: "100m"
+                 limits:
+                   memory: "256Mi"
+                   cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+                           periodSeconds: 5
+             volumes:
+             - name: registry-data
+               persistentVolumeClaim:
+                 claimName: registry-data-pvc
+       ---
+       apiVersion: v1
+kind: Service
+metadata:
+  name: a2a-registry-service
+  labels:
+    app: a2a-registry
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+           selector:
+           app: a2a-registry
+       ---
+       apiVersion: v1
+       kind: PersistentVolumeClaim
+       metadata:
+         name: registry-data-pvc
+         labels:
+           app: a2a-registry
+       spec:
+         accessModes:
+           - ReadWriteOnce
+         resources:
+           requests:
+             storage: 1Gi
+       ---
+       apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: a2a-registry-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "a2a-registry-ip"
+    networking.gke.io/managed-certificates: "a2a-registry-cert"
+    networking.gke.io/v1beta1.FrontendConfig: "a2a-registry-frontend-config"
+spec:
+  rules:
+  - host: api.a2a-registry.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: a2a-registry-service
+            port:
+              number: 80
+  - host: registry.a2a-registry.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: a2a-registry-service
+            port:
+              number: 80 

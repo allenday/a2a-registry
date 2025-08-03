@@ -1,0 +1,126 @@
+name: Terraform Infrastructure
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'deploy/terraform/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'deploy/terraform/**' ]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+        - plan
+        - apply
+        - destroy
+      auto_approve:
+        description: 'Auto-approve apply/destroy (use with caution)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  TF_VERSION: "1.5.7"
+  TF_WORKING_DIR: "deploy/terraform"
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Setup Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+
+    - name: Terraform Init
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: terraform init
+
+    - name: Terraform Format Check
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: terraform validate
+
+    - name: Terraform Plan
+      id: plan
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform plan -detailed-exitcode -out=tfplan
+        echo "plan_exit_code=$?" >> $GITHUB_OUTPUT
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.plan_exit_code == 1
+      run: exit 1
+
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.plan_exit_code == 2
+      run: echo "Changes detected"
+
+    - name: Comment PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = `#### Terraform Plan 📋
+          \`\`\`\n
+          ${process.env.PLAN || 'No changes. Infrastructure is up-to-date.'}
+          \`\`\`
+          
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: Terraform Apply
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'apply' &&
+        (github.event.inputs.auto_approve == 'true' || github.actor == 'allenday')
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform apply -auto-approve tfplan
+
+    - name: Terraform Destroy
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'destroy' &&
+        github.event.inputs.auto_approve == 'true' &&
+        github.actor == 'allenday'
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform destroy -auto-approve
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      if: steps.plan.outputs.plan_exit_code == 2
+      with:
+        name: terraform-plan
+        path: ${{ env.TF_WORKING_DIR }}/tfplan 
