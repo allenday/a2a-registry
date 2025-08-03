@@ -1,0 +1,6 @@
+[submodule "third_party/a2a"]
+	path = third_party/a2a
+	url = https://github.com/a2aproject/A2A.git
+[submodule "third_party/api-common-protos"]
+	path = third_party/api-common-protos
+	url = https://github.com/googleapis/api-common-protos.git
