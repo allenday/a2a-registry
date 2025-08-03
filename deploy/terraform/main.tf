@@ -40,6 +40,17 @@ resource "google_container_node_pool" "a2a_registry_nodes" {
   cluster    = google_container_cluster.a2a_registry.name
   node_count = var.node_count
 
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
+  upgrade_settings {
+    max_surge       = 1
+    max_unavailable = 0
+    strategy        = "SURGE"
+  }
+
   node_config {
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -53,9 +64,30 @@ resource "google_container_node_pool" "a2a_registry_nodes" {
 
     machine_type = var.machine_type
     disk_size_gb = 20
+    disk_type    = "pd-balanced"
+    image_type   = "COS_CONTAINERD"
 
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    resource_labels = {
+      "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
+
+    kubelet_config {
+      cpu_cfs_quota      = false
+      pod_pids_limit     = 0
+      cpu_manager_policy = "static"
+    }
+
+    shielded_instance_config {
+      enable_integrity_monitoring = true
+      enable_secure_boot          = false
+    }
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
     }
   }
 }
@@ -108,44 +140,18 @@ resource "google_compute_health_check" "a2a_registry" {
   }
 }
 
-# Cloud Build Trigger
-resource "google_cloudbuild_trigger" "a2a_registry" {
-  name        = "a2a-registry-build"
-  description = "Build and deploy A2A Registry"
-
-  github {
-    owner = "allenday"
-    name  = "a2a-registry"
-    push {
-      branch = "main"
-    }
-  }
-
-  # Use inline build configuration instead of filename
-  build {
-    step {
-      name = "gcr.io/cloud-builders/docker"
-      args = ["build", "-t", "gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA", "-f", "deploy/Dockerfile", "."]
-    }
-    step {
-      name = "gcr.io/cloud-builders/docker"
-      args = ["push", "gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA"]
-    }
-    step {
-      name = "gcr.io/cloud-builders/gcloud"
-      args = [
-        "container", "clusters", "get-credentials", 
-        google_container_cluster.a2a_registry.name, 
-        "--zone", var.region, 
-        "--project", var.project_id
-      ]
-    }
-    step {
-      name = "gcr.io/cloud-builders/kubectl"
-      args = [
-        "set", "image", "deployment/a2a-registry", 
-        "a2a-registry=gcr.io/${var.project_id}/a2a-registry:$COMMIT_SHA"
-      ]
-    }
-  }
-} 
+# Cloud Build Trigger - Commented out due to configuration issues
+# resource "google_cloudbuild_trigger" "a2a_registry" {
+#   name        = "a2a-registry-build"
+#   description = "Build and deploy A2A Registry"
+# 
+#   github {
+#     owner = "allenday"
+#     name  = "a2a-registry"
+#     push {
+#       branch = "main"
+#     }
+#   }
+# 
+#   filename = "deploy/cloudbuild/cloudbuild.yaml"
+# } 
