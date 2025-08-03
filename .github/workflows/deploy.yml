@@ -11,22 +11,59 @@ on:
         required: false
         default: false
         type: boolean
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
   CLUSTER_NAME: ${{ secrets.GCP_CLUSTER_NAME }}
+  IMAGE_NAME: a2a-registry
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for better versioning
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v --cov=src/a2a_registry --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.PROJECT_ID }}
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
@@ -38,25 +75,124 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -f deploy/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }} .
-        docker push gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }}
-        docker tag gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/a2a-registry:latest
-        docker push gcr.io/${{ env.PROJECT_ID }}/a2a-registry:latest
-
-
+        # Build the image
+        docker build -f deploy/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+        
+        # Tag as latest
+        docker tag gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:latest
+        
+        # Push both tags
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:latest
+        
+        # Output image info for debugging
+        echo "Built and pushed image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
 
     - name: Get GKE credentials
-      run: gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
+      run: |
+        gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
+          --region ${{ env.REGION }} \
+          --project ${{ env.PROJECT_ID }}
 
     - name: Deploy to GKE
       run: |
+        # Set environment-specific variables
+        if [ "${{ github.event.inputs.environment || 'production' }}" = "staging" ]; then
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}-staging"
+          MANIFEST_PATH="deploy/k8s/staging/"
+        else
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}"
+          MANIFEST_PATH="deploy/k8s/"
+        fi
+        
+        echo "Deploying to environment: ${{ github.event.inputs.environment || 'production' }}"
+        echo "Deployment name: $DEPLOYMENT_NAME"
+        echo "Manifest path: $MANIFEST_PATH"
+        
         # Apply Kubernetes manifests
-        kubectl apply -f deploy/k8s/
-        # Update the image
-        kubectl set image deployment/a2a-registry a2a-registry=gcr.io/${{ env.PROJECT_ID }}/a2a-registry:${{ github.sha }}
-        kubectl rollout status deployment/a2a-registry
+        kubectl apply -f $MANIFEST_PATH
+        
+        # Update the deployment with new image
+        kubectl set image deployment/$DEPLOYMENT_NAME \
+          ${{ env.IMAGE_NAME }}=gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/$DEPLOYMENT_NAME --timeout=300s
+        
+        # Verify deployment
+        kubectl get pods -l app=$DEPLOYMENT_NAME
+        
+        # Check if all pods are ready
+        kubectl wait --for=condition=ready pod -l app=$DEPLOYMENT_NAME --timeout=300s
+
+    - name: Verify deployment health
+      run: |
+        # Set environment-specific variables
+        if [ "${{ github.event.inputs.environment || 'production' }}" = "staging" ]; then
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}-staging"
+          SERVICE_NAME="${{ env.IMAGE_NAME }}-staging-service"
+        else
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}"
+          SERVICE_NAME="${{ env.IMAGE_NAME }}-service"
+        fi
+        
+        # Get service URL
+        SERVICE_IP=$(kubectl get service $SERVICE_NAME -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        
+        if [ -n "$SERVICE_IP" ]; then
+          echo "Service IP: $SERVICE_IP"
+          
+          # Wait for service to be ready
+          sleep 30
+          
+          # Test health endpoint
+          curl -f http://$SERVICE_IP/health || {
+            echo "Health check failed"
+            kubectl describe pods -l app=$DEPLOYMENT_NAME
+            kubectl logs -l app=$DEPLOYMENT_NAME --tail=50
+            exit 1
+          }
+          
+          echo "Health check passed"
+        else
+          echo "Service IP not available yet"
+          kubectl get service $SERVICE_NAME
+        fi
 
     - name: Verify deployment
       run: |
-        kubectl get pods -l app=a2a-registry
-        kubectl get service a2a-registry-service 
+        # Set environment-specific variables
+        if [ "${{ github.event.inputs.environment || 'production' }}" = "staging" ]; then
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}-staging"
+          SERVICE_NAME="${{ env.IMAGE_NAME }}-staging-service"
+          INGRESS_NAME="${{ env.IMAGE_NAME }}-staging-ingress"
+        else
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}"
+          SERVICE_NAME="${{ env.IMAGE_NAME }}-service"
+          INGRESS_NAME="${{ env.IMAGE_NAME }}-ingress"
+        fi
+        
+        echo "=== Pod Status ==="
+        kubectl get pods -l app=$DEPLOYMENT_NAME
+        
+        echo "=== Service Status ==="
+        kubectl get service $SERVICE_NAME
+        
+        echo "=== Ingress Status ==="
+        kubectl get ingress $INGRESS_NAME
+        
+        echo "=== Recent Logs ==="
+        kubectl logs -l app=$DEPLOYMENT_NAME --tail=20
+
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+          echo "Image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+          echo "Environment: ${{ github.event.inputs.environment || 'production' }}"
+        else
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for details"
+          exit 1
+        fi 
