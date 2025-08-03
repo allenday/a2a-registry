@@ -7,7 +7,7 @@ from fasta2a.schema import AgentCard  # type: ignore
 from jsonrpcserver import Error, Result, Success, method
 
 from . import A2A_PROTOCOL_VERSION, __version__
-from .server import storage
+from .storage import storage
 
 logger = logging.getLogger(__name__)
 

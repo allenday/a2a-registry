@@ -1,0 +1,197 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.1)'
+        required: true
+        type: string
+      publish_to_pypi:
+        description: 'Publish to PyPI (uncheck for dry run)'
+        required: false
+        type: boolean
+        default: false
+      publish_to_testpypi:
+        description: 'Publish to TestPyPI first'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -e ".[dev]"
+
+    - name: Run all checks
+      run: |
+        make lint
+        make typecheck
+        make test
+
+    - name: Validate version
+      run: |
+        # Check if version matches the input
+        CURRENT_VERSION=$(python -c "from a2a_registry import __version__; print(__version__)")
+        if [ "$CURRENT_VERSION" != "${{ github.event.inputs.version }}" ]; then
+          echo "Error: Version mismatch!"
+          echo "Current version in code: $CURRENT_VERSION"
+          echo "Requested release version: ${{ github.event.inputs.version }}"
+          exit 1
+        fi
+        echo "Version validation passed: $CURRENT_VERSION"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -e ".[dev]"
+
+    - name: Build package
+      run: make build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+        retention-days: 30
+
+  publish-testpypi:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event.inputs.publish_to_testpypi }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -e ".[dev]"
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+
+    - name: Publish to TestPyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        python -m twine upload --repository testpypi dist/*
+
+  publish-pypi:
+    runs-on: ubuntu-latest
+    needs: [build, publish-testpypi]
+    if: ${{ github.event.inputs.publish_to_pypi }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -e ".[dev]"
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        python -m twine upload dist/*
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build, publish-testpypi, publish-pypi]
+    if: ${{ github.event.inputs.publish_to_pypi }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: Release v${{ github.event.inputs.version }}
+        body: |
+          ## A2A Registry v${{ github.event.inputs.version }}
+          
+          ### What's Changed
+          - Built on A2A Protocol v0.3.0
+          - Agent discovery and registration capabilities
+          - JSON-RPC 2.0 and REST API support
+          
+          ### Installation
+          ```bash
+          pip install a2a-registry==${{ github.event.inputs.version }}
+          ```
+          
+          ### Documentation
+          - [Full Documentation](https://allenday.github.io/a2a-registry/)
+          - [API Reference](https://allenday.github.io/a2a-registry/api/overview/)
+          
+          ### Changelog
+          See the [full changelog](https://github.com/allenday/a2a-registry/blob/master/CHANGELOG.md) for detailed changes.
+        files: dist/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

@@ -1,32 +1,35 @@
-"""Storage backend for A2A registry."""
+"""Storage module for A2A Registry."""
 
+import logging
 from typing import Optional
 
-from .proto.generated import registry_pb2  # type: ignore
+from fasta2a.schema import AgentCard  # type: ignore
+
+logger = logging.getLogger(__name__)
 
 
-class InMemoryStorage:
-    """In-memory storage for agent cards."""
+class RegistryStorage:
+    """In-memory storage for agent registry."""
 
     def __init__(self) -> None:
-        self._agents: dict[str, registry_pb2.RegistryAgentCard] = {}  # type: ignore
+        self._agents: dict[str, AgentCard] = {}
 
-    async def register_agent(self, agent_card: registry_pb2.RegistryAgentCard) -> bool:  # type: ignore
+    async def register_agent(self, agent_card: AgentCard) -> bool:
         """Register an agent in the registry."""
-        agent_id = agent_card.agent_card.id
+        # AgentCard is a TypedDict, we need to get the identifier from it
+        # Looking at the structure, we might need to use 'name' as identifier
+        agent_id = agent_card.get("name")
         if not agent_id:
             return False
-
         self._agents[agent_id] = agent_card
+        logger.info(f"Registered agent: {agent_id}")
         return True
 
-    async def get_agent(
-        self, agent_id: str
-    ) -> Optional[registry_pb2.RegistryAgentCard]:  # type: ignore
+    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
         """Get an agent by ID."""
         return self._agents.get(agent_id)
 
-    async def list_agents(self) -> list[registry_pb2.RegistryAgentCard]:  # type: ignore
+    async def list_agents(self) -> list[AgentCard]:
         """List all registered agents."""
         return list(self._agents.values())
 
@@ -34,21 +37,29 @@ class InMemoryStorage:
         """Unregister an agent."""
         if agent_id in self._agents:
             del self._agents[agent_id]
+            logger.info(f"Unregistered agent: {agent_id}")
             return True
         return False
 
-    async def search_agents(self, query: str) -> list[registry_pb2.RegistryAgentCard]:  # type: ignore
-        """Search agents by name or description."""
+    async def search_agents(self, query: str) -> list[AgentCard]:
+        """Search agents by name, description, or capabilities."""
         results = []
         query_lower = query.lower()
 
-        for agent_card in self._agents.values():
-            agent = agent_card.agent_card
+        for agent in self._agents.values():
+            # Search in name, description, and skills
             if (
-                query_lower in agent.name.lower()
-                or query_lower in agent.description.lower()
-                or any(query_lower in tag.lower() for tag in agent.tags)
+                query_lower in agent.get("name", "").lower()
+                or query_lower in agent.get("description", "").lower()
+                or any(
+                    query_lower in skill.get("id", "").lower()
+                    for skill in agent.get("skills", [])
+                )
             ):
-                results.append(agent_card)
+                results.append(agent)
 
         return results
+
+
+# Global storage instance
+storage = RegistryStorage()

@@ -1,387 +1,136 @@
 # Release Process
 
-This document outlines the release process for the A2A Registry project.
+This document describes the release process for A2A Registry.
 
-## Release Types
+## Overview
 
-### Semantic Versioning
+A2A Registry uses a manual release process with GitHub Actions for building, testing, and publishing packages. The process ensures quality and consistency across releases.
 
-We follow [Semantic Versioning](https://semver.org/) (SemVer):
+## Prerequisites
 
-- **MAJOR** (X.0.0): Breaking changes
-- **MINOR** (0.X.0): New features, backwards compatible
-- **PATCH** (0.0.X): Bug fixes, backwards compatible
+Before making a release, ensure you have:
 
-Examples:
-- `1.0.0` → `1.0.1`: Bug fix
-- `1.0.0` → `1.1.0`: New feature
-- `1.0.0` → `2.0.0`: Breaking change
+1. **GitHub Secrets configured**:
+   - `PYPI_API_TOKEN`: PyPI API token for publishing to PyPI
+   - `TEST_PYPI_API_TOKEN`: TestPyPI API token for testing releases
 
-### Release Channels
+2. **Write access** to the repository for creating releases
 
-- **Stable**: Production releases (e.g., `1.2.0`)
-- **Pre-release**: Beta/RC versions (e.g., `1.2.0-beta.1`)
-- **Development**: Snapshot builds from main branch
-
-## Release Preparation
-
-### 1. Version Planning
-
-Before starting a release:
-
-1. **Review milestone**: Check GitHub milestone for target features/fixes
-2. **Test coverage**: Ensure adequate test coverage for new features
-3. **Documentation**: Update documentation for new features
-4. **Breaking changes**: Document any breaking changes clearly
-
-### 2. Pre-release Checklist
-
-- [ ] All CI checks passing
-- [ ] No known critical bugs
-- [ ] Documentation updated
-- [ ] CHANGELOG.md updated
-- [ ] Version bumped in `pyproject.toml`
-- [ ] Tests passing locally and in CI
-- [ ] Security audit completed (if applicable)
-
-### 3. Version Bump
-
-Update the version in `pyproject.toml`:
-
-```toml
-[project]
-name = "a2a-registry"
-version = "1.2.0"  # Update this version
-```
-
-### 4. Update Changelog
-
-Maintain `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/):
-
-```markdown
-# Changelog
-
-## [1.2.0] - 2025-01-15
-
-### Added
-- New search filters for agent discovery
-- Support for agent health monitoring
-- gRPC streaming endpoints
-
-### Changed
-- Improved error handling in REST API
-- Updated A2A protocol to version 1.1.0
-
-### Fixed
-- Race condition in concurrent agent registration
-- Memory leak in long-running server instances
-
-### Deprecated
-- Legacy search API (will be removed in v2.0.0)
-
-## [1.1.0] - 2025-01-01
-...
-```
+3. **All tests passing** on the main branch
 
 ## Release Process
 
-### Automated Release (Recommended)
+### 1. Prepare the Release
 
-We use GitHub Actions for automated releases:
-
-1. **Create release branch**:
-   ```bash
-   git checkout -b release/v1.2.0
-   git push origin release/v1.2.0
-   ```
-
-2. **Create pull request**:
-   - Title: "Release v1.2.0"
-   - Description: Include changelog excerpt
-   - Base: `main`
-
-3. **Review and merge**: After approval, merge the PR
-
-4. **Create GitHub release**:
-   - Tag: `v1.2.0`
-   - Title: "A2A Registry v1.2.0"
-   - Description: Include changelog
-   - GitHub Actions will automatically:
-     - Build packages
-     - Run full test suite
-     - Publish to PyPI
-     - Deploy documentation
-
-### Manual Release
-
-If automated release fails:
-
-1. **Tag the release**:
-   ```bash
-   git tag -a v1.2.0 -m "Release v1.2.0"
-   git push origin v1.2.0
-   ```
-
-2. **Build and test**:
-   ```bash
-   make clean
-   make build
-   ```
-
-3. **Publish to PyPI**:
-   ```bash
-   # Test PyPI first
-   make publish-test
-   
-   # Then production PyPI
-   make publish
-   ```
-
-4. **Deploy documentation**:
-   ```bash
-   make docs-deploy
-   ```
-
-5. **Create GitHub release**: Manually create release on GitHub
-
-## Release Validation
-
-### Post-Release Checks
-
-After each release:
-
-1. **PyPI verification**:
-   ```bash
-   pip install a2a-registry==1.2.0
-   a2a-registry --version
-   ```
-
-2. **Docker verification**:
-   ```bash
-   docker run allenday/a2a-registry:1.2.0 --version
-   ```
-
-3. **Documentation check**: Verify docs site is updated
-
-4. **Installation test**: Test installation on clean environment
-
-### Smoke Tests
-
-Run basic functionality tests:
+Use the release script to update the version and prepare the release:
 
 ```bash
-# Start server
-a2a-registry serve &
-SERVER_PID=$!
+# Update version and build package
+python scripts/release.py 0.1.1
 
-# Basic API test
-curl -f http://localhost:8000/health
+# Or just update version without building
+python scripts/release.py 0.1.1 --dry-run
 
-# Register test agent
-curl -X POST http://localhost:8000/agents \
-  -H "Content-Type: application/json" \
-  -d '{"agent_card": {"name": "test", "description": "test", "url": "http://test", "version": "0.420.0", "protocol_version": "0.3.0", "skills": []}}'
-
-# List agents
-curl -f http://localhost:8000/agents
-
-# Cleanup
-kill $SERVER_PID
+# Skip tests (use with caution)
+python scripts/release.py 0.1.1 --skip-tests
 ```
 
-## Hotfix Process
+The script will:
+- Update the version in `src/a2a_registry/__init__.py`
+- Run linting, type checking, and tests
+- Build the distribution packages
 
-For critical bugs in production:
+### 2. Manual Release via GitHub Actions
 
-### 1. Create Hotfix Branch
+1. **Go to GitHub Actions**: Navigate to the Actions tab in the repository
+2. **Select "Release" workflow**: Click on the "Release" workflow
+3. **Run workflow**: Click "Run workflow" button
+4. **Configure release**:
+   - **Version**: Enter the version to release (e.g., `0.1.1`)
+   - **Publish to TestPyPI**: Check to publish to TestPyPI first (recommended)
+   - **Publish to PyPI**: Check to publish to PyPI (uncheck for dry run)
 
-```bash
-git checkout main
-git pull origin main
-git checkout -b hotfix/v1.2.1
-```
+### 3. Workflow Steps
 
-### 2. Apply Fix
+The release workflow performs the following steps:
 
-- Make minimal changes to fix the issue
-- Add regression test
-- Update version to patch level (e.g., 1.2.0 → 1.2.1)
+#### Validation Job
+- Runs linting, type checking, and tests
+- Validates that the version in code matches the requested version
+- Ensures all quality gates pass
 
-### 3. Test Thoroughly
+#### Build Job
+- Builds distribution packages (wheel and source distribution)
+- Uploads build artifacts for use by subsequent jobs
 
-```bash
-make dev-check
-# Additional manual testing for the specific issue
-```
+#### TestPyPI Publishing (Optional)
+- Publishes to TestPyPI for testing
+- Allows verification before publishing to PyPI
 
-### 4. Fast-track Release
+#### PyPI Publishing (Optional)
+- Publishes to PyPI for production use
+- Only runs if "Publish to PyPI" is checked
 
-- Create PR with expedited review
-- Merge and release immediately
-- Follow standard release process but with higher urgency
+#### GitHub Release Creation
+- Creates a GitHub release with the built packages
+- Includes release notes and documentation links
+- Only runs if PyPI publishing is enabled
 
-## Release Artifacts
+## Version Management
 
-Each release produces:
+### Version Format
+Versions follow semantic versioning: `MAJOR.MINOR.PATCH`
 
-### PyPI Package
-- Source distribution (`.tar.gz`)
-- Wheel distribution (`.whl`)
-- Available at: https://pypi.org/project/a2a-registry/
+- **MAJOR**: Breaking changes
+- **MINOR**: New features, backward compatible
+- **PATCH**: Bug fixes, backward compatible
 
-### GitHub Release
-- Release notes
-- Source code archives
-- Attached binaries (if any)
+### Version Locations
+The version is defined in:
+- `src/a2a_registry/__init__.py` - `__version__` variable
+- `pyproject.toml` - Uses dynamic versioning from `__init__.py`
 
-### Documentation
-- Updated docs site
-- API reference
-- Examples and tutorials
+## Release Checklist
 
-### Docker Images
-- `allenday/a2a-registry:latest`
-- `allenday/a2a-registry:1.2.0`
-- Multi-architecture support (amd64, arm64)
+Before triggering a release:
 
-## Version Support
+- [ ] All tests pass (`make test`)
+- [ ] Linting passes (`make lint`)
+- [ ] Type checking passes (`make typecheck`)
+- [ ] Documentation is up to date
+- [ ] Version is updated in `__init__.py`
+- [ ] Changes are committed and pushed to main branch
+- [ ] GitHub secrets are configured
 
-### Support Policy
+## Troubleshooting
 
-- **Current major version**: Full support (features, bugs, security)
-- **Previous major version**: Security fixes only for 12 months
-- **Older versions**: Community support only
+### Common Issues
 
-### Security Updates
+1. **Version Mismatch**: Ensure the version in `__init__.py` matches the requested release version
+2. **Test Failures**: Fix any failing tests before releasing
+3. **Build Failures**: Check that all dependencies are properly specified
+4. **PyPI Upload Failures**: Verify API tokens are correct and have proper permissions
 
-Security issues are addressed with:
-- Patch releases for supported versions
-- Advisory notices for unsupported versions
-- Coordination with security researchers
+### Rollback Process
 
-## Communication
+If a release needs to be rolled back:
 
-### Release Announcements
+1. **PyPI**: Use PyPI's web interface to delete the problematic version
+2. **GitHub Release**: Delete the GitHub release and tag
+3. **Documentation**: Update any references to the problematic version
 
-1. **GitHub release notes**: Detailed changelog
-2. **PyPI description**: Brief summary
-3. **Documentation**: Updated with new features
-4. **Community**: Announce in discussions/issues
+## Security Considerations
 
-### Breaking Changes
+- API tokens are stored as GitHub secrets
+- Tokens have minimal required permissions
+- TestPyPI is used for testing before production release
+- All builds run in isolated environments
 
-For major version releases with breaking changes:
+## Support
 
-1. **Migration guide**: Detailed upgrade instructions
-2. **Deprecation warnings**: In previous minor releases
-3. **Compatibility matrix**: Supported A2A protocol versions
-4. **Examples**: Updated code examples
+For issues with the release process:
 
-## Automation
-
-### GitHub Actions Workflow
-
-`.github/workflows/release.yml`:
-
-```yaml
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: make install-dev
-      
-      - name: Run tests
-        run: make dev-check
-      
-      - name: Build package
-        run: make build
-      
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: make publish
-      
-      - name: Deploy docs
-        run: make docs-deploy
-      
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-          generate_release_notes: true
-```
-
-### Release Scripts
-
-Maintain release automation scripts:
-
-```bash
-#!/bin/bash
-# scripts/release.sh
-
-set -e
-
-VERSION=$1
-if [ -z "$VERSION" ]; then
-  echo "Usage: $0 <version>"
-  exit 1
-fi
-
-echo "Preparing release $VERSION..."
-
-# Update version
-sed -i "s/version = \".*\"/version = \"$VERSION\"/" pyproject.toml
-
-# Run checks
-make dev-check
-
-# Commit changes
-git add pyproject.toml CHANGELOG.md
-git commit -m "Release $VERSION"
-
-# Create tag
-git tag -a "v$VERSION" -m "Release $VERSION"
-
-echo "Release $VERSION prepared. Push with:"
-echo "  git push origin main"
-echo "  git push origin v$VERSION"
-```
-
-## Rollback Procedure
-
-If a release has critical issues:
-
-### 1. Assess Impact
-- Determine severity and affected users
-- Check if hotfix is feasible vs. rollback
-
-### 2. PyPI Rollback
-- Cannot delete PyPI releases
-- Publish new patch version with fix
-- Mark problematic version in release notes
-
-### 3. Documentation
-- Update docs to reflect issues
-- Provide workarounds or downgrade instructions
-
-### 4. Communication
-- Post issue notice on GitHub
-- Update release notes
-- Notify affected users
-
-This release process ensures consistent, reliable releases while maintaining high quality standards.
+1. Check the GitHub Actions logs for detailed error messages
+2. Verify all prerequisites are met
+3. Ensure the release script is working correctly
+4. Contact the maintainers if issues persist

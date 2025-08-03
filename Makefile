@@ -82,6 +82,17 @@ publish-test: build ## Publish to TestPyPI
 publish: build ## Publish to PyPI
 	$(PYTHON_VENV) -m twine upload dist/*
 
+release: build ## Build and prepare for release (dry run)
+	@echo "Release build complete!"
+	@echo "Distribution packages created in dist/"
+	@echo "To publish to TestPyPI: make publish-test"
+	@echo "To publish to PyPI: make publish"
+	@echo "To create a GitHub release, use the manual workflow in GitHub Actions"
+
+release-prepare: ## Prepare a new release (updates version and builds)
+	@echo "Usage: python scripts/release.py <version>"
+	@echo "Example: python scripts/release.py 0.1.1"
+
 dev-check: lint typecheck test ## Run all development checks
 
 ci: install-dev lint typecheck test ## Run CI pipeline locally
