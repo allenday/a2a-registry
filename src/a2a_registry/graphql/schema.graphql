@@ -1,0 +1,403 @@
+# A2A Registry GraphQL Schema for AgentExtension System
+
+scalar DateTime
+scalar JSON
+scalar SemVer
+
+# Enums for extension classification
+enum ExtensionType {
+  AUTHENTICATION
+  SCHEMA
+  ML_MODEL
+  BUSINESS_RULE
+  PROTOCOL_ADAPTER
+  INTEGRATION
+}
+
+enum TrustLevel {
+  COMMUNITY
+  VERIFIED
+  OFFICIAL
+  DEPRECATED
+}
+
+enum ValidationStatus {
+  PENDING
+  VALIDATED
+  FAILED
+  EXPIRED
+}
+
+enum ExtensionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SUSPENDED
+}
+
+# Core AgentExtension type
+type AgentExtension {
+  id: ID!
+  version: SemVer!
+  name: String!
+  description: String
+  type: ExtensionType!
+  content: ExtensionContent!
+  trustLevel: TrustLevel!
+  validationStatus: ValidationStatus!
+  status: ExtensionStatus!
+  
+  # Versioning and metadata
+  tags: [String!]!
+  author: String!
+  license: String
+  homepage: String
+  repository: String
+  
+  # Security and validation
+  signature: String
+  checksum: String!
+  validatedAt: DateTime
+  validatedBy: String
+  
+  # Relationships
+  dependencies: [ExtensionDependency!]!
+  agents: [AgentExtensionRelation!]!
+  
+  # Analytics and metrics
+  downloadCount: Int!
+  usageStats: UsageStatistics!
+  compatibility: [CompatibilityInfo!]!
+  
+  # Audit trail
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  publishedAt: DateTime
+  createdBy: ID!
+  updatedBy: ID!
+}
+
+# Extension content with flexible structure
+type ExtensionContent {
+  format: String! # e.g., "json", "yaml", "python", "javascript"
+  data: JSON!
+  schema: String # JSON Schema for validation
+  examples: [JSON!]
+  documentation: String
+}
+
+# Dependency management
+type ExtensionDependency {
+  extensionId: ID!
+  version: String! # semver range like "^1.2.0"
+  optional: Boolean!
+  extension: AgentExtension # Resolved dependency
+}
+
+# Agent-Extension relationships with usage tracking
+type AgentExtensionRelation {
+  agentId: ID!
+  extensionId: ID!
+  installedVersion: SemVer!
+  installedAt: DateTime!
+  lastUsed: DateTime
+  usageCount: Int!
+  configuration: JSON
+  status: String! # "active", "inactive", "error"
+  
+  # Resolved references
+  agent: AgentCard
+  extension: AgentExtension!
+}
+
+# Usage analytics
+type UsageStatistics {
+  totalDownloads: Int!
+  weeklyDownloads: Int!
+  monthlyDownloads: Int!
+  activeInstallations: Int!
+  popularityRank: Int
+  lastUsed: DateTime
+  averageRating: Float
+  reviewCount: Int!
+}
+
+# Compatibility information
+type CompatibilityInfo {
+  platform: String!
+  version: String!
+  tested: Boolean!
+  issues: [String!]
+}
+
+# Agent Card reference (from existing system)
+type AgentCard {
+  name: String!
+  description: String!
+  version: String!
+  url: String!
+  protocolVersion: String!
+  preferredTransport: String
+  skills: [Skill!]
+  capabilities: [String!]
+}
+
+type Skill {
+  id: String!
+  name: String!
+  description: String
+}
+
+# Search and filtering inputs
+input ExtensionSearchInput {
+  query: String
+  types: [ExtensionType!]
+  trustLevels: [TrustLevel!]
+  tags: [String!]
+  author: String
+  minDownloads: Int
+  compatibleWith: String # Agent ID or platform
+  dependsOn: [ID!] # Extension IDs
+  hasValidSignature: Boolean
+  publishedAfter: DateTime
+  publishedBefore: DateTime
+}
+
+input ExtensionSortInput {
+  field: ExtensionSortField!
+  direction: SortDirection!
+}
+
+enum ExtensionSortField {
+  NAME
+  CREATED_AT
+  UPDATED_AT
+  DOWNLOAD_COUNT
+  POPULARITY_RANK
+  VERSION
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+# Pagination
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int!
+}
+
+type ExtensionConnection {
+  edges: [ExtensionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ExtensionEdge {
+  node: AgentExtension!
+  cursor: String!
+}
+
+# Analytics aggregations
+type ExtensionAnalytics {
+  totalExtensions: Int!
+  totalDownloads: Int!
+  extensionsByType: [TypeCount!]!
+  extensionsByTrustLevel: [TrustLevelCount!]!
+  topExtensions: [AgentExtension!]!
+  recentExtensions: [AgentExtension!]!
+  trendingExtensions: [AgentExtension!]!
+}
+
+type TypeCount {
+  type: ExtensionType!
+  count: Int!
+}
+
+type TrustLevelCount {
+  trustLevel: TrustLevel!
+  count: Int!
+}
+
+# Dependency resolution
+type DependencyTree {
+  extension: AgentExtension!
+  dependencies: [DependencyNode!]!
+  conflicts: [DependencyConflict!]!
+}
+
+type DependencyNode {
+  extension: AgentExtension!
+  requiredVersion: String!
+  children: [DependencyNode!]!
+}
+
+type DependencyConflict {
+  dependency: String!
+  requiredVersions: [String!]!
+  resolution: String
+}
+
+# Security and validation
+type SecurityScan {
+  extensionId: ID!
+  scanType: String!
+  result: SecurityScanResult!
+  vulnerabilities: [Vulnerability!]!
+  scanDate: DateTime!
+  scanner: String!
+}
+
+enum SecurityScanResult {
+  CLEAN
+  WARNINGS
+  VULNERABILITIES
+  MALICIOUS
+}
+
+type Vulnerability {
+  id: String!
+  severity: String!
+  description: String!
+  cveId: String
+  fixedIn: String
+}
+
+# Mutations
+input CreateExtensionInput {
+  name: String!
+  description: String
+  type: ExtensionType!
+  content: ExtensionContentInput!
+  tags: [String!] = []
+  license: String
+  homepage: String
+  repository: String
+  dependencies: [ExtensionDependencyInput!] = []
+}
+
+input ExtensionContentInput {
+  format: String!
+  data: JSON!
+  schema: String
+  examples: [JSON!] = []
+  documentation: String
+}
+
+input ExtensionDependencyInput {
+  extensionId: ID!
+  version: String!
+  optional: Boolean = false
+}
+
+input UpdateExtensionInput {
+  name: String
+  description: String
+  content: ExtensionContentInput
+  tags: [String!]
+  license: String
+  homepage: String
+  repository: String
+  dependencies: [ExtensionDependencyInput!]
+}
+
+# Mutation responses
+type ExtensionMutationResponse {
+  success: Boolean!
+  extension: AgentExtension
+  errors: [String!]!
+}
+
+# Subscription payloads
+type ExtensionUpdatedPayload {
+  extension: AgentExtension!
+  changeType: String! # "created", "updated", "deleted", "status_changed"
+}
+
+type SecurityAlertPayload {
+  extensionId: ID!
+  alertType: String!
+  severity: String!
+  message: String!
+  scanResult: SecurityScan
+}
+
+# Root types
+type Query {
+  # Extension queries
+  extension(id: ID!): AgentExtension
+  extensions(
+    search: ExtensionSearchInput
+    sort: ExtensionSortInput
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): ExtensionConnection!
+  
+  # Dependency resolution
+  resolveDependencies(extensionId: ID!, version: String): DependencyTree!
+  checkCompatibility(extensionId: ID!, agentId: ID!): [CompatibilityInfo!]!
+  
+  # Analytics
+  extensionAnalytics(timeRange: String = "30d"): ExtensionAnalytics!
+  extensionUsage(extensionId: ID!, timeRange: String = "30d"): UsageStatistics!
+  
+  # Security
+  securityScan(extensionId: ID!): SecurityScan
+  securityScans(extensionId: ID!, limit: Int = 10): [SecurityScan!]!
+  
+  # Agent-Extension relationships
+  agentExtensions(agentId: ID!): [AgentExtensionRelation!]!
+  extensionAgents(extensionId: ID!): [AgentExtensionRelation!]!
+  
+  # Search and discovery
+  searchExtensions(query: String!, limit: Int = 20): [AgentExtension!]!
+  recommendExtensions(agentId: ID!, limit: Int = 10): [AgentExtension!]!
+  
+  # Agent integration (existing system)
+  agent(id: ID!): AgentCard
+  agents: [AgentCard!]!
+}
+
+type Mutation {
+  # Extension management
+  createExtension(input: CreateExtensionInput!): ExtensionMutationResponse!
+  updateExtension(id: ID!, input: UpdateExtensionInput!): ExtensionMutationResponse!
+  deleteExtension(id: ID!): ExtensionMutationResponse!
+  publishExtension(id: ID!): ExtensionMutationResponse!
+  
+  # Version management
+  createExtensionVersion(extensionId: ID!, version: SemVer!, changes: UpdateExtensionInput!): ExtensionMutationResponse!
+  
+  # Agent-Extension relationships
+  installExtension(agentId: ID!, extensionId: ID!, version: String, configuration: JSON): Boolean!
+  uninstallExtension(agentId: ID!, extensionId: ID!): Boolean!
+  updateExtensionConfig(agentId: ID!, extensionId: ID!, configuration: JSON!): Boolean!
+  
+  # Security operations
+  signExtension(extensionId: ID!, signature: String!): Boolean!
+  requestValidation(extensionId: ID!): Boolean!
+  reportSecurity(extensionId: ID!, issue: String!): Boolean!
+  
+  # Trust management
+  updateTrustLevel(extensionId: ID!, trustLevel: TrustLevel!, reason: String): Boolean!
+}
+
+type Subscription {
+  # Real-time extension updates
+  extensionUpdated(extensionId: ID): ExtensionUpdatedPayload!
+  extensionValidated(extensionId: ID): ExtensionUpdatedPayload!
+  
+  # Security alerts
+  securityAlert(extensionId: ID): SecurityAlertPayload!
+  
+  # Usage metrics (live analytics)
+  usageMetrics(extensionId: ID!): UsageStatistics!
+  
+  # Agent-extension relationship changes
+  agentExtensionChanged(agentId: ID!): AgentExtensionRelation!
+}
