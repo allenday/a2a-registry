@@ -8,7 +8,7 @@ from a2a_registry.proto.generated import a2a_pb2, registry_pb2
 
 def test_version():
     """Test that version is accessible."""
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.1.1"
 
 
 def test_a2a_protocol_version():
@@ -36,8 +36,8 @@ def test_create_agent_card():
     
     # Create registry metadata
     metadata = registry_pb2.RegistryMetadata()
-    metadata.registrar_id = "test-registrar"
-    assert metadata.registrar_id == "test-registrar"
+    metadata.domain_verified = True
+    assert metadata.domain_verified == True
     
     # Create registry agent card
     registry_card = registry_pb2.RegistryAgentCard()
@@ -45,4 +45,4 @@ def test_create_agent_card():
     registry_card.registry_metadata.CopyFrom(metadata)
     
     assert registry_card.agent_card.name == "test-agent"
-    assert registry_card.registry_metadata.registrar_id == "test-registrar"
+    assert registry_card.registry_metadata.domain_verified == True

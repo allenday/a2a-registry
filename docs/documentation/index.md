@@ -103,6 +103,7 @@ curl http://localhost:8000/agents
 
 - [**Getting Started**](getting-started/installation.md) - Installation and setup guide
 - [**API Reference**](api/overview.md) - Complete API documentation
+- [**Agent Extensions**](concepts/agent-extensions.md) - Modular agent capabilities and security framework
 - [**Developer Guide**](developer/contributing.md) - Contributing and development
 - [**Examples**](examples/basic-usage.md) - Usage examples and tutorials
 
