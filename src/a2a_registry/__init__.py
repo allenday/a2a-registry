@@ -9,12 +9,12 @@ A2A_PROTOCOL_VERSION = "0.3.0"
 
 # Version info for programmatic access
 VERSION = __version__
-VERSION_INFO = tuple(int(x) for x in __version__.split('.'))
+VERSION_INFO = tuple(int(x) for x in __version__.split("."))
 
 # Package metadata
 __all__ = [
     "__version__",
-    "__author__", 
+    "__author__",
     "__email__",
     "A2A_PROTOCOL_VERSION",
     "VERSION",
