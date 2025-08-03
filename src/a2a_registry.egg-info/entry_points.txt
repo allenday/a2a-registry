@@ -1,0 +1,2 @@
+[console_scripts]
+a2a-registry = a2a_registry.server:main
