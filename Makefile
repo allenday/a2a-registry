@@ -68,6 +68,7 @@ proto: ## Generate protobuf files
 		--proto_path=$(THIRD_PARTY)/api-common-protos \
 		--python_out=$(GENERATED_DIR) \
 		--grpc_python_out=$(GENERATED_DIR) \
+		--mypy_out=$(GENERATED_DIR) \
 		proto/*.proto \
 		$(THIRD_PARTY)/a2a/specification/grpc/*.proto
 	@echo "Protobuf generation complete"
