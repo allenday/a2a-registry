@@ -21,7 +21,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
-import a2a_pb2 as a2a__pb2
+from . import a2a_pb2 as a2a__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
