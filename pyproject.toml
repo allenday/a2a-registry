@@ -7,7 +7,7 @@ name = "a2a-registry"
 dynamic = ["version"]
 description = "A2A Registry - Protocol buffer definitions and Python client for A2A message registry"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Allen Day", email = "allenday@users.github.com"}
 ]
@@ -84,8 +84,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 "a2a_registry.proto.generated" = ["*.proto"]
 
-[tool.setuptools.dynamic]
-version = {attr = "a2a_registry.__version__"}
+[tool.setuptools_scm]
+write_to = "src/a2a_registry/_version.py"
 
 [tool.black]
 line-length = 88
