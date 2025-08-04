@@ -81,6 +81,7 @@ jobs:
     - name: Terraform Plan
       id: plan
       working-directory: ${{ env.TF_WORKING_DIR }}
+      if: github.event.inputs.action != 'destroy'
       run: |
         terraform plan -detailed-exitcode -out=tfplan
         echo "plan_exit_code=$?" >> $GITHUB_OUTPUT
@@ -120,6 +121,8 @@ jobs:
         (github.event.inputs.auto_approve == 'true' || github.actor == 'allenday')
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: |
+        # Always create a new plan before applying
+        terraform plan -out=tfplan
         terraform apply -auto-approve tfplan
 
     - name: Terraform Destroy
