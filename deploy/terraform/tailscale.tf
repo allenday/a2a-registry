@@ -1,7 +1,7 @@
 # Tailscale subnet for private staging
 resource "google_compute_subnetwork" "private_staging" {
   name          = "private-staging-subnet"
-  ip_cidr_range = "10.0.1.0/24"  # Different range from main subnet
+  ip_cidr_range = "10.0.1.0/24" # Different range from main subnet
   region        = var.region
   network       = google_compute_network.a2a_registry.id
 }
@@ -13,10 +13,10 @@ resource "google_compute_firewall" "tailscale" {
 
   allow {
     protocol = "udp"
-    ports    = ["41641"]  # Default Tailscale port
+    ports    = ["41641"] # Default Tailscale port
   }
 
-  source_ranges = ["0.0.0.0/0"]  # Tailscale nodes can be anywhere
+  source_ranges = ["0.0.0.0/0"] # Tailscale nodes can be anywhere
   target_tags   = ["tailscale"]
 }
 
@@ -55,7 +55,7 @@ resource "google_container_node_pool" "private_staging_nodes" {
       env = "private-staging"
     }
 
-    tags = ["tailscale"]  # Apply Tailscale firewall rules
+    tags = ["tailscale"] # Apply Tailscale firewall rules
 
     machine_type = "e2-micro"
     disk_size_gb = 20
