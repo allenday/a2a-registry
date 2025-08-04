@@ -18,6 +18,15 @@ on:
         - plan
         - apply
         - destroy
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+        - private-staging
       auto_approve:
         description: 'Auto-approve apply/destroy (use with caution)'
         required: false
@@ -32,6 +41,7 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
     
     steps:
     - name: Checkout
@@ -71,7 +81,7 @@ jobs:
       id: plan
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: |
-        terraform plan -detailed-exitcode -out=tfplan
+        terraform plan -detailed-exitcode -out=tfplan -var="environment=${{ github.event.inputs.environment || 'production' }}"
         echo "plan_exit_code=$?" >> $GITHUB_OUTPUT
       continue-on-error: true
 
@@ -119,11 +129,11 @@ jobs:
         github.actor == 'allenday'
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: |
-        terraform destroy -auto-approve
+        terraform destroy -auto-approve -var="environment=${{ github.event.inputs.environment || 'production' }}"
 
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
       if: steps.plan.outputs.plan_exit_code == 2
       with:
         name: terraform-plan
-        path: ${{ env.TF_WORKING_DIR }}/tfplan 
+        path: ${{ env.TF_WORKING_DIR }}/tfplan
