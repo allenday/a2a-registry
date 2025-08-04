@@ -6,8 +6,8 @@ import numpy as np
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from src.a2a_registry.vector_generator import VectorGenerator
-from src.a2a_registry.proto.generated import registry_pb2
+from a2a_registry.vector_generator import VectorGenerator
+from a2a_registry.proto.generated import registry_pb2
 
 
 class TestVectorGenerator:
@@ -16,7 +16,7 @@ class TestVectorGenerator:
     @pytest.fixture
     def generator(self):
         """Create a VectorGenerator instance for testing."""
-        with patch('src.a2a_registry.vector_generator.SentenceTransformer') as mock_transformer:
+        with patch('a2a_registry.vector_generator.SentenceTransformer') as mock_transformer:
             # Mock the sentence transformer
             mock_model = Mock()
             mock_model.get_sentence_embedding_dimension.return_value = 384
@@ -76,7 +76,7 @@ class TestVectorGenerator:
     
     def test_vector_generator_initialization(self):
         """Test VectorGenerator initialization."""
-        with patch('src.a2a_registry.vector_generator.SentenceTransformer') as mock_transformer:
+        with patch('a2a_registry.vector_generator.SentenceTransformer') as mock_transformer:
             mock_model = Mock()
             mock_model.get_sentence_embedding_dimension.return_value = 768
             mock_transformer.return_value = mock_model
