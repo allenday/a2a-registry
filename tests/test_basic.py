@@ -3,12 +3,12 @@
 import pytest
 
 from a2a_registry import __version__, A2A_PROTOCOL_VERSION
-from a2a_registry.proto.generated import a2a_pb2, registry_pb2
+from src.a2a_registry.proto.generated import a2a_pb2, registry_pb2
 
 
 def test_version():
     """Test that version is accessible."""
-    assert __version__ == "0.1.1"
+    assert __version__ == "0.1.2"
 
 
 def test_a2a_protocol_version():
