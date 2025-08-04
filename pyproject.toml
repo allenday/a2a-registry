@@ -42,6 +42,9 @@ dependencies = [
     "strawberry-graphql[fastapi]>=0.234.0",
     "pyjwt>=2.8.0",
     "redis>=5.0.0",
+    # Vector search dependencies
+    "sentence-transformers>=2.2.0",
+    "numpy>=1.21.0",
 ]
 
 [project.optional-dependencies]
