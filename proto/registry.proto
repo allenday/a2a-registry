@@ -4,6 +4,7 @@ package a2a.v1.registry;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 import "a2a.proto";
 
 option csharp_namespace = "A2a.V1.Registry";
@@ -19,6 +20,25 @@ enum TrustLevel {
   TRUST_LEVEL_COMMUNITY = 2;    // Basic verification passed
   TRUST_LEVEL_VERIFIED = 3;     // Full verification including domain + signatures
   TRUST_LEVEL_OFFICIAL = 4;     // Official agent from well-known organization
+}
+
+// Search modes for agent discovery
+enum SearchMode {
+  SEARCH_MODE_UNSPECIFIED = 0;
+  SEARCH_MODE_KEYWORD = 1;      // Use only keyword/text matching on agent fields
+  SEARCH_MODE_VECTOR = 2;       // Use only vector similarity search (requires semantic_query)
+}
+
+// Vector representation for semantic search with provenance
+message Vector {
+  repeated float values = 1;
+  
+  // Provenance information
+  string agent_id = 2;           // AgentCard.url as primary key
+  string field_path = 3;         // e.g., "skills[0].name", "extensions[1].params.core_principles"
+  string field_content = 4;      // The actual text content that was vectorized
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Struct metadata = 6; // Model info, etc.
 }
 
 // Registry-specific metadata for agent cards
@@ -40,6 +60,9 @@ message RegistryAgentCard {
   
   // Registry-specific metadata
   RegistryMetadata registry_metadata = 2;
+  
+  // All vectors for this agent (one per searchable field)
+  repeated Vector vectors = 3;
 }
 
 // Search criteria for finding agents
@@ -66,9 +89,15 @@ message AgentSearchCriteria {
   bool require_domain_verified = 11;
   bool require_signature_verified = 12;
   
+  // Vector search parameters (used when search_mode is VECTOR)
+  string semantic_query = 13;     // Natural language text to vectorize (if query_vector not provided)
+  Vector query_vector = 14;       // Pre-computed query vector (takes precedence over semantic_query)
+  float similarity_threshold = 15; // Minimum similarity score (0.0 to 1.0) for vector search results
+  SearchMode search_mode = 16;    // Determines which search methods to use
+  
   // Pagination
-  int32 page_size = 13;
-  string page_token = 14;
+  int32 page_size = 16;
+  string page_token = 17;
 }
 
 // Extension discovery response (using A2A AgentExtension + provenance)
@@ -99,6 +128,9 @@ service A2ARegistryService {
   rpc ListExtensions(ListExtensionsRequest) returns (ListExtensionsResponse);
   rpc GetAgentExtensions(GetAgentExtensionsRequest) returns (GetAgentExtensionsResponse);
   
+  // Vector operations
+  rpc UpdateAgentVectors(UpdateAgentVectorsRequest) returns (UpdateAgentVectorsResponse);
+  
   // Health check and agent discovery
   rpc PingAgent(PingAgentRequest) returns (PingAgentResponse);
 }
@@ -108,6 +140,7 @@ service A2ARegistryService {
 message GetAgentCardRequest {
   string agent_id = 1;
   bool include_registry_metadata = 2;
+  bool include_vectors = 3;
 }
 
 message GetAgentCardResponse {
@@ -118,6 +151,7 @@ message GetAgentCardResponse {
 message StoreAgentCardRequest {
   RegistryAgentCard registry_agent_card = 1;
   bool upsert = 2;
+  bool update_vectors = 3; // Whether to regenerate semantic vectors
 }
 
 message StoreAgentCardResponse {
@@ -134,6 +168,7 @@ message SearchAgentsResponse {
   repeated RegistryAgentCard agents = 1;
   string next_page_token = 2;
   int32 total_count = 3;
+  repeated float similarity_scores = 4; // For vector search results
 }
 
 message DeleteAgentCardRequest {
@@ -157,6 +192,7 @@ message ListAllAgentsRequest {
   bool include_inactive = 1;
   int32 page_size = 2;
   string page_token = 3;
+  bool include_vectors = 4;
 }
 
 message ListAllAgentsResponse {
@@ -195,15 +231,22 @@ message ListExtensionsRequest {
   repeated string declaring_agents = 2;
   repeated TrustLevel trust_levels = 3;
   
+  // Vector search parameters (used when search_mode is VECTOR)
+  string semantic_query = 4;     // Natural language text to vectorize (if query_vector not provided)
+  Vector query_vector = 5;       // Pre-computed query vector (takes precedence over semantic_query)
+  float similarity_threshold = 6; // Minimum similarity score (0.0 to 1.0) for vector search results
+  SearchMode search_mode = 7;    // Determines which search methods to use
+  
   // Pagination
-  int32 page_size = 4;
-  string page_token = 5;
+  int32 page_size = 8;
+  string page_token = 9;
 }
 
 message ListExtensionsResponse {
   repeated ExtensionInfo extensions = 1;
   string next_page_token = 2;
   int32 total_count = 3;
+  repeated float similarity_scores = 4; // For vector search results
 }
 
 message GetAgentExtensionsRequest {
@@ -213,4 +256,16 @@ message GetAgentExtensionsRequest {
 message GetAgentExtensionsResponse {
   repeated ExtensionInfo extensions = 1;
   string agent_id = 2;
+}
+
+// Vector operations request/response messages
+
+message UpdateAgentVectorsRequest {
+  string agent_id = 1;
+  repeated Vector vectors = 2;
+}
+
+message UpdateAgentVectorsResponse {
+  bool success = 1;
+  string message = 2;
 }
