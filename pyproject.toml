@@ -140,6 +140,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "src/a2a_registry/proto/generated/*" = ["ALL"]
+"src/a2a_registry/_version.py" = ["ALL"]
 
 [tool.mypy]
 python_version = "3.9"
