@@ -1,13 +1,13 @@
 """gRPC server implementation for A2A Registry with vector search capabilities."""
 
 import logging
-from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Any
 
 import grpc
+import grpc.aio
 from google.protobuf import empty_pb2, timestamp_pb2
 
-from .proto.generated import registry_pb2, registry_pb2_grpc
+from .proto.generated import a2a_pb2, registry_pb2, registry_pb2_grpc
 from .storage import storage
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
     """gRPC servicer implementation for A2A Registry Service."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the servicer."""
         self.storage = storage
 
@@ -47,7 +47,7 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
         return registry_card
 
     def _convert_extension_info_to_proto(
-        self, extension_info
+        self, extension_info: Any
     ) -> registry_pb2.ExtensionInfo:
         """Convert ExtensionInfo to proto ExtensionInfo."""
         # Convert datetime to timestamp
@@ -65,7 +65,7 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             trust_level = registry_pb2.TRUST_LEVEL_OFFICIAL
 
         return registry_pb2.ExtensionInfo(
-            extension=registry_pb2.AgentExtension(
+            extension=a2a_pb2.AgentExtension(
                 uri=extension_info.uri,
                 description=extension_info.description,
                 required=extension_info.required,
@@ -79,7 +79,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
         )
 
     async def GetAgentCard(
-        self, request: registry_pb2.GetAgentCardRequest, context
+        self,
+        request: registry_pb2.GetAgentCardRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.GetAgentCardResponse:
         """Get an agent card by ID."""
         try:
@@ -100,22 +102,24 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             return registry_pb2.GetAgentCardResponse(found=False)
 
     async def StoreAgentCard(
-        self, request: registry_pb2.StoreAgentCardRequest, context
+        self,
+        request: registry_pb2.StoreAgentCardRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.StoreAgentCardResponse:
         """Store an agent card in the registry."""
         try:
             # Convert proto agent card to dict
             agent_card_dict = request.registry_agent_card.agent_card
-            
+
             # Register the agent
             success = await self.storage.register_agent(agent_card_dict)
-            
+
             if success:
                 # Update vectors if requested
                 if request.update_vectors:
                     # TODO: Implement vector generation and storage
                     pass
-                
+
                 return registry_pb2.StoreAgentCardResponse(
                     success=True,
                     message="Agent registered successfully",
@@ -134,12 +138,14 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def SearchAgents(
-        self, request: registry_pb2.SearchAgentsRequest, context
+        self,
+        request: registry_pb2.SearchAgentsRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.SearchAgentsResponse:
         """Search for agents using various criteria."""
         try:
             criteria = request.criteria
-            
+
             # Handle different search modes
             if criteria.search_mode == registry_pb2.SEARCH_MODE_VECTOR:
                 # Vector search
@@ -159,19 +165,19 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
                 else:
                     # Basic search with other criteria
                     agents = await self.storage.list_agents()
-            
+
             # Convert to registry cards
             registry_agents = []
             similarity_scores = []
-            
+
             for agent in agents:
                 registry_card = self._convert_agent_card_to_registry_card(agent)
                 registry_agents.append(registry_card)
-                
+
                 # TODO: Calculate similarity scores for vector search
                 if criteria.search_mode == registry_pb2.SEARCH_MODE_VECTOR:
                     similarity_scores.append(1.0)  # Placeholder
-            
+
             return registry_pb2.SearchAgentsResponse(
                 agents=registry_agents,
                 next_page_token="",  # TODO: Implement pagination
@@ -187,7 +193,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def DeleteAgentCard(
-        self, request: registry_pb2.DeleteAgentCardRequest, context
+        self,
+        request: registry_pb2.DeleteAgentCardRequest,
+        context: grpc.aio.ServicerContext,
     ) -> empty_pb2.Empty:
         """Delete an agent card from the registry."""
         try:
@@ -205,12 +213,14 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             return empty_pb2.Empty()
 
     async def ListAllAgents(
-        self, request: registry_pb2.ListAllAgentsRequest, context
+        self,
+        request: registry_pb2.ListAllAgentsRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.ListAllAgentsResponse:
         """List all agents in the registry."""
         try:
             agents = await self.storage.list_agents()
-            
+
             # Convert to registry cards
             registry_agents = []
             for agent in agents:
@@ -218,7 +228,7 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
                     agent, request.include_vectors
                 )
                 registry_agents.append(registry_card)
-            
+
             return registry_pb2.ListAllAgentsResponse(
                 agents=registry_agents,
                 next_page_token="",  # TODO: Implement pagination
@@ -233,7 +243,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def UpdateAgentStatus(
-        self, request: registry_pb2.UpdateAgentStatusRequest, context
+        self,
+        request: registry_pb2.UpdateAgentStatusRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.UpdateAgentStatusResponse:
         """Update agent status."""
         try:
@@ -262,7 +274,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def GetExtensionInfo(
-        self, request: registry_pb2.GetExtensionInfoRequest, context
+        self,
+        request: registry_pb2.GetExtensionInfoRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.GetExtensionInfoResponse:
         """Get extension information."""
         try:
@@ -281,7 +295,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             return registry_pb2.GetExtensionInfoResponse(found=False)
 
     async def ListExtensions(
-        self, request: registry_pb2.ListExtensionsRequest, context
+        self,
+        request: registry_pb2.ListExtensionsRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.ListExtensionsResponse:
         """List extensions with optional filtering."""
         try:
@@ -296,7 +312,7 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
                     trust_levels.append("TRUST_LEVEL_OFFICIAL")
                 else:
                     trust_levels.append("TRUST_LEVEL_UNVERIFIED")
-            
+
             extensions, next_token, total_count = await self.storage.list_extensions(
                 uri_pattern=request.uri_pattern,
                 declaring_agents=list(request.declaring_agents),
@@ -304,19 +320,19 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
                 page_size=request.page_size,
                 page_token=request.page_token,
             )
-            
+
             # Convert to proto extensions
             proto_extensions = []
             similarity_scores = []
-            
+
             for ext in extensions:
                 proto_ext = self._convert_extension_info_to_proto(ext)
                 proto_extensions.append(proto_ext)
-                
+
                 # TODO: Calculate similarity scores for vector search
                 if request.search_mode == registry_pb2.SEARCH_MODE_VECTOR:
                     similarity_scores.append(1.0)  # Placeholder
-            
+
             return registry_pb2.ListExtensionsResponse(
                 extensions=proto_extensions,
                 next_page_token=next_token or "",
@@ -332,18 +348,20 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def GetAgentExtensions(
-        self, request: registry_pb2.GetAgentExtensionsRequest, context
+        self,
+        request: registry_pb2.GetAgentExtensionsRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.GetAgentExtensionsResponse:
         """Get extensions for a specific agent."""
         try:
             extensions = await self.storage.get_agent_extensions(request.agent_id)
-            
+
             # Convert to proto extensions
             proto_extensions = []
             for ext in extensions:
                 proto_ext = self._convert_extension_info_to_proto(ext)
                 proto_extensions.append(proto_ext)
-            
+
             return registry_pb2.GetAgentExtensionsResponse(
                 extensions=proto_extensions, agent_id=request.agent_id
             )
@@ -356,7 +374,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def UpdateAgentVectors(
-        self, request: registry_pb2.UpdateAgentVectorsRequest, context
+        self,
+        request: registry_pb2.UpdateAgentVectorsRequest,
+        context: grpc.aio.ServicerContext,
     ) -> registry_pb2.UpdateAgentVectorsResponse:
         """Update vectors for an agent."""
         try:
@@ -375,14 +395,14 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
             )
 
     async def PingAgent(
-        self, request: registry_pb2.PingAgentRequest, context
+        self, request: registry_pb2.PingAgentRequest, context: grpc.aio.ServicerContext
     ) -> registry_pb2.PingAgentResponse:
         """Ping an agent to check if it's responsive."""
         try:
             # TODO: Implement actual ping logic
             # For now, just check if agent exists
             agent_card = await self.storage.get_agent(request.agent_id)
-            
+
             if agent_card:
                 return registry_pb2.PingAgentResponse(
                     responsive=True,
@@ -412,9 +432,9 @@ class A2ARegistryServicer(registry_pb2_grpc.A2ARegistryServiceServicer):
 def create_grpc_server() -> grpc.aio.Server:
     """Create and configure the gRPC server."""
     server = grpc.aio.server()
-    
+
     # Add the servicer
     servicer = A2ARegistryServicer()
     registry_pb2_grpc.add_A2ARegistryServiceServicer_to_server(servicer, server)
-    
-    return server 
+
+    return server
