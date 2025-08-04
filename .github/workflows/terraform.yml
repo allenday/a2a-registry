@@ -87,12 +87,40 @@ jobs:
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform validate
 
-    - name: Terraform Import
+    - name: Import Service Account
       if: |
         github.event_name == 'workflow_dispatch' && 
         github.event.inputs.action == 'import' &&
-        github.event.inputs.import_resource != '' &&
-        github.event.inputs.import_id != ''
+        github.event.inputs.import_resource == 'google_service_account.tailscale'
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform import google_service_account.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/tailscale-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+
+    - name: Import Private Staging Subnet
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'import' &&
+        github.event.inputs.import_resource == 'google_compute_subnetwork.private_staging'
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform import google_compute_subnetwork.private_staging projects/${{ secrets.GCP_PROJECT_ID }}/regions/us-central1/subnetworks/private-staging-subnet
+
+    - name: Import Tailscale Firewall
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'import' &&
+        github.event.inputs.import_resource == 'google_compute_firewall.tailscale'
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform import google_compute_firewall.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/global/firewalls/allow-tailscale
+
+    - name: Import Generic Resource
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'import' &&
+        github.event.inputs.import_resource != 'google_service_account.tailscale' &&
+        github.event.inputs.import_resource != 'google_compute_subnetwork.private_staging' &&
+        github.event.inputs.import_resource != 'google_compute_firewall.tailscale'
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: |
         terraform import ${{ github.event.inputs.import_resource }} ${{ github.event.inputs.import_id }}
