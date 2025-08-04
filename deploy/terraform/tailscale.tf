@@ -22,6 +22,7 @@ resource "google_compute_firewall" "tailscale" {
 
 # IAM role for Tailscale
 resource "google_service_account" "tailscale" {
+  depends_on   = [google_project_service.required_apis]
   account_id   = "tailscale-sa"
   display_name = "Tailscale Service Account"
 }
@@ -34,6 +35,7 @@ resource "google_project_iam_member" "tailscale_node" {
 
 # Add Tailscale node pool
 resource "google_container_node_pool" "private_staging_nodes" {
+  depends_on = [google_project_service.required_apis]
   name       = "private-staging-node-pool"
   location   = var.region
   cluster    = google_container_cluster.a2a_registry.name
