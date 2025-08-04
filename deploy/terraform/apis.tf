@@ -13,4 +13,9 @@ resource "google_project_service" "required_apis" {
 
   disable_dependent_services = false
   disable_on_destroy         = false
+
+  # Handle the case where APIs are already enabled
+  lifecycle {
+    ignore_changes = [disable_dependent_services, disable_on_destroy]
+  }
 }
