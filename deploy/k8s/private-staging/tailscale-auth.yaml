@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tailscale-auth
+  namespace: private-staging
+type: Opaque
+data:
+  # This will be populated from GitHub secret TAILSCALE_AUTH_KEY
+  auth_key: ${TAILSCALE_AUTH_KEY}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale
+  namespace: private-staging

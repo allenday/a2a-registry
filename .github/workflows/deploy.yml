@@ -19,6 +19,7 @@ on:
         options:
           - staging
           - production
+          - private-staging
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -94,12 +95,27 @@ jobs:
           --region ${{ env.REGION }} \
           --project ${{ env.PROJECT_ID }}
 
+    - name: Setup Tailscale (private-staging only)
+      if: github.event.inputs.environment == 'private-staging'
+      run: |
+        # Create Tailscale auth secret
+        echo "${{ secrets.TAILSCALE_AUTH_KEY }}" | base64 > tailscale_key
+        kubectl create namespace private-staging --dry-run=client -o yaml | kubectl apply -f -
+        kubectl create secret generic tailscale-auth \
+          --namespace=private-staging \
+          --from-file=auth_key=tailscale_key \
+          --dry-run=client -o yaml | kubectl apply -f -
+        rm tailscale_key
+
     - name: Deploy to GKE
       run: |
         # Set environment-specific variables
         if [ "${{ github.event.inputs.environment || 'production' }}" = "staging" ]; then
           DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}-staging"
           MANIFEST_PATH="deploy/k8s/staging/"
+        elif [ "${{ github.event.inputs.environment }}" = "private-staging" ]; then
+          DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}-private-staging"
+          MANIFEST_PATH="deploy/k8s/private-staging/"
         else
           DEPLOYMENT_NAME="${{ env.IMAGE_NAME }}"
           MANIFEST_PATH="deploy/k8s/"
