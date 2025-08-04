@@ -50,4 +50,10 @@ variable "use_cloudflare" {
   description = "Whether to use Cloudflare proxy for subdomains"
   type        = bool
   default     = true
-} 
+}
+
+variable "environment" {
+  description = "Environment to deploy to (production, staging, private-staging)"
+  type        = string
+  default     = "production"
+}
