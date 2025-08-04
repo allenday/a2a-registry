@@ -96,8 +96,8 @@ message AgentSearchCriteria {
   SearchMode search_mode = 16;    // Determines which search methods to use
   
   // Pagination
-  int32 page_size = 16;
-  string page_token = 17;
+  int32 page_size = 17;
+  string page_token = 18;
 }
 
 // Extension discovery response (using A2A AgentExtension + provenance)
