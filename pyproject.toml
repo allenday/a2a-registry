@@ -87,6 +87,8 @@ where = ["src"]
 
 [tool.setuptools_scm]
 write_to = "src/a2a_registry/_version.py"
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
 
 [tool.black]
 line-length = 88
