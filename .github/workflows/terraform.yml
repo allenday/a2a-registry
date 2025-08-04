@@ -18,6 +18,7 @@ on:
         - plan
         - apply
         - destroy
+        - import
       environment:
         description: 'Environment to deploy to'
         required: false
@@ -32,6 +33,14 @@ on:
         required: false
         default: false
         type: boolean
+      import_resource:
+        description: 'Resource to import (e.g., google_service_account.tailscale)'
+        required: false
+        type: string
+      import_id:
+        description: 'Resource ID to import'
+        required: false
+        type: string
 
 env:
   TF_VERSION: "1.5.7"
@@ -78,10 +87,20 @@ jobs:
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform validate
 
+    - name: Terraform Import
+      if: |
+        github.event_name == 'workflow_dispatch' && 
+        github.event.inputs.action == 'import' &&
+        github.event.inputs.import_resource != '' &&
+        github.event.inputs.import_id != ''
+      working-directory: ${{ env.TF_WORKING_DIR }}
+      run: |
+        terraform import ${{ github.event.inputs.import_resource }} ${{ github.event.inputs.import_id }}
+
     - name: Terraform Plan
       id: plan
       working-directory: ${{ env.TF_WORKING_DIR }}
-      if: github.event.inputs.action != 'destroy'
+      if: github.event.inputs.action != 'destroy' && github.event.inputs.action != 'import'
       run: |
         terraform plan -detailed-exitcode -out=tfplan
         echo "plan_exit_code=$?" >> $GITHUB_OUTPUT
