@@ -16,6 +16,13 @@ resource "google_project_service" "required_apis" {
 
   # Handle the case where APIs are already enabled
   lifecycle {
-    ignore_changes = [disable_dependent_services, disable_on_destroy]
+    create_before_destroy = true
   }
+}
+
+# Wait for APIs to be fully enabled
+resource "time_sleep" "wait_for_apis" {
+  depends_on = [google_project_service.required_apis]
+
+  create_duration = "60s"
 }
