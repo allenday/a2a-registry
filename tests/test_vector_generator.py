@@ -3,6 +3,7 @@
 import json
 import pytest
 import numpy as np
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 from src.a2a_registry.vector_generator import VectorGenerator
@@ -320,81 +321,118 @@ def real_generator():
         pytest.skip("SentenceTransformers not available for integration tests")
 
 
+@pytest.fixture
+def steve_jobs_agent_card():
+    """Load the real Steve Jobs agent card for testing."""
+    card_path = Path(__file__).parent.parent / "docs" / "documentation" / "steve-jobs-agentcard.json"
+    
+    if not card_path.exists():
+        pytest.skip(f"Steve Jobs agent card not found at: {card_path}")
+    
+    with open(card_path, 'r') as f:
+        return json.load(f)
+
+
 class TestVectorGeneratorIntegration:
     """Integration tests with real sentence transformers."""
     
-    def test_real_vector_generation(self, real_generator):
-        """Test with real sentence transformer model."""
-        agent_card = {
-            "url": "https://test.agent.com",
-            "name": "Strategic Planning Agent",
-            "description": "An agent specialized in strategic planning and long-term vision",
-            "skills": [
-                {
-                    "name": "Strategic Planning",
-                    "description": "Create comprehensive strategic plans",
-                    "tags": ["planning", "strategy", "vision"],
-                    "examples": ["Help me create a 5-year strategic plan"]
-                }
-            ]
-        }
+    def test_real_vector_generation_steve_jobs(self, real_generator, steve_jobs_agent_card):
+        """Test vector generation with real Steve Jobs agent card."""
+        vectors = real_generator.generate_agent_vectors(steve_jobs_agent_card)
         
-        vectors = real_generator.generate_agent_vectors(agent_card)
-        
-        # Should generate multiple vectors
-        assert len(vectors) > 0
+        # Should generate multiple vectors from the rich agent card data
+        assert len(vectors) > 10  # Steve Jobs card has extensive content
         
         # All vectors should have proper dimensions
         for vector in vectors:
             assert len(vector.values) == real_generator.vector_dimensions
             assert all(isinstance(v, float) for v in vector.values)
+            assert vector.agent_id == steve_jobs_agent_card["url"]
+        
+        # Check that we have vectors for expected fields
+        field_paths = [v.field_path for v in vectors]
+        assert "name" in field_paths
+        assert "description" in field_paths
+        
+        # Should have skill vectors
+        skill_vectors = [v for v in vectors if v.field_path.startswith("skills[")]
+        assert len(skill_vectors) > 0
+        
+        # Should have extension vectors (Steve Jobs has 3 extensions)
+        extension_vectors = [v for v in vectors if v.field_path.startswith("extensions[")]
+        assert len(extension_vectors) > 0
+        
+        # Check that competency data is captured
+        competency_vectors = [
+            v for v in vectors 
+            if "competency" in v.field_content.lower() or "strategic planning" in v.field_content.lower()
+        ]
+        assert len(competency_vectors) > 0
     
-    def test_real_similarity_search(self, real_generator):
-        """Test similarity search with real embeddings."""
-        # Generate query vector
-        query_vector = real_generator.generate_query_vector(
-            "strategic planning and long-term vision"
-        )
+    def test_real_similarity_search_steve_jobs(self, real_generator, steve_jobs_agent_card):
+        """Test similarity search with Steve Jobs agent vectors."""
+        # Generate vectors from Steve Jobs agent card
+        agent_vectors = real_generator.generate_agent_vectors(steve_jobs_agent_card)
         
-        # Generate agent vectors
-        agent_card = {
-            "url": "https://test.agent.com",
-            "name": "Strategic Planning Agent",
-            "description": "An agent for strategic planning and vision",
-            "skills": [
-                {
-                    "name": "Strategic Planning",
-                    "description": "Expert in strategic planning",
-                    "tags": ["planning", "strategy"]
-                },
-                {
-                    "name": "Data Analysis", 
-                    "description": "Analyze data and metrics",
-                    "tags": ["data", "analytics"]
-                }
-            ]
-        }
-        
-        agent_vectors = real_generator.generate_agent_vectors(agent_card)
-        
-        # Search for similar vectors
-        results = real_generator.search_similar_vectors(
-            query_vector, agent_vectors, threshold=0.3, max_results=5
-        )
-        
-        # Should find some similar vectors
-        assert len(results) > 0
-        
-        # Results should be ordered by similarity
-        similarities = [score for _, score in results]
-        assert similarities == sorted(similarities, reverse=True)
-        
-        # Strategic planning related vectors should have higher similarity
-        strategic_results = [
-            (vector, score) for vector, score in results
-            if "strategic" in vector.field_content.lower() or "planning" in vector.field_content.lower()
+        # Test queries related to Steve Jobs' competencies
+        test_queries = [
+            "strategic planning and long-term vision",
+            "creative innovation and design thinking", 
+            "product design and user experience",
+            "leadership and team inspiration"
         ]
         
-        if strategic_results:
-            avg_strategic_similarity = sum(score for _, score in strategic_results) / len(strategic_results)
-            assert avg_strategic_similarity > 0.5  # Should be reasonably similar
+        for query in test_queries:
+            query_vector = real_generator.generate_query_vector(query)
+            
+            # Search for similar vectors
+            results = real_generator.search_similar_vectors(
+                query_vector, agent_vectors, threshold=0.3, max_results=5
+            )
+            
+            # Should find relevant vectors for Steve Jobs related queries
+            assert len(results) > 0, f"No results found for query: {query}"
+            
+            # Results should be ordered by similarity
+            similarities = [score for _, score in results]
+            assert similarities == sorted(similarities, reverse=True)
+            
+            # At least one result should have decent similarity
+            assert max(similarities) > 0.4, f"Low similarity for query: {query}"
+    
+    def test_steve_jobs_competency_extraction(self, real_generator, steve_jobs_agent_card):
+        """Test that Steve Jobs competency data is properly extracted and vectorized."""
+        vectors = real_generator.generate_agent_vectors(steve_jobs_agent_card)
+        
+        # Find vectors that contain competency scores
+        competency_content = []
+        for vector in vectors:
+            if "competency_scores" in vector.field_content:
+                competency_content.append(vector.field_content)
+        
+        assert len(competency_content) > 0, "No competency scores found in generated vectors"
+        
+        # Check that specific competencies from the agent card are present
+        combined_content = " ".join(competency_content)
+        assert "strategic planning and long-term vision" in combined_content
+        assert "creative innovation and design thinking" in combined_content
+        assert "team leadership and inspiring others" in combined_content
+        assert "0.95" in combined_content  # High competency scores
+    
+    def test_steve_jobs_persona_extraction(self, real_generator, steve_jobs_agent_card):
+        """Test that Steve Jobs persona data is properly extracted."""
+        vectors = real_generator.generate_agent_vectors(steve_jobs_agent_card)
+        
+        # Find vectors that contain persona characteristics
+        persona_vectors = [
+            v for v in vectors 
+            if "core_principles" in v.field_content or "simplicity" in v.field_content.lower()
+        ]
+        
+        assert len(persona_vectors) > 0, "No persona data found in generated vectors"
+        
+        # Check for Steve Jobs' signature phrases and principles
+        combined_content = " ".join([v.field_content for v in persona_vectors])
+        assert "Simplicity is the ultimate sophistication" in combined_content
+        assert "It just works" in combined_content
+        assert "Stay hungry, stay foolish" in combined_content
