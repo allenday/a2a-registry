@@ -186,7 +186,7 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Upload Terraform Plan
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tfplan
         path: deploy/terraform/tfplan
