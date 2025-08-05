@@ -44,6 +44,7 @@ env:
   TF_VERSION: "1.5.7"
   TF_WORKING_DIR: "deploy/terraform"
   TF_VAR_environment: ${{ github.event.inputs.environment || 'production' }}
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
 jobs:
   terraform:
@@ -64,30 +65,15 @@ jobs:
       with:
         terraform_version: ${{ env.TF_VERSION }}
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-        create_credentials_file: true
-        export_environment_variables: true
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        token_format: "access_token"
-        access_token_lifetime: "3600s"
-        access_token_scopes: |
-          https://www.googleapis.com/auth/cloud-platform
-          https://www.googleapis.com/auth/cloudplatformprojects
-          https://www.googleapis.com/auth/iam
-          https://www.googleapis.com/auth/service.management
-          https://www.googleapis.com/auth/servicecontrol
-          https://www.googleapis.com/auth/compute
-          https://www.googleapis.com/auth/devstorage.read_write
-          https://www.googleapis.com/auth/userinfo.email
-          https://www.googleapis.com/auth/iam.serviceAccounts.getOpenIdToken
+    - name: Setup GCP Credentials
+      run: |
+        echo '${{ secrets.GCP_SA_KEY }}' > ${{ github.workspace }}/gcp-credentials.json
 
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
 
     - name: Configure Docker for GCR
       run: gcloud auth configure-docker
@@ -213,3 +199,7 @@ jobs:
       with:
         name: terraform-plan
         path: ${{ env.TF_WORKING_DIR }}/tfplan
+
+    - name: Cleanup
+      if: always()
+      run: rm -f ${{ github.workspace }}/gcp-credentials.json
