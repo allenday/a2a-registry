@@ -1,5 +1,5 @@
 resource "time_sleep" "wait_for_service_account" {
-  depends_on = [google_service_account.tailscale]
+  depends_on      = [google_service_account.tailscale]
   create_duration = "30s"
 }
 
@@ -17,6 +17,6 @@ resource "google_project_iam_member" "tailscale_node" {
 }
 
 resource "time_sleep" "wait_for_iam" {
-  depends_on = [google_project_iam_member.tailscale_node]
+  depends_on      = [google_project_iam_member.tailscale_node]
   create_duration = "30s"
 }
