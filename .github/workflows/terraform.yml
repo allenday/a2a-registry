@@ -3,10 +3,8 @@ name: Terraform Infrastructure
 on:
   push:
     branches: [ master ]
-    paths: [ 'deploy/terraform/**' ]
   pull_request:
     branches: [ master ]
-    paths: [ 'deploy/terraform/**' ]
   workflow_dispatch:
     inputs:
       action:
