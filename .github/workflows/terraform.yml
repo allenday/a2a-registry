@@ -50,7 +50,11 @@ jobs:
     name: Terraform
     runs-on: ubuntu-latest
     environment: private-staging
-    
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      
     steps:
     - name: Checkout
       uses: actions/checkout@v4
