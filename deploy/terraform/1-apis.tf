@@ -1,45 +1,38 @@
-# Enable Cloud Resource Manager API first
 resource "google_project_service" "cloudresourcemanager" {
-  project = var.project_id
-  service = "cloudresourcemanager.googleapis.com"
-
+  project                    = var.project_id
+  service                    = "cloudresourcemanager.googleapis.com"
   disable_dependent_services = false
   disable_on_destroy         = false
-
-  timeouts {
-    create = "30m"
-    update = "40m"
+  lifecycle {
+    ignore_changes = [disable_dependent_services, disable_on_destroy]
+    create_before_destroy = true
   }
 }
 
-# Then enable other APIs
+resource "time_sleep" "wait_for_cloudresourcemanager_api" {
+  depends_on = [google_project_service.cloudresourcemanager]
+  create_duration = "30s"
+}
+
 resource "google_project_service" "required_apis" {
   for_each = toset([
-    "iam.googleapis.com",          # For service account management
-    "container.googleapis.com",    # For GKE
-    "compute.googleapis.com",      # For networking and compute resources
-    "serviceusage.googleapis.com", # For enabling other APIs
+    "iam.googleapis.com",
+    "container.googleapis.com",
+    "compute.googleapis.com",
+    "serviceusage.googleapis.com",
   ])
-
-  project = var.project_id
-  service = each.value
-
+  project                    = var.project_id
+  service                    = each.key
   disable_dependent_services = false
   disable_on_destroy         = false
-
-  depends_on = [google_project_service.cloudresourcemanager]
-
-  timeouts {
-    create = "30m"
-    update = "40m"
+  depends_on = [time_sleep.wait_for_cloudresourcemanager_api]
+  lifecycle {
+    ignore_changes = [disable_dependent_services, disable_on_destroy]
+    create_before_destroy = true
   }
 }
 
-# Verify Cloud Resource Manager API is enabled
-data "google_project" "project" {
-  project_id = var.project_id
-  depends_on = [
-    google_project_service.cloudresourcemanager,
-    google_project_service.required_apis
-  ]
+resource "time_sleep" "wait_for_apis" {
+  depends_on = [google_project_service.required_apis]
+  create_duration = "60s"
 }
