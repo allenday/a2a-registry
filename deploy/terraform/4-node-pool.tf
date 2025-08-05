@@ -14,6 +14,12 @@ resource "google_container_node_pool" "private_staging_nodes" {
     auto_upgrade = true
   }
 
+  upgrade_settings {
+    max_surge       = 1
+    max_unavailable = 0
+    strategy        = "SURGE"
+  }
+
   node_config {
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -31,6 +37,25 @@ resource "google_container_node_pool" "private_staging_nodes" {
     disk_size_gb = 20
     disk_type    = "pd-balanced"
     image_type   = "COS_CONTAINERD"
+
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+
+    resource_labels = {
+      "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
+
+    kubelet_config {
+      cpu_cfs_quota      = false
+      pod_pids_limit     = 0
+      cpu_manager_policy = "static"
+    }
+
+    shielded_instance_config {
+      enable_integrity_monitoring = true
+      enable_secure_boot          = false
+    }
 
     service_account = data.google_service_account.tailscale.email
 
