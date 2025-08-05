@@ -93,16 +93,21 @@ jobs:
         github.event.inputs.action == 'import'
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: |
-        # Import service account
+        # Remove all resources from state
         terraform state rm google_service_account.tailscale || true
-        terraform import google_service_account.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/tailscale-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com || true
-        
-        # Import subnet
         terraform state rm google_compute_subnetwork.private_staging || true
-        terraform import google_compute_subnetwork.private_staging projects/${{ secrets.GCP_PROJECT_ID }}/regions/us-central1/subnetworks/private-staging-subnet || true
-        
-        # Import firewall
         terraform state rm google_compute_firewall.tailscale || true
+        terraform state rm google_project_iam_member.tailscale_node || true
+        terraform state rm google_container_node_pool.private_staging_nodes || true
+        terraform state rm google_project_service.cloudresourcemanager || true
+        terraform state rm 'google_project_service.required_apis["compute.googleapis.com"]' || true
+        terraform state rm 'google_project_service.required_apis["container.googleapis.com"]' || true
+        terraform state rm 'google_project_service.required_apis["iam.googleapis.com"]' || true
+        terraform state rm 'google_project_service.required_apis["serviceusage.googleapis.com"]' || true
+        
+        # Import resources
+        terraform import google_service_account.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/tailscale-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com || true
+        terraform import google_compute_subnetwork.private_staging projects/${{ secrets.GCP_PROJECT_ID }}/regions/us-central1/subnetworks/private-staging-subnet || true
         terraform import google_compute_firewall.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/global/firewalls/allow-tailscale || true
         
         # Import generic resource if specified
