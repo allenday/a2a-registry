@@ -35,16 +35,6 @@ on:
         description: 'Resource to import (e.g., google_service_account.tailscale)'
         required: false
         type: string
-      import_id:
-        description: 'Resource ID to import'
-        required: false
-        type: string
-
-env:
-  TF_VERSION: "1.5.7"
-  TF_WORKING_DIR: "deploy/terraform"
-  TF_VAR_environment: ${{ github.event.inputs.environment || 'production' }}
-  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
 jobs:
   terraform:
@@ -55,7 +45,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
-      
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -63,38 +53,47 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: ${{ env.TF_VERSION }}
+        terraform_version: 1.5.7
 
     - name: Setup GCP Credentials
-      run: |
-        echo '${{ secrets.GCP_SA_KEY }}' > ${{ github.workspace }}/gcp-credentials.json
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        version: '2.1.5'
 
     - name: Configure Docker for GCR
-      run: gcloud auth configure-docker
+      run: gcloud auth configure-docker --quiet
 
     - name: Terraform Init
-      working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform init
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Format Check
-      working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform fmt -check
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Validate
-      working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform validate
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Import Resources
-      if: |
-        github.event_name == 'workflow_dispatch' && 
-        github.event.inputs.action == 'import'
-      working-directory: ${{ env.TF_WORKING_DIR }}
+      if: inputs.action == 'apply'
       run: |
         # Remove all resources from state
         terraform state rm google_service_account.tailscale || true
@@ -107,46 +106,56 @@ jobs:
         terraform state rm 'google_project_service.required_apis["container.googleapis.com"]' || true
         terraform state rm 'google_project_service.required_apis["iam.googleapis.com"]' || true
         terraform state rm 'google_project_service.required_apis["serviceusage.googleapis.com"]' || true
-        
+
         # Import resources
         terraform import google_service_account.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/tailscale-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com || true
         terraform import google_compute_subnetwork.private_staging projects/${{ secrets.GCP_PROJECT_ID }}/regions/us-central1/subnetworks/private-staging-subnet || true
         terraform import google_compute_firewall.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/global/firewalls/allow-tailscale || true
-        
-        # Import generic resource if specified
-        if [ ! -z "${{ github.event.inputs.import_resource }}" ] && [ ! -z "${{ github.event.inputs.import_id }}" ]; then
-          terraform state rm ${{ github.event.inputs.import_resource }} || true
-          terraform import ${{ github.event.inputs.import_resource }} ${{ github.event.inputs.import_id }}
-        fi
+        terraform import google_container_node_pool.private_staging_nodes projects/${{ secrets.GCP_PROJECT_ID }}/locations/us-central1/clusters/a2a-registry-cluster/nodePools/private-staging-node-pool || true
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Plan
       id: plan
-      working-directory: ${{ env.TF_WORKING_DIR }}
-      if: github.event.inputs.action != 'destroy' && github.event.inputs.action != 'import'
       run: |
         terraform plan -detailed-exitcode -out=tfplan
         echo "plan_exit_code=$?" >> $GITHUB_OUTPUT
-      continue-on-error: true
-
-    - name: Terraform Plan Status
-      if: steps.plan.outputs.plan_exit_code == 1
-      run: exit 1
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Plan Status
       if: steps.plan.outputs.plan_exit_code == 2
-      run: echo "Changes detected"
+      run: exit 1
+
+    - name: Terraform Plan Status
+      if: steps.plan.outputs.plan_exit_code == 0
+      run: echo "No changes. Infrastructure is up-to-date!"
 
     - name: Comment PR
-      if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = `#### Terraform Plan 📋
+          const output = `#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          
+          <details><summary>Show Plan</summary>
+          
           \`\`\`\n
-          ${process.env.PLAN || 'No changes. Infrastructure is up-to-date.'}
+          ${process.env.PLAN}
           \`\`\`
           
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+          </details>
+          
+          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -156,49 +165,31 @@ jobs:
           })
 
     - name: Terraform Apply
-      if: |
-        github.event_name == 'workflow_dispatch' && 
-        github.event.inputs.action == 'apply' &&
-        (github.event.inputs.auto_approve == 'true' || github.actor == 'allenday')
-      working-directory: ${{ env.TF_WORKING_DIR }}
+      if: inputs.action == 'apply' && (inputs.auto_approve == true || github.event_name == 'workflow_dispatch')
       run: |
-        # Remove all resources from state
-        terraform state rm google_service_account.tailscale || true
-        terraform state rm google_compute_subnetwork.private_staging || true
-        terraform state rm google_compute_firewall.tailscale || true
-        terraform state rm google_project_iam_member.tailscale_node || true
-        terraform state rm google_container_node_pool.private_staging_nodes || true
-        terraform state rm google_project_service.cloudresourcemanager || true
-        terraform state rm 'google_project_service.required_apis["compute.googleapis.com"]' || true
-        terraform state rm 'google_project_service.required_apis["container.googleapis.com"]' || true
-        terraform state rm 'google_project_service.required_apis["iam.googleapis.com"]' || true
-        terraform state rm 'google_project_service.required_apis["serviceusage.googleapis.com"]' || true
-        
-        # Import resources
-        terraform import google_service_account.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/tailscale-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com || true
-        terraform import google_compute_subnetwork.private_staging projects/${{ secrets.GCP_PROJECT_ID }}/regions/us-central1/subnetworks/private-staging-subnet || true
-        terraform import google_compute_firewall.tailscale projects/${{ secrets.GCP_PROJECT_ID }}/global/firewalls/allow-tailscale || true
-        
         # Always create a new plan before applying
         terraform plan -out=tfplan
         terraform apply -auto-approve tfplan
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Destroy
-      if: |
-        github.event_name == 'workflow_dispatch' && 
-        github.event.inputs.action == 'destroy' &&
-        github.event.inputs.auto_approve == 'true' &&
-        github.actor == 'allenday'
-      working-directory: ${{ env.TF_WORKING_DIR }}
-      run: |
-        terraform destroy -auto-approve
+      if: inputs.action == 'destroy' && (inputs.auto_approve == true || github.event_name == 'workflow_dispatch')
+      run: terraform destroy -auto-approve
+      env:
+        TF_VERSION: 1.5.7
+        TF_WORKING_DIR: deploy/terraform
+        TF_VAR_environment: ${{ inputs.environment }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Upload Terraform Plan
-      uses: actions/upload-artifact@v4
-      if: steps.plan.outputs.plan_exit_code == 2
+      uses: actions/upload-artifact@v3
       with:
-        name: terraform-plan
-        path: ${{ env.TF_WORKING_DIR }}/tfplan
+        name: tfplan
+        path: deploy/terraform/tfplan
 
     - name: Cleanup
       if: always()
