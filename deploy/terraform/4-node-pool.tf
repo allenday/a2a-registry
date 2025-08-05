@@ -32,7 +32,7 @@ resource "google_container_node_pool" "private_staging_nodes" {
     disk_type    = "pd-balanced"
     image_type   = "COS_CONTAINERD"
 
-    service_account = data.google_service_account.tailscale_data.email
+    service_account = data.google_service_account.tailscale.email
 
     workload_metadata_config {
       mode = "GKE_METADATA"
