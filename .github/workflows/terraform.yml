@@ -70,6 +70,10 @@ jobs:
         export_environment_variables: true
         workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
         service_account: ${{ secrets.SERVICE_ACCOUNT }}
+        access_token_lifetime: "3600s"
+        token_format: "access_token"
+        delegates:
+          - ${{ secrets.SERVICE_ACCOUNT }}
 
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
