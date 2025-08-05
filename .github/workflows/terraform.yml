@@ -49,7 +49,7 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'production' }}
+    environment: private-staging
     
     steps:
     - name: Checkout
