@@ -40,7 +40,7 @@ resource "google_container_node_pool" "private_staging_nodes" {
   }
 
   lifecycle {
-    prevent_destroy      = true
+    prevent_destroy       = true
     create_before_destroy = true
   }
 }
