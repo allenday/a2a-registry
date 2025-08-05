@@ -63,7 +63,7 @@ jobs:
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
       with:
-        version: '2.1.5'
+        version: 'latest'
 
     - name: Configure Docker for GCR
       run: gcloud auth configure-docker --quiet
