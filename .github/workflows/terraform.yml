@@ -74,6 +74,7 @@ jobs:
         token_format: "id_token"
         id_token_audience: "https://iam.googleapis.com"
         id_token_include_email: true
+        service_account_impersonation_url: "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${{ secrets.SERVICE_ACCOUNT }}:generateIdToken"
 
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
