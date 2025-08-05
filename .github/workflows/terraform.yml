@@ -71,7 +71,7 @@ jobs:
         create_credentials_file: true
         export_environment_variables: true
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        token_format: "access_token"
+        token_format: "oauth"
         access_token_scopes: |
           https://www.googleapis.com/auth/cloud-platform
           https://www.googleapis.com/auth/cloudplatformprojects
