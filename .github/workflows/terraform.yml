@@ -62,6 +62,11 @@ jobs:
       uses: google-github-actions/auth@v2
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
+        create_credentials_file: true
+        export_environment_variables: true
+        cleanup_credentials: true
+        access_token_lifetime: 3600s
+        access_token_scopes: https://www.googleapis.com/auth/cloud-platform
 
     - name: Setup Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
@@ -76,21 +81,18 @@ jobs:
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Format Check
       run: terraform fmt -check
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Validate
       run: terraform validate
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Import Resources
       if: inputs.action == 'apply'
@@ -115,7 +117,6 @@ jobs:
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Plan
       id: plan
@@ -125,7 +126,6 @@ jobs:
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Plan Status
       if: steps.plan.outputs.plan_exit_code == 2
@@ -171,7 +171,6 @@ jobs:
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Terraform Destroy
       if: inputs.action == 'destroy' && (inputs.auto_approve == true || github.event_name == 'workflow_dispatch')
@@ -179,14 +178,9 @@ jobs:
       env:
         TF_VERSION: 1.5.7
         TF_VAR_environment: ${{ inputs.environment }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-credentials.json
 
     - name: Upload Terraform Plan
       uses: actions/upload-artifact@v4
       with:
         name: tfplan
         path: deploy/terraform/tfplan
-
-    - name: Cleanup
-      if: always()
-      run: rm -f ${{ github.workspace }}/gcp-credentials.json
