@@ -9,9 +9,13 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 29, 0, "", "registry.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    29,
+    0,
+    '',
+    'registry.proto'
 )
 # @@protoc_insertion_point(imports)
 
@@ -24,74 +28,70 @@ from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from . import a2a_pb2 as a2a__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0eregistry.proto\x12\x0f\x61\x32\x61.v1.registry\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\ta2a.proto"\xb0\x01\n\x06Vector\x12\x0e\n\x06values\x18\x01 \x03(\x02\x12\x10\n\x08\x61gent_id\x18\x02 \x01(\t\x12\x12\n\nfield_path\x18\x03 \x01(\t\x12\x15\n\rfield_content\x18\x04 \x01(\t\x12.\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12)\n\x08metadata\x18\x06 \x01(\x0b\x32\x17.google.protobuf.Struct"\xde\x01\n\x10RegistryMetadata\x12\x31\n\rregistered_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0clast_updated\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0f\x64omain_verified\x18\x03 \x01(\x08\x12\x1a\n\x12signature_verified\x18\x04 \x01(\x08\x12\x30\n\x0btrust_level\x18\x05 \x01(\x0e\x32\x1b.a2a.v1.registry.TrustLevel"\xa2\x01\n\x11RegistryAgentCard\x12%\n\nagent_card\x18\x01 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12<\n\x11registry_metadata\x18\x02 \x01(\x0b\x32!.a2a.v1.registry.RegistryMetadata\x12(\n\x07vectors\x18\x03 \x03(\x0b\x32\x17.a2a.v1.registry.Vector"\xb3\x04\n\x13\x41gentSearchCriteria\x12\x11\n\tagent_ids\x18\x01 \x03(\t\x12\x13\n\x0b\x61gent_names\x18\x02 \x03(\t\x12\x1d\n\x15required_capabilities\x18\x03 \x03(\t\x12\x17\n\x0frequired_skills\x18\x04 \x03(\t\x12\x19\n\x11preferred_regions\x18\x05 \x03(\t\x12\x19\n\x11require_discovery\x18\x06 \x01(\x08\x12\x18\n\x10min_health_score\x18\x07 \x01(\r\x12\x1c\n\x14max_response_time_ms\x18\x08 \x01(\r\x12\x18\n\x10\x61llowed_statuses\x18\t \x03(\t\x12\x31\n\x0ctrust_levels\x18\n \x03(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x1f\n\x17require_domain_verified\x18\x0b \x01(\x08\x12"\n\x1arequire_signature_verified\x18\x0c \x01(\x08\x12\x16\n\x0esemantic_query\x18\r \x01(\t\x12-\n\x0cquery_vector\x18\x0e \x01(\x0b\x32\x17.a2a.v1.registry.Vector\x12\x1c\n\x14similarity_threshold\x18\x0f \x01(\x02\x12\x30\n\x0bsearch_mode\x18\x10 \x01(\x0e\x32\x1b.a2a.v1.registry.SearchMode\x12\x11\n\tpage_size\x18\x11 \x01(\x05\x12\x12\n\npage_token\x18\x12 \x01(\t"\xf3\x01\n\rExtensionInfo\x12)\n\textension\x18\x01 \x01(\x0b\x32\x16.a2a.v1.AgentExtension\x12\x1f\n\x17\x66irst_declared_by_agent\x18\x02 \x01(\t\x12\x35\n\x11\x66irst_declared_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0btrust_level\x18\x04 \x01(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x18\n\x10\x64\x65\x63laring_agents\x18\x05 \x03(\t\x12\x13\n\x0busage_count\x18\x06 \x01(\x05"c\n\x13GetAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12!\n\x19include_registry_metadata\x18\x02 \x01(\x08\x12\x17\n\x0finclude_vectors\x18\x03 \x01(\x08"f\n\x14GetAgentCardResponse\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32".a2a.v1.registry.RegistryAgentCard\x12\r\n\x05\x66ound\x18\x02 \x01(\x08"\x80\x01\n\x15StoreAgentCardRequest\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32".a2a.v1.registry.RegistryAgentCard\x12\x0e\n\x06upsert\x18\x02 \x01(\x08\x12\x16\n\x0eupdate_vectors\x18\x03 \x01(\x08"s\n\x16StoreAgentCardResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x37\n\x0bstored_card\x18\x03 \x01(\x0b\x32".a2a.v1.registry.RegistryAgentCard"M\n\x13SearchAgentsRequest\x12\x36\n\x08\x63riteria\x18\x01 \x01(\x0b\x32$.a2a.v1.registry.AgentSearchCriteria"\x93\x01\n\x14SearchAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\x12\x19\n\x11similarity_scores\x18\x04 \x03(\x02"@\n\x16\x44\x65leteAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t"S\n\x10PingAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\x80\x01\n\x11PingAgentResponse\x12\x12\n\nresponsive\x18\x01 \x01(\x08\x12\x18\n\x10response_time_ms\x18\x02 \x01(\x05\x12\x0e\n\x06status\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"p\n\x14ListAllAgentsRequest\x12\x18\n\x10include_inactive\x18\x01 \x01(\x08\x12\x11\n\tpage_size\x18\x02 \x01(\x05\x12\x12\n\npage_token\x18\x03 \x01(\t\x12\x17\n\x0finclude_vectors\x18\x04 \x01(\x08"y\n\x15ListAllAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05"\x81\x01\n\x18UpdateAgentStatusRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x14\n\x0chealth_score\x18\x03 \x01(\x05\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"w\n\x19UpdateAgentStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x38\n\x0cupdated_card\x18\x03 \x01(\x0b\x32".a2a.v1.registry.RegistryAgentCard"&\n\x17GetExtensionInfoRequest\x12\x0b\n\x03uri\x18\x01 \x01(\t"a\n\x18GetExtensionInfoResponse\x12\x36\n\x0e\x65xtension_info\x18\x01 \x01(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\r\n\x05\x66ound\x18\x02 \x01(\x08"\xb7\x02\n\x15ListExtensionsRequest\x12\x13\n\x0buri_pattern\x18\x01 \x01(\t\x12\x18\n\x10\x64\x65\x63laring_agents\x18\x02 \x03(\t\x12\x31\n\x0ctrust_levels\x18\x03 \x03(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x16\n\x0esemantic_query\x18\x04 \x01(\t\x12-\n\x0cquery_vector\x18\x05 \x01(\x0b\x32\x17.a2a.v1.registry.Vector\x12\x1c\n\x14similarity_threshold\x18\x06 \x01(\x02\x12\x30\n\x0bsearch_mode\x18\x07 \x01(\x0e\x32\x1b.a2a.v1.registry.SearchMode\x12\x11\n\tpage_size\x18\x08 \x01(\x05\x12\x12\n\npage_token\x18\t \x01(\t"\x95\x01\n\x16ListExtensionsResponse\x12\x32\n\nextensions\x18\x01 \x03(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\x12\x19\n\x11similarity_scores\x18\x04 \x03(\x02"-\n\x19GetAgentExtensionsRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t"b\n\x1aGetAgentExtensionsResponse\x12\x32\n\nextensions\x18\x01 \x03(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\x10\n\x08\x61gent_id\x18\x02 \x01(\t"W\n\x19UpdateAgentVectorsRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12(\n\x07vectors\x18\x02 \x03(\x0b\x32\x17.a2a.v1.registry.Vector">\n\x1aUpdateAgentVectorsResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t*\x94\x01\n\nTrustLevel\x12\x1b\n\x17TRUST_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n\x16TRUST_LEVEL_UNVERIFIED\x10\x01\x12\x19\n\x15TRUST_LEVEL_COMMUNITY\x10\x02\x12\x18\n\x14TRUST_LEVEL_VERIFIED\x10\x03\x12\x18\n\x14TRUST_LEVEL_OFFICIAL\x10\x04*Z\n\nSearchMode\x12\x1b\n\x17SEARCH_MODE_UNSPECIFIED\x10\x00\x12\x17\n\x13SEARCH_MODE_KEYWORD\x10\x01\x12\x16\n\x12SEARCH_MODE_VECTOR\x10\x02\x32\xcf\x08\n\x12\x41\x32\x41RegistryService\x12[\n\x0cGetAgentCard\x12$.a2a.v1.registry.GetAgentCardRequest\x1a%.a2a.v1.registry.GetAgentCardResponse\x12\x61\n\x0eStoreAgentCard\x12&.a2a.v1.registry.StoreAgentCardRequest\x1a\'.a2a.v1.registry.StoreAgentCardResponse\x12[\n\x0cSearchAgents\x12$.a2a.v1.registry.SearchAgentsRequest\x1a%.a2a.v1.registry.SearchAgentsResponse\x12R\n\x0f\x44\x65leteAgentCard\x12\'.a2a.v1.registry.DeleteAgentCardRequest\x1a\x16.google.protobuf.Empty\x12^\n\rListAllAgents\x12%.a2a.v1.registry.ListAllAgentsRequest\x1a&.a2a.v1.registry.ListAllAgentsResponse\x12j\n\x11UpdateAgentStatus\x12).a2a.v1.registry.UpdateAgentStatusRequest\x1a*.a2a.v1.registry.UpdateAgentStatusResponse\x12g\n\x10GetExtensionInfo\x12(.a2a.v1.registry.GetExtensionInfoRequest\x1a).a2a.v1.registry.GetExtensionInfoResponse\x12\x61\n\x0eListExtensions\x12&.a2a.v1.registry.ListExtensionsRequest\x1a\'.a2a.v1.registry.ListExtensionsResponse\x12m\n\x12GetAgentExtensions\x12*.a2a.v1.registry.GetAgentExtensionsRequest\x1a+.a2a.v1.registry.GetAgentExtensionsResponse\x12m\n\x12UpdateAgentVectors\x12*.a2a.v1.registry.UpdateAgentVectorsRequest\x1a+.a2a.v1.registry.UpdateAgentVectorsResponse\x12R\n\tPingAgent\x12!.a2a.v1.registry.PingAgentRequest\x1a".a2a.v1.registry.PingAgentResponseB]\n\x1c\x64\x65v.allenday.a2a.v1.registryB\x0b\x41\x32\x41RegistryP\x01Z\x1c\x64\x65v.allenday/a2a-registry/v1\xaa\x02\x0f\x41\x32\x61.V1.Registryb\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eregistry.proto\x12\x0f\x61\x32\x61.v1.registry\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\ta2a.proto\"\xb0\x01\n\x06Vector\x12\x0e\n\x06values\x18\x01 \x03(\x02\x12\x10\n\x08\x61gent_id\x18\x02 \x01(\t\x12\x12\n\nfield_path\x18\x03 \x01(\t\x12\x15\n\rfield_content\x18\x04 \x01(\t\x12.\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12)\n\x08metadata\x18\x06 \x01(\x0b\x32\x17.google.protobuf.Struct\"\xde\x01\n\x10RegistryMetadata\x12\x31\n\rregistered_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0clast_updated\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0f\x64omain_verified\x18\x03 \x01(\x08\x12\x1a\n\x12signature_verified\x18\x04 \x01(\x08\x12\x30\n\x0btrust_level\x18\x05 \x01(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\"\xa2\x01\n\x11RegistryAgentCard\x12%\n\nagent_card\x18\x01 \x01(\x0b\x32\x11.a2a.v1.AgentCard\x12<\n\x11registry_metadata\x18\x02 \x01(\x0b\x32!.a2a.v1.registry.RegistryMetadata\x12(\n\x07vectors\x18\x03 \x03(\x0b\x32\x17.a2a.v1.registry.Vector\"\xb3\x04\n\x13\x41gentSearchCriteria\x12\x11\n\tagent_ids\x18\x01 \x03(\t\x12\x13\n\x0b\x61gent_names\x18\x02 \x03(\t\x12\x1d\n\x15required_capabilities\x18\x03 \x03(\t\x12\x17\n\x0frequired_skills\x18\x04 \x03(\t\x12\x19\n\x11preferred_regions\x18\x05 \x03(\t\x12\x19\n\x11require_discovery\x18\x06 \x01(\x08\x12\x18\n\x10min_health_score\x18\x07 \x01(\r\x12\x1c\n\x14max_response_time_ms\x18\x08 \x01(\r\x12\x18\n\x10\x61llowed_statuses\x18\t \x03(\t\x12\x31\n\x0ctrust_levels\x18\n \x03(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x1f\n\x17require_domain_verified\x18\x0b \x01(\x08\x12\"\n\x1arequire_signature_verified\x18\x0c \x01(\x08\x12\x16\n\x0esemantic_query\x18\r \x01(\t\x12-\n\x0cquery_vector\x18\x0e \x01(\x0b\x32\x17.a2a.v1.registry.Vector\x12\x1c\n\x14similarity_threshold\x18\x0f \x01(\x02\x12\x30\n\x0bsearch_mode\x18\x10 \x01(\x0e\x32\x1b.a2a.v1.registry.SearchMode\x12\x11\n\tpage_size\x18\x11 \x01(\x05\x12\x12\n\npage_token\x18\x12 \x01(\t\"\xf3\x01\n\rExtensionInfo\x12)\n\textension\x18\x01 \x01(\x0b\x32\x16.a2a.v1.AgentExtension\x12\x1f\n\x17\x66irst_declared_by_agent\x18\x02 \x01(\t\x12\x35\n\x11\x66irst_declared_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0btrust_level\x18\x04 \x01(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x18\n\x10\x64\x65\x63laring_agents\x18\x05 \x03(\t\x12\x13\n\x0busage_count\x18\x06 \x01(\x05\"c\n\x13GetAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12!\n\x19include_registry_metadata\x18\x02 \x01(\x08\x12\x17\n\x0finclude_vectors\x18\x03 \x01(\x08\"f\n\x14GetAgentCardResponse\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\r\n\x05\x66ound\x18\x02 \x01(\x08\"\x80\x01\n\x15StoreAgentCardRequest\x12?\n\x13registry_agent_card\x18\x01 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x0e\n\x06upsert\x18\x02 \x01(\x08\x12\x16\n\x0eupdate_vectors\x18\x03 \x01(\x08\"s\n\x16StoreAgentCardResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x37\n\x0bstored_card\x18\x03 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\"M\n\x13SearchAgentsRequest\x12\x36\n\x08\x63riteria\x18\x01 \x01(\x0b\x32$.a2a.v1.registry.AgentSearchCriteria\"\x93\x01\n\x14SearchAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\x12\x19\n\x11similarity_scores\x18\x04 \x03(\x02\"@\n\x16\x44\x65leteAgentCardRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\"S\n\x10PingAgentRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x80\x01\n\x11PingAgentResponse\x12\x12\n\nresponsive\x18\x01 \x01(\x08\x12\x18\n\x10response_time_ms\x18\x02 \x01(\x05\x12\x0e\n\x06status\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"p\n\x14ListAllAgentsRequest\x12\x18\n\x10include_inactive\x18\x01 \x01(\x08\x12\x11\n\tpage_size\x18\x02 \x01(\x05\x12\x12\n\npage_token\x18\x03 \x01(\t\x12\x17\n\x0finclude_vectors\x18\x04 \x01(\x08\"y\n\x15ListAllAgentsResponse\x12\x32\n\x06\x61gents\x18\x01 \x03(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\"\x81\x01\n\x18UpdateAgentStatusRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x14\n\x0chealth_score\x18\x03 \x01(\x05\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"w\n\x19UpdateAgentStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x38\n\x0cupdated_card\x18\x03 \x01(\x0b\x32\".a2a.v1.registry.RegistryAgentCard\"&\n\x17GetExtensionInfoRequest\x12\x0b\n\x03uri\x18\x01 \x01(\t\"a\n\x18GetExtensionInfoResponse\x12\x36\n\x0e\x65xtension_info\x18\x01 \x01(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\r\n\x05\x66ound\x18\x02 \x01(\x08\"\xb7\x02\n\x15ListExtensionsRequest\x12\x13\n\x0buri_pattern\x18\x01 \x01(\t\x12\x18\n\x10\x64\x65\x63laring_agents\x18\x02 \x03(\t\x12\x31\n\x0ctrust_levels\x18\x03 \x03(\x0e\x32\x1b.a2a.v1.registry.TrustLevel\x12\x16\n\x0esemantic_query\x18\x04 \x01(\t\x12-\n\x0cquery_vector\x18\x05 \x01(\x0b\x32\x17.a2a.v1.registry.Vector\x12\x1c\n\x14similarity_threshold\x18\x06 \x01(\x02\x12\x30\n\x0bsearch_mode\x18\x07 \x01(\x0e\x32\x1b.a2a.v1.registry.SearchMode\x12\x11\n\tpage_size\x18\x08 \x01(\x05\x12\x12\n\npage_token\x18\t \x01(\t\"\x95\x01\n\x16ListExtensionsResponse\x12\x32\n\nextensions\x18\x01 \x03(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\x17\n\x0fnext_page_token\x18\x02 \x01(\t\x12\x13\n\x0btotal_count\x18\x03 \x01(\x05\x12\x19\n\x11similarity_scores\x18\x04 \x03(\x02\"-\n\x19GetAgentExtensionsRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\"b\n\x1aGetAgentExtensionsResponse\x12\x32\n\nextensions\x18\x01 \x03(\x0b\x32\x1e.a2a.v1.registry.ExtensionInfo\x12\x10\n\x08\x61gent_id\x18\x02 \x01(\t\"W\n\x19UpdateAgentVectorsRequest\x12\x10\n\x08\x61gent_id\x18\x01 \x01(\t\x12(\n\x07vectors\x18\x02 \x03(\x0b\x32\x17.a2a.v1.registry.Vector\">\n\x1aUpdateAgentVectorsResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t*\x94\x01\n\nTrustLevel\x12\x1b\n\x17TRUST_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n\x16TRUST_LEVEL_UNVERIFIED\x10\x01\x12\x19\n\x15TRUST_LEVEL_COMMUNITY\x10\x02\x12\x18\n\x14TRUST_LEVEL_VERIFIED\x10\x03\x12\x18\n\x14TRUST_LEVEL_OFFICIAL\x10\x04*Z\n\nSearchMode\x12\x1b\n\x17SEARCH_MODE_UNSPECIFIED\x10\x00\x12\x17\n\x13SEARCH_MODE_KEYWORD\x10\x01\x12\x16\n\x12SEARCH_MODE_VECTOR\x10\x02\x32\xcf\x08\n\x12\x41\x32\x41RegistryService\x12[\n\x0cGetAgentCard\x12$.a2a.v1.registry.GetAgentCardRequest\x1a%.a2a.v1.registry.GetAgentCardResponse\x12\x61\n\x0eStoreAgentCard\x12&.a2a.v1.registry.StoreAgentCardRequest\x1a\'.a2a.v1.registry.StoreAgentCardResponse\x12[\n\x0cSearchAgents\x12$.a2a.v1.registry.SearchAgentsRequest\x1a%.a2a.v1.registry.SearchAgentsResponse\x12R\n\x0f\x44\x65leteAgentCard\x12\'.a2a.v1.registry.DeleteAgentCardRequest\x1a\x16.google.protobuf.Empty\x12^\n\rListAllAgents\x12%.a2a.v1.registry.ListAllAgentsRequest\x1a&.a2a.v1.registry.ListAllAgentsResponse\x12j\n\x11UpdateAgentStatus\x12).a2a.v1.registry.UpdateAgentStatusRequest\x1a*.a2a.v1.registry.UpdateAgentStatusResponse\x12g\n\x10GetExtensionInfo\x12(.a2a.v1.registry.GetExtensionInfoRequest\x1a).a2a.v1.registry.GetExtensionInfoResponse\x12\x61\n\x0eListExtensions\x12&.a2a.v1.registry.ListExtensionsRequest\x1a\'.a2a.v1.registry.ListExtensionsResponse\x12m\n\x12GetAgentExtensions\x12*.a2a.v1.registry.GetAgentExtensionsRequest\x1a+.a2a.v1.registry.GetAgentExtensionsResponse\x12m\n\x12UpdateAgentVectors\x12*.a2a.v1.registry.UpdateAgentVectorsRequest\x1a+.a2a.v1.registry.UpdateAgentVectorsResponse\x12R\n\tPingAgent\x12!.a2a.v1.registry.PingAgentRequest\x1a\".a2a.v1.registry.PingAgentResponseB]\n\x1c\x64\x65v.allenday.a2a.v1.registryB\x0b\x41\x32\x41RegistryP\x01Z\x1c\x64\x65v.allenday/a2a-registry/v1\xaa\x02\x0f\x41\x32\x61.V1.Registryb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "registry_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'registry_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    _globals["DESCRIPTOR"]._loaded_options = None
-    _globals["DESCRIPTOR"]._serialized_options = (
-        b"\n\034dev.allenday.a2a.v1.registryB\013A2ARegistryP\001Z\034dev.allenday/a2a-registry/v1\252\002\017A2a.V1.Registry"
-    )
-    _globals["_TRUSTLEVEL"]._serialized_start = 3879
-    _globals["_TRUSTLEVEL"]._serialized_end = 4027
-    _globals["_SEARCHMODE"]._serialized_start = 4029
-    _globals["_SEARCHMODE"]._serialized_end = 4119
-    _globals["_VECTOR"]._serialized_start = 139
-    _globals["_VECTOR"]._serialized_end = 315
-    _globals["_REGISTRYMETADATA"]._serialized_start = 318
-    _globals["_REGISTRYMETADATA"]._serialized_end = 540
-    _globals["_REGISTRYAGENTCARD"]._serialized_start = 543
-    _globals["_REGISTRYAGENTCARD"]._serialized_end = 705
-    _globals["_AGENTSEARCHCRITERIA"]._serialized_start = 708
-    _globals["_AGENTSEARCHCRITERIA"]._serialized_end = 1271
-    _globals["_EXTENSIONINFO"]._serialized_start = 1274
-    _globals["_EXTENSIONINFO"]._serialized_end = 1517
-    _globals["_GETAGENTCARDREQUEST"]._serialized_start = 1519
-    _globals["_GETAGENTCARDREQUEST"]._serialized_end = 1618
-    _globals["_GETAGENTCARDRESPONSE"]._serialized_start = 1620
-    _globals["_GETAGENTCARDRESPONSE"]._serialized_end = 1722
-    _globals["_STOREAGENTCARDREQUEST"]._serialized_start = 1725
-    _globals["_STOREAGENTCARDREQUEST"]._serialized_end = 1853
-    _globals["_STOREAGENTCARDRESPONSE"]._serialized_start = 1855
-    _globals["_STOREAGENTCARDRESPONSE"]._serialized_end = 1970
-    _globals["_SEARCHAGENTSREQUEST"]._serialized_start = 1972
-    _globals["_SEARCHAGENTSREQUEST"]._serialized_end = 2049
-    _globals["_SEARCHAGENTSRESPONSE"]._serialized_start = 2052
-    _globals["_SEARCHAGENTSRESPONSE"]._serialized_end = 2199
-    _globals["_DELETEAGENTCARDREQUEST"]._serialized_start = 2201
-    _globals["_DELETEAGENTCARDREQUEST"]._serialized_end = 2265
-    _globals["_PINGAGENTREQUEST"]._serialized_start = 2267
-    _globals["_PINGAGENTREQUEST"]._serialized_end = 2350
-    _globals["_PINGAGENTRESPONSE"]._serialized_start = 2353
-    _globals["_PINGAGENTRESPONSE"]._serialized_end = 2481
-    _globals["_LISTALLAGENTSREQUEST"]._serialized_start = 2483
-    _globals["_LISTALLAGENTSREQUEST"]._serialized_end = 2595
-    _globals["_LISTALLAGENTSRESPONSE"]._serialized_start = 2597
-    _globals["_LISTALLAGENTSRESPONSE"]._serialized_end = 2718
-    _globals["_UPDATEAGENTSTATUSREQUEST"]._serialized_start = 2721
-    _globals["_UPDATEAGENTSTATUSREQUEST"]._serialized_end = 2850
-    _globals["_UPDATEAGENTSTATUSRESPONSE"]._serialized_start = 2852
-    _globals["_UPDATEAGENTSTATUSRESPONSE"]._serialized_end = 2971
-    _globals["_GETEXTENSIONINFOREQUEST"]._serialized_start = 2973
-    _globals["_GETEXTENSIONINFOREQUEST"]._serialized_end = 3011
-    _globals["_GETEXTENSIONINFORESPONSE"]._serialized_start = 3013
-    _globals["_GETEXTENSIONINFORESPONSE"]._serialized_end = 3110
-    _globals["_LISTEXTENSIONSREQUEST"]._serialized_start = 3113
-    _globals["_LISTEXTENSIONSREQUEST"]._serialized_end = 3424
-    _globals["_LISTEXTENSIONSRESPONSE"]._serialized_start = 3427
-    _globals["_LISTEXTENSIONSRESPONSE"]._serialized_end = 3576
-    _globals["_GETAGENTEXTENSIONSREQUEST"]._serialized_start = 3578
-    _globals["_GETAGENTEXTENSIONSREQUEST"]._serialized_end = 3623
-    _globals["_GETAGENTEXTENSIONSRESPONSE"]._serialized_start = 3625
-    _globals["_GETAGENTEXTENSIONSRESPONSE"]._serialized_end = 3723
-    _globals["_UPDATEAGENTVECTORSREQUEST"]._serialized_start = 3725
-    _globals["_UPDATEAGENTVECTORSREQUEST"]._serialized_end = 3812
-    _globals["_UPDATEAGENTVECTORSRESPONSE"]._serialized_start = 3814
-    _globals["_UPDATEAGENTVECTORSRESPONSE"]._serialized_end = 3876
-    _globals["_A2AREGISTRYSERVICE"]._serialized_start = 4122
-    _globals["_A2AREGISTRYSERVICE"]._serialized_end = 5225
+  _globals['DESCRIPTOR']._loaded_options = None
+  _globals['DESCRIPTOR']._serialized_options = b'\n\034dev.allenday.a2a.v1.registryB\013A2ARegistryP\001Z\034dev.allenday/a2a-registry/v1\252\002\017A2a.V1.Registry'
+  _globals['_TRUSTLEVEL']._serialized_start=3879
+  _globals['_TRUSTLEVEL']._serialized_end=4027
+  _globals['_SEARCHMODE']._serialized_start=4029
+  _globals['_SEARCHMODE']._serialized_end=4119
+  _globals['_VECTOR']._serialized_start=139
+  _globals['_VECTOR']._serialized_end=315
+  _globals['_REGISTRYMETADATA']._serialized_start=318
+  _globals['_REGISTRYMETADATA']._serialized_end=540
+  _globals['_REGISTRYAGENTCARD']._serialized_start=543
+  _globals['_REGISTRYAGENTCARD']._serialized_end=705
+  _globals['_AGENTSEARCHCRITERIA']._serialized_start=708
+  _globals['_AGENTSEARCHCRITERIA']._serialized_end=1271
+  _globals['_EXTENSIONINFO']._serialized_start=1274
+  _globals['_EXTENSIONINFO']._serialized_end=1517
+  _globals['_GETAGENTCARDREQUEST']._serialized_start=1519
+  _globals['_GETAGENTCARDREQUEST']._serialized_end=1618
+  _globals['_GETAGENTCARDRESPONSE']._serialized_start=1620
+  _globals['_GETAGENTCARDRESPONSE']._serialized_end=1722
+  _globals['_STOREAGENTCARDREQUEST']._serialized_start=1725
+  _globals['_STOREAGENTCARDREQUEST']._serialized_end=1853
+  _globals['_STOREAGENTCARDRESPONSE']._serialized_start=1855
+  _globals['_STOREAGENTCARDRESPONSE']._serialized_end=1970
+  _globals['_SEARCHAGENTSREQUEST']._serialized_start=1972
+  _globals['_SEARCHAGENTSREQUEST']._serialized_end=2049
+  _globals['_SEARCHAGENTSRESPONSE']._serialized_start=2052
+  _globals['_SEARCHAGENTSRESPONSE']._serialized_end=2199
+  _globals['_DELETEAGENTCARDREQUEST']._serialized_start=2201
+  _globals['_DELETEAGENTCARDREQUEST']._serialized_end=2265
+  _globals['_PINGAGENTREQUEST']._serialized_start=2267
+  _globals['_PINGAGENTREQUEST']._serialized_end=2350
+  _globals['_PINGAGENTRESPONSE']._serialized_start=2353
+  _globals['_PINGAGENTRESPONSE']._serialized_end=2481
+  _globals['_LISTALLAGENTSREQUEST']._serialized_start=2483
+  _globals['_LISTALLAGENTSREQUEST']._serialized_end=2595
+  _globals['_LISTALLAGENTSRESPONSE']._serialized_start=2597
+  _globals['_LISTALLAGENTSRESPONSE']._serialized_end=2718
+  _globals['_UPDATEAGENTSTATUSREQUEST']._serialized_start=2721
+  _globals['_UPDATEAGENTSTATUSREQUEST']._serialized_end=2850
+  _globals['_UPDATEAGENTSTATUSRESPONSE']._serialized_start=2852
+  _globals['_UPDATEAGENTSTATUSRESPONSE']._serialized_end=2971
+  _globals['_GETEXTENSIONINFOREQUEST']._serialized_start=2973
+  _globals['_GETEXTENSIONINFOREQUEST']._serialized_end=3011
+  _globals['_GETEXTENSIONINFORESPONSE']._serialized_start=3013
+  _globals['_GETEXTENSIONINFORESPONSE']._serialized_end=3110
+  _globals['_LISTEXTENSIONSREQUEST']._serialized_start=3113
+  _globals['_LISTEXTENSIONSREQUEST']._serialized_end=3424
+  _globals['_LISTEXTENSIONSRESPONSE']._serialized_start=3427
+  _globals['_LISTEXTENSIONSRESPONSE']._serialized_end=3576
+  _globals['_GETAGENTEXTENSIONSREQUEST']._serialized_start=3578
+  _globals['_GETAGENTEXTENSIONSREQUEST']._serialized_end=3623
+  _globals['_GETAGENTEXTENSIONSRESPONSE']._serialized_start=3625
+  _globals['_GETAGENTEXTENSIONSRESPONSE']._serialized_end=3723
+  _globals['_UPDATEAGENTVECTORSREQUEST']._serialized_start=3725
+  _globals['_UPDATEAGENTVECTORSREQUEST']._serialized_end=3812
+  _globals['_UPDATEAGENTVECTORSRESPONSE']._serialized_start=3814
+  _globals['_UPDATEAGENTVECTORSRESPONSE']._serialized_end=3876
+  _globals['_A2AREGISTRYSERVICE']._serialized_start=4122
+  _globals['_A2AREGISTRYSERVICE']._serialized_end=5225
 # @@protoc_insertion_point(module_scope)
