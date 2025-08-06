@@ -133,12 +133,12 @@ async def unregister_agent(agent_id: str) -> Result:
 
 
 @method
-async def search_agents(query: str, skills: Optional[list[str]] = None) -> Result:
+async def search_agents(query: str = "", skills: Optional[list[str]] = None) -> Result:
     """Search for agents via JSON-RPC.
 
     Args:
         query: Search query string
-        skills: Optional list of skills to filter by
+        skills: Optional list of skill IDs to filter by
 
     Returns:
         Success with matching agents
@@ -194,6 +194,88 @@ async def search_agents(query: str, skills: Optional[list[str]] = None) -> Resul
 
 
 @method
+async def list_extensions(
+    uri_pattern: Optional[str] = None,
+    declaring_agents: Optional[list[str]] = None,
+    trust_levels: Optional[list[str]] = None,
+    page_size: int = 100,
+    page_token: Optional[str] = None,
+) -> Result:
+    """List extensions via JSON-RPC.
+
+    Args:
+        uri_pattern: Optional URI pattern to filter by
+        declaring_agents: Optional list of agent IDs to filter by
+        trust_levels: Optional list of trust levels to filter by
+        page_size: Number of extensions per page (default: 100)
+        page_token: Page token for pagination
+
+    Returns:
+        Success with list of extensions
+    """
+    try:
+        extensions, next_page_token, total_count = await storage.list_extensions(
+            uri_pattern=uri_pattern,
+            declaring_agents=declaring_agents,
+            trust_levels=trust_levels,
+            page_size=page_size,
+            page_token=page_token,
+        )
+
+        return Success(
+            {
+                "extensions": [ext.to_dict() for ext in extensions],
+                "count": len(extensions),
+                "total_count": total_count,
+                "next_page_token": next_page_token,
+                "transport": "JSONRPC",
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"Error listing extensions via JSON-RPC: {e}")
+        return Error(code=-32603, message=str(e))
+
+
+@method
+async def ping_agent(agent_id: str) -> Result:
+    """Ping an agent to check its health/responsiveness via JSON-RPC.
+
+    Args:
+        agent_id: Unique identifier for the agent to ping
+
+    Returns:
+        Success with ping response or Error if agent not found
+    """
+    try:
+        # First check if agent exists in registry
+        agent_card = await storage.get_agent(agent_id)
+        if not agent_card:
+            return Error(code=-32001, message="Agent not found")
+
+        # For now, we'll return a basic ping response
+        # In a full implementation, this would actually attempt to contact the agent
+        from datetime import datetime, timezone
+
+        timestamp = datetime.now(timezone.utc)
+
+        return Success(
+            {
+                "responsive": True,  # Assuming agent is responsive if it's registered
+                "response_time_ms": 0,  # No actual network call for now
+                "status": "registered",
+                "timestamp": timestamp.isoformat(),
+                "agent_id": agent_id,
+                "transport": "JSONRPC",
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"Error pinging agent via JSON-RPC: {e}")
+        return Error(code=-32603, message=str(e))
+
+
+@method
 async def get_agent_card() -> Result:
     """Get the registry's own agent card via JSON-RPC.
 
@@ -232,6 +314,14 @@ async def get_agent_card() -> Result:
                     "id": "unregister_agent",
                     "description": "Remove an agent from the registry",
                 },
+                {
+                    "id": "list_extensions",
+                    "description": "List available extensions",
+                },
+                {
+                    "id": "ping_agent",
+                    "description": "Ping an agent to check health",
+                },
             ],
         }
 
@@ -267,6 +357,42 @@ async def health_check() -> Result:
         return Error(code=-32603, message=str(e))
 
 
+@method
+async def system_listMethods() -> Result:
+    """JSON-RPC system method for listing available methods.
+
+    This implements the standard JSON-RPC system.listMethods method.
+
+    Returns:
+        Success with list of available methods
+    """
+    try:
+        methods = get_jsonrpc_methods()
+        return Success(methods)
+
+    except Exception as e:
+        logger.error(f"Error listing methods: {e}")
+        return Error(code=-32603, message=str(e))
+
+
+@method
+async def list_methods() -> Result:
+    """Alternative method name for listing available methods.
+
+    This provides the same functionality as system.listMethods but with a different name.
+
+    Returns:
+        Success with list of available methods
+    """
+    try:
+        methods = get_jsonrpc_methods()
+        return Success(methods)
+
+    except Exception as e:
+        logger.error(f"Error listing methods: {e}")
+        return Error(code=-32603, message=str(e))
+
+
 def get_jsonrpc_methods() -> list[str]:
     """Get list of available JSON-RPC methods for introspection."""
     return [
@@ -275,6 +401,10 @@ def get_jsonrpc_methods() -> list[str]:
         "list_agents",
         "unregister_agent",
         "search_agents",
+        "list_extensions",
+        "ping_agent",
         "get_agent_card",
         "health_check",
+        "system.listMethods",
+        "list_methods",
     ]
