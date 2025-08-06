@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools-scm"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -85,10 +85,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 "a2a_registry.proto.generated" = ["*.proto"]
 
-[tool.setuptools_scm]
-write_to = "src/a2a_registry/_version.py"
-version_scheme = "release-branch-semver"
-local_scheme = "no-local-version"
+[tool.setuptools.dynamic]
+version = {attr = "a2a_registry.__version__"}
 
 [tool.black]
 line-length = 88
