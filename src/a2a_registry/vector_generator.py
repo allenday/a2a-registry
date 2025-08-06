@@ -1,14 +1,14 @@
 """Vector generation module for A2A Registry agent cards and extensions."""
 
 import logging
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import numpy as np
 from google.protobuf import struct_pb2, timestamp_pb2
 from sentence_transformers import SentenceTransformer
 
-from .proto.generated import registry_pb2
+from .proto.generated.registry_pb2 import Vector  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class VectorGenerator:
                         texts.append(key)
                     new_path = f"{path}.{key}" if path else key
                     _extract_recursive(value, new_path)
-            elif isinstance(obj, (int, float, bool)):
+            elif isinstance(obj, int | float | bool):
                 # Convert numbers and booleans to strings
                 texts.append(str(obj))
 
@@ -66,8 +66,8 @@ class VectorGenerator:
         return " ".join(texts)
 
     def generate_agent_vectors(
-        self, agent_card: dict[str, Any], agent_id: Optional[str] = None
-    ) -> list[registry_pb2.Vector]:
+        self, agent_card: dict[str, Any], agent_id: str | None = None
+    ) -> list[Vector]:
         """Generate vectors for all searchable fields in an agent card.
 
         Args:
@@ -169,7 +169,7 @@ class VectorGenerator:
 
         return vectors
 
-    def generate_query_vector(self, query: str) -> registry_pb2.Vector:
+    def generate_query_vector(self, query: str) -> Vector:
         """Generate a vector for a search query.
 
         Args:
@@ -180,9 +180,7 @@ class VectorGenerator:
         """
         return self._create_vector("", "query", query)
 
-    def calculate_similarity(
-        self, vector1: registry_pb2.Vector, vector2: registry_pb2.Vector
-    ) -> float:
+    def calculate_similarity(self, vector1: Vector, vector2: Vector) -> float:
         """Calculate cosine similarity between two vectors.
 
         Args:
@@ -208,11 +206,11 @@ class VectorGenerator:
 
     def search_similar_vectors(
         self,
-        query_vector: registry_pb2.Vector,
-        agent_vectors: list[registry_pb2.Vector],
+        query_vector: Vector,
+        agent_vectors: list[Vector],
         threshold: float = 0.7,
         max_results: int = 10,
-    ) -> list[tuple[registry_pb2.Vector, float]]:
+    ) -> list[tuple[Vector, float]]:
         """Search for similar vectors using cosine similarity.
 
         Args:
@@ -235,9 +233,7 @@ class VectorGenerator:
         results.sort(key=lambda x: x[1], reverse=True)
         return results[:max_results]
 
-    def _create_vector(
-        self, agent_id: str, field_path: str, content: str
-    ) -> registry_pb2.Vector:
+    def _create_vector(self, agent_id: str, field_path: str, content: str) -> Vector:
         """Create a Vector proto message from text content.
 
         Args:
@@ -252,7 +248,7 @@ class VectorGenerator:
         embedding = self.model.encode(content, convert_to_numpy=True)
 
         # Create timestamp
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         timestamp = timestamp_pb2.Timestamp()
         timestamp.FromDatetime(now)
 
@@ -267,7 +263,7 @@ class VectorGenerator:
         )
 
         # Create vector
-        vector = registry_pb2.Vector(
+        vector = Vector(
             values=embedding.tolist(),
             agent_id=agent_id,
             field_path=field_path,

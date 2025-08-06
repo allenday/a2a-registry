@@ -80,9 +80,9 @@ class SortDirection(Enum):
 class ExtensionContent:
     format: str
     data: JSONType
-    schema: Optional[str] = None
+    schema: str | None = None
     examples: list[JSONType] = strawberry.field(default_factory=list)
-    documentation: Optional[str] = None
+    documentation: str | None = None
 
 
 @strawberry.type
@@ -107,9 +107,9 @@ class UsageStatistics:
     weekly_downloads: int
     monthly_downloads: int
     active_installations: int
-    popularity_rank: Optional[int] = None
-    last_used: Optional[datetime] = None
-    average_rating: Optional[float] = None
+    popularity_rank: int | None = None
+    last_used: datetime | None = None
+    average_rating: float | None = None
     review_count: int = 0
 
 
@@ -125,7 +125,7 @@ class CompatibilityInfo:
 class Skill:
     id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 @strawberry.type
@@ -135,7 +135,7 @@ class AgentCard:
     version: str
     url: str
     protocol_version: str
-    preferred_transport: Optional[str] = None
+    preferred_transport: str | None = None
     skills: list[Skill] = strawberry.field(default_factory=list)
     capabilities: list[str] = strawberry.field(default_factory=list)
 
@@ -146,13 +146,13 @@ class AgentExtensionRelation:
     extension_id: strawberry.ID
     installed_version: SemVerType
     installed_at: datetime
-    last_used: Optional[datetime] = None
+    last_used: datetime | None = None
     usage_count: int = 0
-    configuration: Optional[JSONType] = None
+    configuration: JSONType | None = None
     status: str = "active"
 
     @strawberry.field
-    async def agent(self, info: Any) -> Optional[AgentCard]:
+    async def agent(self, info: Any) -> AgentCard | None:
         """Resolve agent using DataLoader."""
         loader = info.context["agent_loader"]
         result = await loader.load(self.agent_id)
@@ -187,8 +187,8 @@ class Vulnerability:
     id: str
     severity: str
     description: str
-    cve_id: Optional[str] = None
-    fixed_in: Optional[str] = None
+    cve_id: str | None = None
+    fixed_in: str | None = None
 
 
 @strawberry.type
@@ -213,18 +213,18 @@ class AgentExtension:
     status: ExtensionStatus
 
     # Metadata
-    description: Optional[str] = None
+    description: str | None = None
     tags: list[str] = strawberry.field(default_factory=list)
     author: str = "unknown"
-    license: Optional[str] = None
-    homepage: Optional[str] = None
-    repository: Optional[str] = None
+    license: str | None = None
+    homepage: str | None = None
+    repository: str | None = None
 
     # Security
-    signature: Optional[str] = None
+    signature: str | None = None
     checksum: str = ""
-    validated_at: Optional[datetime] = None
-    validated_by: Optional[str] = None
+    validated_at: datetime | None = None
+    validated_by: str | None = None
 
     # Analytics
     download_count: int = 0
@@ -232,7 +232,7 @@ class AgentExtension:
     # Audit
     created_at: datetime
     updated_at: datetime
-    published_at: Optional[datetime] = None
+    published_at: datetime | None = None
     created_by: strawberry.ID
     updated_by: strawberry.ID
 
@@ -284,8 +284,8 @@ class AgentExtension:
 class PageInfo:
     has_next_page: bool
     has_previous_page: bool
-    start_cursor: Optional[str] = None
-    end_cursor: Optional[str] = None
+    start_cursor: str | None = None
+    end_cursor: str | None = None
     total_count: int = 0
 
 
@@ -330,12 +330,12 @@ class ExtensionAnalytics:
 class DependencyConflict:
     dependency: str
     required_versions: list[str]
-    resolution: Optional[str] = None
+    resolution: str | None = None
 
 
 @strawberry.type
 class DependencyNode:
-    extension: Optional[AgentExtension]
+    extension: AgentExtension | None
     required_version: str
     children: list["DependencyNode"] = strawberry.field(default_factory=list)
 
@@ -352,9 +352,9 @@ class DependencyTree:
 class ExtensionContentInput:
     format: str
     data: JSONType
-    schema: Optional[str] = None
+    schema: str | None = None
     examples: list[JSONType] = strawberry.field(default_factory=list)
-    documentation: Optional[str] = None
+    documentation: str | None = None
 
 
 @strawberry.input
@@ -369,11 +369,11 @@ class CreateExtensionInput:
     name: str
     type: ExtensionType
     content: ExtensionContentInput
-    description: Optional[str] = None
+    description: str | None = None
     tags: list[str] = strawberry.field(default_factory=list)
-    license: Optional[str] = None
-    homepage: Optional[str] = None
-    repository: Optional[str] = None
+    license: str | None = None
+    homepage: str | None = None
+    repository: str | None = None
     dependencies: list[ExtensionDependencyInput] = strawberry.field(
         default_factory=list
     )
@@ -381,29 +381,29 @@ class CreateExtensionInput:
 
 @strawberry.input
 class UpdateExtensionInput:
-    name: Optional[str] = None
-    description: Optional[str] = None
-    content: Optional[ExtensionContentInput] = None
-    tags: Optional[list[str]] = None
-    license: Optional[str] = None
-    homepage: Optional[str] = None
-    repository: Optional[str] = None
-    dependencies: Optional[list[ExtensionDependencyInput]] = None
+    name: str | None = None
+    description: str | None = None
+    content: ExtensionContentInput | None = None
+    tags: list[str] | None = None
+    license: str | None = None
+    homepage: str | None = None
+    repository: str | None = None
+    dependencies: list[ExtensionDependencyInput] | None = None
 
 
 @strawberry.input
 class ExtensionSearchInput:
-    query: Optional[str] = None
-    types: Optional[list[ExtensionType]] = None
-    trust_levels: Optional[list[TrustLevel]] = None
-    tags: Optional[list[str]] = None
-    author: Optional[str] = None
-    min_downloads: Optional[int] = None
-    compatible_with: Optional[str] = None
-    depends_on: Optional[list[strawberry.ID]] = None
-    has_valid_signature: Optional[bool] = None
-    published_after: Optional[datetime] = None
-    published_before: Optional[datetime] = None
+    query: str | None = None
+    types: list[ExtensionType] | None = None
+    trust_levels: list[TrustLevel] | None = None
+    tags: list[str] | None = None
+    author: str | None = None
+    min_downloads: int | None = None
+    compatible_with: str | None = None
+    depends_on: list[strawberry.ID] | None = None
+    has_valid_signature: bool | None = None
+    published_after: datetime | None = None
+    published_before: datetime | None = None
 
 
 @strawberry.input
@@ -416,7 +416,7 @@ class ExtensionSortInput:
 @strawberry.type
 class ExtensionMutationResponse:
     success: bool
-    extension: Optional[AgentExtension] = None
+    extension: AgentExtension | None = None
     errors: list[str] = strawberry.field(default_factory=list)
 
 
@@ -433,4 +433,4 @@ class SecurityAlertPayload:
     alert_type: str
     severity: str
     message: str
-    scan_result: Optional[SecurityScan] = None
+    scan_result: SecurityScan | None = None

@@ -3,9 +3,8 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 from fasta2a.schema import AgentCard  # type: ignore
 
@@ -22,9 +21,9 @@ class ExtensionInfo:
         uri: str,
         description: str = "",
         required: bool = False,
-        params: Optional[dict] = None,
+        params: dict | None = None,
         first_declared_by_agent: str = "",
-        first_declared_at: Optional[datetime] = None,
+        first_declared_at: datetime | None = None,
         trust_level: str = "TRUST_LEVEL_UNVERIFIED",
     ):
         self.uri = uri
@@ -32,7 +31,7 @@ class ExtensionInfo:
         self.required = required
         self.params = params or {}
         self.first_declared_by_agent = first_declared_by_agent
-        self.first_declared_at = first_declared_at or datetime.now(timezone.utc)
+        self.first_declared_at = first_declared_at or datetime.now(UTC)
         self.trust_level = trust_level
         self.declaring_agents: set[str] = set()
         if first_declared_by_agent:
@@ -90,7 +89,7 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get an agent by ID."""
         pass
 
@@ -116,19 +115,19 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    async def get_extension(self, uri: str) -> Optional[ExtensionInfo]:
+    async def get_extension(self, uri: str) -> ExtensionInfo | None:
         """Get extension information by URI."""
         pass
 
     @abstractmethod
     async def list_extensions(
         self,
-        uri_pattern: Optional[str] = None,
-        declaring_agents: Optional[list[str]] = None,
-        trust_levels: Optional[list[str]] = None,
+        uri_pattern: str | None = None,
+        declaring_agents: list[str] | None = None,
+        trust_levels: list[str] | None = None,
         page_size: int = 100,
-        page_token: Optional[str] = None,
-    ) -> tuple[list[ExtensionInfo], Optional[str], int]:
+        page_token: str | None = None,
+    ) -> tuple[list[ExtensionInfo], str | None, int]:
         """List extensions with optional filtering and pagination."""
         pass
 
@@ -166,7 +165,7 @@ class InMemoryStorage(StorageBackend):
         logger.info(f"Registered agent: {agent_id}")
         return True
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get an agent by ID."""
         return self._agents.get(agent_id)
 
@@ -208,18 +207,18 @@ class InMemoryStorage(StorageBackend):
         logger.info(f"Stored extension: {extension_info.uri}")
         return True
 
-    async def get_extension(self, uri: str) -> Optional[ExtensionInfo]:
+    async def get_extension(self, uri: str) -> ExtensionInfo | None:
         """Get extension information by URI."""
         return self._extensions.get(uri)
 
     async def list_extensions(
         self,
-        uri_pattern: Optional[str] = None,
-        declaring_agents: Optional[list[str]] = None,
-        trust_levels: Optional[list[str]] = None,
+        uri_pattern: str | None = None,
+        declaring_agents: list[str] | None = None,
+        trust_levels: list[str] | None = None,
         page_size: int = 100,
-        page_token: Optional[str] = None,
-    ) -> tuple[list[ExtensionInfo], Optional[str], int]:
+        page_token: str | None = None,
+    ) -> tuple[list[ExtensionInfo], str | None, int]:
         """List extensions with optional filtering and pagination."""
         extensions = list(self._extensions.values())
 
@@ -391,7 +390,7 @@ class FileStorage(StorageBackend):
         logger.info(f"Registered agent: {agent_id}")
         return True
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get an agent by ID."""
         return self._agents.get(agent_id)
 
@@ -435,18 +434,18 @@ class FileStorage(StorageBackend):
         logger.info(f"Stored extension: {extension_info.uri}")
         return True
 
-    async def get_extension(self, uri: str) -> Optional[ExtensionInfo]:
+    async def get_extension(self, uri: str) -> ExtensionInfo | None:
         """Get extension information by URI."""
         return self._extensions.get(uri)
 
     async def list_extensions(
         self,
-        uri_pattern: Optional[str] = None,
-        declaring_agents: Optional[list[str]] = None,
-        trust_levels: Optional[list[str]] = None,
+        uri_pattern: str | None = None,
+        declaring_agents: list[str] | None = None,
+        trust_levels: list[str] | None = None,
         page_size: int = 100,
-        page_token: Optional[str] = None,
-    ) -> tuple[list[ExtensionInfo], Optional[str], int]:
+        page_token: str | None = None,
+    ) -> tuple[list[ExtensionInfo], str | None, int]:
         """List extensions with optional filtering and pagination."""
         extensions = list(self._extensions.values())
 

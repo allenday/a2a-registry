@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import AsyncIterator
-from typing import Any, Optional
+from typing import Any
 
 import strawberry
 from strawberry.extensions import QueryDepthLimiter, ValidationCache
@@ -179,7 +179,7 @@ class SubscriptionManager:
         self.subscribers: dict[str, Any] = {}
         self.event_queue: list[dict[str, Any]] = []
 
-    async def subscribe(self, event_type: str, filter_id: Optional[str] = None) -> Any:
+    async def subscribe(self, event_type: str, filter_id: str | None = None) -> Any:
         """Subscribe to events of a specific type."""
 
         # In a real implementation, this would use Redis pub/sub or similar
@@ -206,7 +206,7 @@ class SubscriptionManager:
         return event_generator()
 
     async def publish(
-        self, event_type: str, payload: Any, filter_id: Optional[str] = None
+        self, event_type: str, payload: Any, filter_id: str | None = None
     ) -> None:
         """Publish an event to subscribers."""
 
@@ -229,8 +229,8 @@ class GraphQLError:
     """Custom GraphQL error type."""
 
     message: str
-    code: Optional[str] = None
-    path: Optional[str] = None
+    code: str | None = None
+    path: str | None = None
 
 
 def format_graphql_error(error: Exception, debug: bool = False) -> dict[str, Any]:

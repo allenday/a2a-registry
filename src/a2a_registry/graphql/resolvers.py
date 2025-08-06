@@ -3,7 +3,6 @@
 import asyncio
 import logging
 from collections.abc import AsyncIterator
-from typing import Optional
 
 import strawberry
 
@@ -41,7 +40,7 @@ class Query:
     @strawberry.field
     async def extension(
         self, info: strawberry.Info, id: strawberry.ID
-    ) -> Optional[AgentExtension]:
+    ) -> AgentExtension | None:
         """Get a single extension by ID."""
 
         # Security check - field-level authorization
@@ -63,12 +62,12 @@ class Query:
     async def extensions(
         self,
         info: strawberry.Info,
-        search: Optional[ExtensionSearchInput] = None,
-        sort: Optional[ExtensionSortInput] = None,
-        first: Optional[int] = None,
-        after: Optional[str] = None,
-        last: Optional[int] = None,
-        before: Optional[str] = None,
+        search: ExtensionSearchInput | None = None,
+        sort: ExtensionSortInput | None = None,
+        first: int | None = None,
+        after: str | None = None,
+        last: int | None = None,
+        before: str | None = None,
     ) -> ExtensionConnection:
         """Search and paginate extensions."""
 
@@ -105,7 +104,7 @@ class Query:
         self,
         info: strawberry.Info,
         extension_id: strawberry.ID,
-        version: Optional[str] = None,
+        version: str | None = None,
     ) -> DependencyTree:
         """Resolve dependency tree for an extension."""
 
@@ -188,7 +187,7 @@ class Query:
     @strawberry.field
     async def security_scan(
         self, info: strawberry.Info, extension_id: strawberry.ID
-    ) -> Optional[SecurityScan]:
+    ) -> SecurityScan | None:
         """Get latest security scan for an extension."""
 
         security_ctx = SecurityContext.from_info(info)
@@ -294,9 +293,7 @@ class Query:
 
     # Integration with existing agent system
     @strawberry.field
-    async def agent(
-        self, info: strawberry.Info, id: strawberry.ID
-    ) -> Optional[AgentCard]:
+    async def agent(self, info: strawberry.Info, id: strawberry.ID) -> AgentCard | None:
         """Get agent from existing system."""
 
         security_ctx = SecurityContext.from_info(info)
@@ -578,8 +575,8 @@ class Mutation:
         info: strawberry.Info,
         agent_id: strawberry.ID,
         extension_id: strawberry.ID,
-        version: Optional[str] = None,
-        configuration: Optional[JSONType] = None,
+        version: str | None = None,
+        configuration: JSONType | None = None,
     ) -> bool:
         """Install an extension on an agent."""
 
@@ -637,7 +634,7 @@ class Subscription:
 
     @strawberry.subscription
     async def extension_updated(
-        self, info: strawberry.Info, extension_id: Optional[strawberry.ID] = None
+        self, info: strawberry.Info, extension_id: strawberry.ID | None = None
     ) -> AsyncIterator[ExtensionUpdatedPayload]:
         """Subscribe to extension updates."""
 
@@ -658,7 +655,7 @@ class Subscription:
 
     @strawberry.subscription
     async def security_alert(
-        self, info: strawberry.Info, extension_id: Optional[strawberry.ID] = None
+        self, info: strawberry.Info, extension_id: strawberry.ID | None = None
     ) -> AsyncIterator[SecurityAlertPayload]:
         """Subscribe to security alerts."""
 
@@ -680,8 +677,8 @@ class Subscription:
 
 # Helper functions
 async def apply_security_filters(
-    security_ctx: SecurityContext, search: Optional[ExtensionSearchInput]
-) -> Optional[ExtensionSearchInput]:
+    security_ctx: SecurityContext, search: ExtensionSearchInput | None
+) -> ExtensionSearchInput | None:
     """Apply security filters to search input based on user permissions."""
 
     if not search:

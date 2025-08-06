@@ -1,7 +1,8 @@
 """A2A Registry JSON-RPC server implementation."""
 
 import logging
-from typing import Any, Optional
+from datetime import UTC
+from typing import Any
 
 from fasta2a.schema import AgentCard  # type: ignore
 from jsonrpcserver import Error, Result, Success, method
@@ -135,7 +136,7 @@ async def unregister_agent(agent_id: str) -> Result:
 @method
 async def search_agents(
     query: str = "",
-    skills: Optional[list[str]] = None,
+    skills: list[str] | None = None,
     search_mode: str = "SEARCH_MODE_VECTOR",
     similarity_threshold: float = 0.7,
     max_results: int = 10,
@@ -235,11 +236,11 @@ async def search_agents(
 
 @method
 async def list_extensions(
-    uri_pattern: Optional[str] = None,
-    declaring_agents: Optional[list[str]] = None,
-    trust_levels: Optional[list[str]] = None,
+    uri_pattern: str | None = None,
+    declaring_agents: list[str] | None = None,
+    trust_levels: list[str] | None = None,
     page_size: int = 100,
-    page_token: Optional[str] = None,
+    page_token: str | None = None,
 ) -> Result:
     """List extensions via JSON-RPC.
 
@@ -295,9 +296,9 @@ async def ping_agent(agent_id: str) -> Result:
 
         # For now, we'll return a basic ping response
         # In a full implementation, this would actually attempt to contact the agent
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
 
         return Success(
             {
@@ -446,16 +447,16 @@ async def update_agent_vectors(agent_id: str, vectors: list[dict]) -> Result:
     """
     try:
         # Convert dict vectors to proto vectors
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from google.protobuf import struct_pb2, timestamp_pb2
 
-        from .proto.generated import registry_pb2
+        from .proto.generated.registry_pb2 import Vector  # type: ignore
 
         proto_vectors = []
         for vec_dict in vectors:
             # Create timestamp
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             timestamp = timestamp_pb2.Timestamp()
             timestamp.FromDatetime(now)
 
@@ -465,7 +466,7 @@ async def update_agent_vectors(agent_id: str, vectors: list[dict]) -> Result:
                 metadata.update(vec_dict["metadata"])
 
             # Create proto vector
-            vector = registry_pb2.Vector(
+            vector = Vector(
                 values=vec_dict.get("values", []),
                 agent_id=vec_dict.get("agent_id", agent_id),
                 field_path=vec_dict.get("field_path", ""),

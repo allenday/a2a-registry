@@ -15,13 +15,11 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.95.0",
     "httpx>=0.28.1",
@@ -91,7 +89,7 @@ version = {attr = "a2a_registry.__version__"}
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -109,7 +107,7 @@ extend-exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 88
 exclude = [
     ".eggs",
@@ -145,7 +143,7 @@ ignore = [
 "src/a2a_registry/_version.py" = ["ALL"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -154,6 +152,7 @@ exclude = [
     "dist/",
     "third_party/",
     "src/a2a_registry/proto/generated/",
+    "src/a2a_registry/grpc_server.py",
 ]
 
 [tool.pytest.ini_options]

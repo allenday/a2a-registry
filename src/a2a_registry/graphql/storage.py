@@ -6,8 +6,8 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import strawberry
 
@@ -37,7 +37,7 @@ class ExtensionEntity:
     id: str
     version: str
     name: str
-    description: Optional[str]
+    description: str | None
     type: str
     content: dict[str, Any]
     trust_level: str
@@ -45,17 +45,17 @@ class ExtensionEntity:
     status: str
     tags: list[str]
     author: str
-    license: Optional[str]
-    homepage: Optional[str]
-    repository: Optional[str]
-    signature: Optional[str]
+    license: str | None
+    homepage: str | None
+    repository: str | None
+    signature: str | None
     checksum: str
-    validated_at: Optional[datetime]
-    validated_by: Optional[str]
+    validated_at: datetime | None
+    validated_by: str | None
     download_count: int
     created_at: datetime
     updated_at: datetime
-    published_at: Optional[datetime]
+    published_at: datetime | None
     created_by: str
     updated_by: str
     dependencies: list[dict[str, Any]]
@@ -72,12 +72,12 @@ class ExtensionStorageBackend(ABC):
         pass
 
     @abstractmethod
-    async def get_extension(self, extension_id: str) -> Optional[AgentExtension]:
+    async def get_extension(self, extension_id: str) -> AgentExtension | None:
         """Get extension by ID."""
         pass
 
     @abstractmethod
-    async def get_extension_by_name(self, name: str) -> Optional[AgentExtension]:
+    async def get_extension_by_name(self, name: str) -> AgentExtension | None:
         """Get extension by name."""
         pass
 
@@ -110,10 +110,10 @@ class ExtensionStorageBackend(ABC):
     @abstractmethod
     async def search_extensions(
         self,
-        search: Optional[ExtensionSearchInput] = None,
-        sort: Optional[ExtensionSortInput] = None,
+        search: ExtensionSearchInput | None = None,
+        sort: ExtensionSortInput | None = None,
         limit: int = 20,
-        offset: Optional[str] = None,
+        offset: str | None = None,
     ) -> list[AgentExtension]:
         """Search extensions with filtering and sorting."""
         pass
@@ -159,8 +159,8 @@ class ExtensionStorageBackend(ABC):
         self,
         agent_id: str,
         extension_id: str,
-        version: Optional[str],
-        configuration: Optional[dict[str, Any]],
+        version: str | None,
+        configuration: dict[str, Any] | None,
         user_id: str,
     ) -> bool:
         """Install extension on agent."""
@@ -224,7 +224,7 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
         content_str = json.dumps(input_data.content.data, sort_keys=True)
         checksum = hashlib.sha256(content_str.encode()).hexdigest()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Create entity
         entity = ExtensionEntity(
@@ -267,12 +267,12 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
 
         return self._entity_to_graphql(entity)
 
-    async def get_extension(self, extension_id: str) -> Optional[AgentExtension]:
+    async def get_extension(self, extension_id: str) -> AgentExtension | None:
         """Get extension by ID."""
         entity = self._extensions.get(extension_id)
         return self._entity_to_graphql(entity) if entity else None
 
-    async def get_extension_by_name(self, name: str) -> Optional[AgentExtension]:
+    async def get_extension_by_name(self, name: str) -> AgentExtension | None:
         """Get extension by name."""
         extension_id = self._extensions_by_name.get(name)
         if extension_id:
@@ -332,7 +332,7 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
             entity.dependencies = [asdict(dep) for dep in input_data.dependencies]
             self._dependencies[extension_id] = entity.dependencies
 
-        entity.updated_at = datetime.now(timezone.utc)
+        entity.updated_at = datetime.now(UTC)
         entity.updated_by = user_id
 
         return self._entity_to_graphql(entity)
@@ -366,18 +366,18 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
             raise ValueError(f"Extension {extension_id} not found")
 
         entity.status = ExtensionStatus.PUBLISHED.value
-        entity.published_at = datetime.now(timezone.utc)
+        entity.published_at = datetime.now(UTC)
         entity.updated_by = user_id
-        entity.updated_at = datetime.now(timezone.utc)
+        entity.updated_at = datetime.now(UTC)
 
         return self._entity_to_graphql(entity)
 
     async def search_extensions(
         self,
-        search: Optional[ExtensionSearchInput] = None,
-        sort: Optional[ExtensionSortInput] = None,
+        search: ExtensionSearchInput | None = None,
+        sort: ExtensionSortInput | None = None,
         limit: int = 20,
-        offset: Optional[str] = None,
+        offset: str | None = None,
     ) -> list[AgentExtension]:
         """Search extensions with filtering and sorting."""
 
@@ -534,8 +534,8 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
         self,
         agent_id: str,
         extension_id: str,
-        version: Optional[str],
-        configuration: Optional[dict[str, Any]],
+        version: str | None,
+        configuration: dict[str, Any] | None,
         user_id: str,
     ) -> bool:
         """Install extension on agent."""
@@ -550,7 +550,7 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
         relation_data = {
             "extension_id": extension_id,
             "installed_version": install_version,
-            "installed_at": datetime.now(timezone.utc),
+            "installed_at": datetime.now(UTC),
             "configuration": configuration,
             "usage_count": 0,
             "status": "active",
@@ -583,7 +583,7 @@ class InMemoryExtensionStorage(ExtensionStorageBackend):
         agent_relation = {
             "agent_id": agent_id,
             "installed_version": install_version,
-            "installed_at": datetime.now(timezone.utc),
+            "installed_at": datetime.now(UTC),
             "configuration": configuration,
             "usage_count": 0,
             "status": "active",

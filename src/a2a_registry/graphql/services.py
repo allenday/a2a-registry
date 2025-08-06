@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 import strawberry
 
@@ -278,10 +278,10 @@ class SecurityService:
 
     async def get_latest_scans_batch(
         self, extension_ids: list[str]
-    ) -> dict[str, Optional[SecurityScan]]:
+    ) -> dict[str, SecurityScan | None]:
         """Batch get latest security scans for multiple extensions."""
 
-        results: dict[str, Optional[SecurityScan]] = {}
+        results: dict[str, SecurityScan | None] = {}
         for ext_id in extension_ids:
             try:
                 results[ext_id] = await self.scan_extension(ext_id)
@@ -322,7 +322,7 @@ class DependencyResolverService:
         self.storage = extension_storage
 
     async def resolve_dependency_tree(
-        self, extension_id: str, version: Optional[str] = None
+        self, extension_id: str, version: str | None = None
     ) -> DependencyTree:
         """Resolve complete dependency tree for an extension."""
 

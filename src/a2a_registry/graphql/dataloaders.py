@@ -203,7 +203,7 @@ class SecurityScanDataLoader(DataLoader[str, Optional["SecurityScan"]]):
             return [None] * len(extension_ids)
 
 
-def create_data_loaders(context: dict[str, Any]) -> dict[str, Optional[DataLoader]]:
+def create_data_loaders(context: dict[str, Any]) -> dict[str, DataLoader | None]:
     """Create all DataLoader instances for the GraphQL context."""
 
     extension_storage = context["extension_storage"]

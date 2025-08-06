@@ -1,7 +1,7 @@
 """Custom exceptions for A2A Registry with clear, actionable error messages."""
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 
 class A2ARegistryError(Exception):
@@ -11,8 +11,8 @@ class A2ARegistryError(Exception):
         self,
         message: str,
         error_code: str = "UNKNOWN_ERROR",
-        details: Optional[dict[str, Any]] = None,
-        context: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
+        context: dict[str, Any] | None = None,
     ):
         super().__init__(message)
         self.message = message
@@ -51,7 +51,7 @@ class ValidationError(A2ARegistryError):
         field: str,
         value: Any,
         reason: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"Validation failed for field '{field}': {reason}"
         details = {
@@ -70,7 +70,7 @@ class ValidationError(A2ARegistryError):
 class AgentNotFoundError(A2ARegistryError):
     """Raised when an agent is not found in the registry."""
 
-    def __init__(self, agent_id: str, context: Optional[dict[str, Any]] = None):
+    def __init__(self, agent_id: str, context: dict[str, Any] | None = None):
         message = f"Agent with ID '{agent_id}' not found in registry"
         details = {"agent_id": agent_id}
         super().__init__(
@@ -85,7 +85,7 @@ class AgentRegistrationError(A2ARegistryError):
     """Raised when agent registration fails."""
 
     def __init__(
-        self, agent_id: str, reason: str, context: Optional[dict[str, Any]] = None
+        self, agent_id: str, reason: str, context: dict[str, Any] | None = None
     ):
         message = f"Failed to register agent '{agent_id}': {reason}"
         details = {"agent_id": agent_id, "reason": reason}
@@ -100,7 +100,7 @@ class AgentRegistrationError(A2ARegistryError):
 class ExtensionNotFoundError(A2ARegistryError):
     """Raised when an extension is not found."""
 
-    def __init__(self, extension_uri: str, context: Optional[dict[str, Any]] = None):
+    def __init__(self, extension_uri: str, context: dict[str, Any] | None = None):
         message = f"Extension with URI '{extension_uri}' not found"
         details = {"extension_uri": extension_uri}
         super().__init__(
@@ -118,8 +118,8 @@ class ExtensionNotAllowedError(A2ARegistryError):
         self,
         extension_uri: str,
         mode: str,
-        allowlist: Optional[list] = None,
-        context: Optional[dict[str, Any]] = None,
+        allowlist: list | None = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"Extension '{extension_uri}' not allowed in {mode} mode"
         if allowlist:
@@ -144,7 +144,7 @@ class StorageError(A2ARegistryError):
     """Raised when storage operations fail."""
 
     def __init__(
-        self, operation: str, reason: str, context: Optional[dict[str, Any]] = None
+        self, operation: str, reason: str, context: dict[str, Any] | None = None
     ):
         message = f"Storage operation '{operation}' failed: {reason}"
         details = {"operation": operation, "reason": reason}
@@ -164,7 +164,7 @@ class ConfigurationError(A2ARegistryError):
         config_key: str,
         value: Any,
         reason: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"Invalid configuration for '{config_key}': {reason}"
         details = {"config_key": config_key, "value": str(value), "reason": reason}
@@ -184,7 +184,7 @@ class PaginationError(A2ARegistryError):
         parameter: str,
         value: Any,
         reason: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"Invalid pagination parameter '{parameter}': {reason}"
         details = {"parameter": parameter, "value": str(value), "reason": reason}
@@ -204,7 +204,7 @@ class FileOperationError(A2ARegistryError):
         file_path: str,
         operation: str,
         reason: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"File operation '{operation}' failed for '{file_path}': {reason}"
         details = {"file_path": file_path, "operation": operation, "reason": reason}
@@ -224,7 +224,7 @@ class JSONRPCError(A2ARegistryError):
         method: str,
         reason: str,
         rpc_code: int = -32603,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"JSON-RPC method '{method}' failed: {reason}"
         details = {"method": method, "reason": reason, "rpc_code": rpc_code}
@@ -240,7 +240,7 @@ class JSONRPCError(A2ARegistryError):
 class DuplicateAgentError(A2ARegistryError):
     """Raised when attempting to register an agent that already exists."""
 
-    def __init__(self, agent_id: str, context: Optional[dict[str, Any]] = None):
+    def __init__(self, agent_id: str, context: dict[str, Any] | None = None):
         message = f"Agent with ID '{agent_id}' already exists in registry"
         details = {"agent_id": agent_id}
         super().__init__(
@@ -258,8 +258,8 @@ class InvalidAgentCardError(A2ARegistryError):
         self,
         field: str,
         issue: str,
-        agent_id: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
+        agent_id: str | None = None,
+        context: dict[str, Any] | None = None,
     ):
         message = f"Invalid agent card: {issue}"
         if field:

@@ -3,12 +3,12 @@
 import logging
 import pickle
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import faiss
 import numpy as np
 
-from .proto.generated import registry_pb2
+from .proto.generated.registry_pb2 import Vector  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,7 @@ logger = logging.getLogger(__name__)
 class FAISSVectorStore:
     """In-memory vector store using FAISS for similarity search."""
 
-    def __init__(
-        self, vector_dimensions: int = 384, persist_path: Optional[str] = None
-    ):
+    def __init__(self, vector_dimensions: int = 384, persist_path: str | None = None):
         """Initialize FAISS vector store.
 
         Args:
@@ -34,7 +32,7 @@ class FAISSVectorStore:
         )  # Inner product (cosine similarity)
 
         # Metadata storage (agent_id -> vector list mapping)
-        self.agent_vectors: dict[str, list[registry_pb2.Vector]] = {}
+        self.agent_vectors: dict[str, list[Vector]] = {}
         self.vector_id_to_agent: dict[int, str] = {}  # FAISS index ID -> agent_id
         self.next_vector_id = 0
 
@@ -46,9 +44,7 @@ class FAISSVectorStore:
             f"Initialized FAISS vector store with {vector_dimensions} dimensions"
         )
 
-    def add_agent_vectors(
-        self, agent_id: str, vectors: list[registry_pb2.Vector]
-    ) -> None:
+    def add_agent_vectors(self, agent_id: str, vectors: list[Vector]) -> None:
         """Add or update vectors for an agent.
 
         Args:
@@ -122,10 +118,10 @@ class FAISSVectorStore:
 
     def search_similar_vectors(
         self,
-        query_vector: registry_pb2.Vector,
+        query_vector: Vector,
         k: int = 10,
         similarity_threshold: float = 0.7,
-    ) -> list[tuple[str, registry_pb2.Vector, float]]:
+    ) -> list[tuple[str, Vector, float]]:
         """Search for similar vectors.
 
         Args:
@@ -147,7 +143,9 @@ class FAISSVectorStore:
         similarities, indices = self.index.search(query, min(k, self.index.ntotal))
 
         results = []
-        for _i, (similarity, vector_idx) in enumerate(zip(similarities[0], indices[0])):
+        for _i, (similarity, vector_idx) in enumerate(
+            zip(similarities[0], indices[0], strict=False)
+        ):
             if similarity < similarity_threshold:
                 continue
 
@@ -167,7 +165,7 @@ class FAISSVectorStore:
 
         return results
 
-    def get_agent_vectors(self, agent_id: str) -> list[registry_pb2.Vector]:
+    def get_agent_vectors(self, agent_id: str) -> list[Vector]:
         """Get all vectors for an agent.
 
         Args:

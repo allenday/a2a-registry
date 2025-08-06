@@ -2,7 +2,7 @@
 
 import base64
 import json
-from typing import Any, Optional
+from typing import Any
 
 from .types import AgentExtension, ExtensionConnection, ExtensionEdge, PageInfo
 
@@ -38,11 +38,11 @@ def create_cursor_from_extension(extension: AgentExtension) -> str:
 
 def create_connection(
     extensions: list[AgentExtension],
-    first: Optional[int] = None,
-    after: Optional[str] = None,
-    last: Optional[int] = None,
-    before: Optional[str] = None,
-    total_count: Optional[int] = None,
+    first: int | None = None,
+    after: str | None = None,
+    last: int | None = None,
+    before: str | None = None,
+    total_count: int | None = None,
 ) -> ExtensionConnection:
     """Create paginated connection from extension list."""
 
@@ -97,10 +97,10 @@ class PaginationHelper:
 
     @staticmethod
     def validate_pagination_args(
-        first: Optional[int],
-        after: Optional[str],
-        last: Optional[int],
-        before: Optional[str],
+        first: int | None,
+        after: str | None,
+        last: int | None,
+        before: str | None,
     ) -> list[str]:
         """Validate pagination arguments."""
         errors = []
@@ -123,10 +123,10 @@ class PaginationHelper:
 
     @staticmethod
     def parse_pagination_args(
-        first: Optional[int],
-        after: Optional[str],
-        last: Optional[int],
-        before: Optional[str],
+        first: int | None,
+        after: str | None,
+        last: int | None,
+        before: str | None,
     ) -> tuple[int, int, str]:
         """Parse pagination arguments into limit, offset, and direction."""
 
@@ -157,8 +157,8 @@ class PaginationHelper:
     @staticmethod
     def apply_cursor_conditions(
         query_conditions: dict[str, Any],
-        after: Optional[str] = None,
-        before: Optional[str] = None,
+        after: str | None = None,
+        before: str | None = None,
     ) -> dict[str, Any]:
         """Apply cursor-based filtering to query conditions."""
 
@@ -184,10 +184,10 @@ class PaginationHelper:
 async def paginate_results(
     storage_service: Any,
     search_params: dict[str, Any],
-    first: Optional[int] = None,
-    after: Optional[str] = None,
-    last: Optional[int] = None,
-    before: Optional[str] = None,
+    first: int | None = None,
+    after: str | None = None,
+    last: int | None = None,
+    before: str | None = None,
     sort_field: str = "created_at",
     sort_direction: str = "desc",
 ) -> tuple[list[AgentExtension], int]:
@@ -248,10 +248,10 @@ class ExtensionPaginator:
         self,
         search_input: Any,
         sort_input: Any,
-        first: Optional[int] = None,
-        after: Optional[str] = None,
-        last: Optional[int] = None,
-        before: Optional[str] = None,
+        first: int | None = None,
+        after: str | None = None,
+        last: int | None = None,
+        before: str | None = None,
     ) -> ExtensionConnection:
         """Paginate extension search results."""
 
@@ -279,8 +279,8 @@ class ExtensionPaginator:
     async def paginate_dependencies(
         self,
         extension_id: str,
-        first: Optional[int] = None,
-        after: Optional[str] = None,
+        first: int | None = None,
+        after: str | None = None,
     ) -> ExtensionConnection:
         """Paginate extension dependencies."""
 
@@ -351,9 +351,7 @@ class SubscriptionPaginator:
         if len(self.event_buffer) > self.max_buffer_size:
             self.event_buffer = self.event_buffer[-self.max_buffer_size :]
 
-    def get_events_after_cursor(
-        self, cursor: Optional[str], limit: int = 50
-    ) -> list[Any]:
+    def get_events_after_cursor(self, cursor: str | None, limit: int = 50) -> list[Any]:
         """Get events after a specific cursor."""
 
         if not cursor:

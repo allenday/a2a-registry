@@ -1,7 +1,7 @@
 """A2A Registry server using FastAPI and FastA2A schemas with dual transport support."""
 
 import logging
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import unquote
 
 from fasta2a.schema import AgentCard  # type: ignore
@@ -167,21 +167,19 @@ def create_app() -> FastAPI:
     # Extension discovery endpoints
     @app.get("/extensions", response_model=dict[str, Any])
     async def list_extensions(
-        uri_pattern: Optional[str] = Query(
+        uri_pattern: str | None = Query(
             None, description="Filter extensions by URI pattern"
         ),
-        declaring_agents: Optional[list[str]] = Query(
+        declaring_agents: list[str] | None = Query(
             None, description="Filter by declaring agents"
         ),
-        trust_levels: Optional[list[str]] = Query(
+        trust_levels: list[str] | None = Query(
             None, description="Filter by trust levels"
         ),
         page_size: int = Query(
             100, description="Number of extensions per page", ge=1, le=1000
         ),
-        page_token: Optional[str] = Query(
-            None, description="Page token for pagination"
-        ),
+        page_token: str | None = Query(None, description="Page token for pagination"),
     ) -> dict[str, Any]:
         """List all extensions with provenance information."""
         try:

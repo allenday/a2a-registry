@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Optional
+from typing import Any
 
 import jwt
 
@@ -15,13 +15,13 @@ class SecurityContext:
 
     def __init__(
         self,
-        user_id: Optional[str] = None,
-        roles: Optional[list[str]] = None,
-        permissions: Optional[set[str]] = None,
+        user_id: str | None = None,
+        roles: list[str] | None = None,
+        permissions: set[str] | None = None,
         is_authenticated: bool = False,
         auth_method: str = "none",
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ):
         self.user_id = user_id
         self.roles = roles or []
@@ -299,7 +299,7 @@ def get_permissions_for_roles(roles: list[str]) -> set[str]:
 async def check_permissions(
     security_ctx: SecurityContext,
     required_permission: str,
-    resource_id: Optional[str] = None,
+    resource_id: str | None = None,
 ) -> bool:
     """Check if user has required permission for a resource."""
 
@@ -326,7 +326,7 @@ async def check_permissions(
     return True
 
 
-def authorize_field(permission: str, resource_id_field: Optional[str] = None) -> Any:
+def authorize_field(permission: str, resource_id_field: str | None = None) -> Any:
     """Decorator for field-level authorization."""
 
     def decorator(resolver_func: Any) -> Any:
@@ -427,11 +427,11 @@ class AuditLogger:
         self,
         user_id: str,
         action: str,
-        resource_id: Optional[str] = None,
+        resource_id: str | None = None,
         resource_type: str = "extension",
-        metadata: Optional[dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        metadata: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
         success: bool = True,
     ) -> None:
         """Log security-relevant action."""

@@ -1,11 +1,11 @@
 """Vector-enhanced storage for A2A Registry with semantic search capabilities."""
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from fasta2a.schema import AgentCard
 
-from .proto.generated import registry_pb2
+from .proto.generated.registry_pb2 import Vector  # type: ignore
 from .storage import ExtensionInfo, StorageBackend
 from .vector_generator import VectorGenerator
 from .vector_store import FAISSVectorStore
@@ -42,7 +42,7 @@ class VectorEnhancedStorage(StorageBackend):
         await self._update_agent_vectors(agent_card)
         return True
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get an agent by ID."""
         return await self.backend.get_agent(agent_id)
 
@@ -106,11 +106,11 @@ class VectorEnhancedStorage(StorageBackend):
     async def search_agents_hybrid(
         self,
         query: str = "",
-        skills: Optional[list[str]] = None,
+        skills: list[str] | None = None,
         search_mode: str = "SEARCH_MODE_VECTOR",
         similarity_threshold: float = 0.7,
         max_results: int = 10,
-    ) -> list[tuple[AgentCard, Optional[float]]]:
+    ) -> list[tuple[AgentCard, float | None]]:
         """Search agents using hybrid approach per proto spec.
 
         Args:
@@ -131,7 +131,7 @@ class VectorEnhancedStorage(StorageBackend):
 
             # Apply skill filtering if specified
             if skills:
-                filtered_results: list[tuple[AgentCard, Optional[float]]] = []
+                filtered_results: list[tuple[AgentCard, float | None]] = []
                 for agent_card, score in results:
                     agent_skills = [
                         skill.get("id", "") for skill in agent_card.get("skills", [])
@@ -141,7 +141,7 @@ class VectorEnhancedStorage(StorageBackend):
                 return filtered_results
 
             # Cast to match return type
-            results_cast: list[tuple[AgentCard, Optional[float]]] = [
+            results_cast: list[tuple[AgentCard, float | None]] = [
                 (agent, score) for agent, score in results
             ]
             return results_cast
@@ -164,13 +164,11 @@ class VectorEnhancedStorage(StorageBackend):
             # Return without similarity scores for keyword search
             return [(agent, None) for agent in agents[:max_results]]
 
-    async def get_agent_vectors(self, agent_id: str) -> list[registry_pb2.Vector]:
+    async def get_agent_vectors(self, agent_id: str) -> list[Vector]:
         """Get all vectors for an agent."""
         return self.vector_store.get_agent_vectors(agent_id)
 
-    async def update_agent_vectors(
-        self, agent_id: str, vectors: list[registry_pb2.Vector]
-    ) -> bool:
+    async def update_agent_vectors(self, agent_id: str, vectors: list[Vector]) -> bool:
         """Update vectors for an agent directly."""
         try:
             self.vector_store.add_agent_vectors(agent_id, vectors)
@@ -203,12 +201,12 @@ class VectorEnhancedStorage(StorageBackend):
 
     async def list_extensions(
         self,
-        uri_pattern: Optional[str] = None,
-        declaring_agents: Optional[list[str]] = None,
-        trust_levels: Optional[list[str]] = None,
+        uri_pattern: str | None = None,
+        declaring_agents: list[str] | None = None,
+        trust_levels: list[str] | None = None,
         page_size: int = 100,
-        page_token: Optional[str] = None,
-    ) -> tuple[list, Optional[str], int]:
+        page_token: str | None = None,
+    ) -> tuple[list, str | None, int]:
         """List extensions (delegated to backend)."""
         return await self.backend.list_extensions(
             uri_pattern=uri_pattern,
@@ -231,7 +229,7 @@ class VectorEnhancedStorage(StorageBackend):
         """Store extension information."""
         return await self.backend.store_extension(extension_info)
 
-    async def get_extension(self, uri: str) -> Optional[ExtensionInfo]:
+    async def get_extension(self, uri: str) -> ExtensionInfo | None:
         """Get extension information by URI."""
         return await self.backend.get_extension(uri)
 
