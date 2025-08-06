@@ -46,12 +46,6 @@ jobs:
         echo "publish_to_pypi type: $(echo '${{ github.event.inputs.publish_to_pypi }}' | jq -R type)"
         echo "publish_to_testpypi type: $(echo '${{ github.event.inputs.publish_to_testpypi }}' | jq -R type)"
 
-    - name: Run all checks
-      run: |
-        make lint
-        make typecheck
-        make test
-
     - name: Validate version
       run: |
         # Check if version matches the input
@@ -64,7 +58,7 @@ jobs:
         fi
         echo "Version validation passed: $CURRENT_VERSION"
 
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     needs: validate
     steps:
@@ -76,6 +70,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Run comprehensive tests
+      run: |
+        make lint
+        make typecheck
+        make test
 
     - name: Build package
       run: make build
@@ -89,7 +89,7 @@ jobs:
 
   publish-testpypi:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-test
     if: ${{ github.event.inputs.publish_to_testpypi == 'true' }}
     steps:
     - uses: actions/checkout@v4
@@ -114,36 +114,9 @@ jobs:
       run: |
         make publish-test
 
-  publish-pypi:
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ github.event.inputs.publish_to_pypi == 'true' }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
-    - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dist-packages
-        path: dist/
-
-    - name: Publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        make publish
-
   create-release:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-test
     steps:
     - uses: actions/checkout@v4
       with:
@@ -176,12 +149,39 @@ jobs:
           
           ### Documentation
           - [Full Documentation](https://allenday.github.io/a2a-registry/)
-          - [API Reference](https://allenday.github.io/a2a-registry/api/overview/)
+          - [API Reference](https://allendy.github.io/a2a-registry/api/overview/)
           
           ### Changelog
-          See the [full changelog](https://github.com/allenday/a2a-registry/blob/master/CHANGELOG.md) for detailed changes.
+          See the [full changelog](https://github.com/allendy/a2a-registry/blob/master/CHANGELOG.md) for detailed changes.
         files: dist/*
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-pypi:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, publish-testpypi, create-release]
+    if: ${{ github.event.inputs.publish_to_pypi == 'true' && always() && (needs.publish-testpypi.result == 'success' || needs.publish-testpypi.result == 'skipped') }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-packages
+        path: dist/
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        make publish
