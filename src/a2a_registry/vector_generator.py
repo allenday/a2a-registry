@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 from google.protobuf import struct_pb2, timestamp_pb2
@@ -66,18 +66,20 @@ class VectorGenerator:
         return " ".join(texts)
 
     def generate_agent_vectors(
-        self, agent_card: dict[str, Any]
+        self, agent_card: dict[str, Any], agent_id: Optional[str] = None
     ) -> list[registry_pb2.Vector]:
         """Generate vectors for all searchable fields in an agent card.
 
         Args:
             agent_card: Agent card dictionary
+            agent_id: Explicit agent ID (if not provided, uses "url" field)
 
         Returns:
             List of Vector proto messages with provenance
         """
         vectors = []
-        agent_id = agent_card.get("url", "")
+        if agent_id is None:
+            agent_id = agent_card.get("url", "")
 
         # Agent-level fields
         if "name" in agent_card:
