@@ -133,60 +133,100 @@ async def unregister_agent(agent_id: str) -> Result:
 
 
 @method
-async def search_agents(query: str = "", skills: Optional[list[str]] = None) -> Result:
-    """Search for agents via JSON-RPC.
+async def search_agents(
+    query: str = "",
+    skills: Optional[list[str]] = None,
+    search_mode: str = "SEARCH_MODE_VECTOR",
+    similarity_threshold: float = 0.7,
+    max_results: int = 10,
+) -> Result:
+    """Search for agents via JSON-RPC with vector search support.
 
     Args:
-        query: Search query string
+        query: Search query string (for keyword) or semantic query (for vector search)
         skills: Optional list of skill IDs to filter by
+        search_mode: "SEARCH_MODE_KEYWORD" or "SEARCH_MODE_VECTOR"
+        similarity_threshold: Minimum similarity score for vector search (0.0-1.0)
+        max_results: Maximum number of results to return
 
     Returns:
-        Success with matching agents
+        Success with matching agents and similarity scores
     """
     try:
-        # Enhanced search functionality
-        results = []
-        query_lower = query.lower() if query else ""
+        # Use vector-enhanced storage if available
+        if hasattr(storage, "search_agents_hybrid"):
+            results = await storage.search_agents_hybrid(
+                query=query,
+                skills=skills,
+                search_mode=search_mode,
+                similarity_threshold=similarity_threshold,
+                max_results=max_results,
+            )
 
-        agents = await storage.list_agents()
-        for agent in agents:
-            matches = False
-
-            # Search by query in name, description
-            if query_lower:
-                if (
-                    query_lower in agent.get("name", "").lower()
-                    or query_lower in agent.get("description", "").lower()
-                    or any(
-                        query_lower in skill.get("id", "").lower()
-                        or query_lower in skill.get("description", "").lower()
-                        for skill in agent.get("skills", [])
-                    )
-                ):
-                    matches = True
-            else:
-                matches = True  # No query means match all
-
-            # Filter by skills if provided
-            if skills and matches:
-                agent_skills = [
-                    skill.get("id", "") for skill in agent.get("skills", [])
-                ]
-                if not any(skill in agent_skills for skill in skills):
-                    matches = False
-
-            if matches:
-                results.append(agent)
-
-        return Success(
-            {
-                "agents": [dict(agent) for agent in results],
+            # Format response with similarity scores
+            response = {
+                "agents": [dict(agent) for agent, _ in results],
                 "count": len(results),
                 "query": query,
                 "skills_filter": skills,
+                "search_mode": search_mode,
                 "transport": "JSONRPC",
             }
-        )
+
+            # Include similarity scores for vector search
+            if search_mode == "SEARCH_MODE_VECTOR":
+                response["similarity_scores"] = [
+                    score for _, score in results if score is not None
+                ]
+                response["similarity_threshold"] = similarity_threshold
+
+            return Success(response)
+
+        else:
+            # Fallback to basic keyword search for backward compatibility
+            results = []
+            query_lower = query.lower() if query else ""
+
+            agents = await storage.list_agents()
+            for agent in agents:
+                matches = False
+
+                # Search by query in name, description
+                if query_lower:
+                    if (
+                        query_lower in agent.get("name", "").lower()
+                        or query_lower in agent.get("description", "").lower()
+                        or any(
+                            query_lower in skill.get("id", "").lower()
+                            or query_lower in skill.get("description", "").lower()
+                            for skill in agent.get("skills", [])
+                        )
+                    ):
+                        matches = True
+                else:
+                    matches = True  # No query means match all
+
+                # Filter by skills if provided
+                if skills and matches:
+                    agent_skills = [
+                        skill.get("id", "") for skill in agent.get("skills", [])
+                    ]
+                    if not any(skill in agent_skills for skill in skills):
+                        matches = False
+
+                if matches:
+                    results.append(agent)
+
+            return Success(
+                {
+                    "agents": [dict(agent) for agent in results[:max_results]],
+                    "count": len(results[:max_results]),
+                    "query": query,
+                    "skills_filter": skills,
+                    "search_mode": "SEARCH_MODE_KEYWORD",
+                    "transport": "JSONRPC",
+                }
+            )
 
     except Exception as e:
         logger.error(f"Error searching agents via JSON-RPC: {e}")
@@ -393,6 +433,145 @@ async def list_methods() -> Result:
         return Error(code=-32603, message=str(e))
 
 
+@method
+async def update_agent_vectors(agent_id: str, vectors: list[dict]) -> Result:
+    """Update vectors for an agent via JSON-RPC.
+
+    Args:
+        agent_id: Unique agent identifier
+        vectors: List of vector dictionaries with 'values', 'field_path', etc.
+
+    Returns:
+        Success with update status
+    """
+    try:
+        # Convert dict vectors to proto vectors
+        from datetime import datetime, timezone
+
+        from google.protobuf import struct_pb2, timestamp_pb2
+
+        from .proto.generated import registry_pb2
+
+        proto_vectors = []
+        for vec_dict in vectors:
+            # Create timestamp
+            now = datetime.now(timezone.utc)
+            timestamp = timestamp_pb2.Timestamp()
+            timestamp.FromDatetime(now)
+
+            # Create metadata
+            metadata = struct_pb2.Struct()
+            if "metadata" in vec_dict:
+                metadata.update(vec_dict["metadata"])
+
+            # Create proto vector
+            vector = registry_pb2.Vector(
+                values=vec_dict.get("values", []),
+                agent_id=vec_dict.get("agent_id", agent_id),
+                field_path=vec_dict.get("field_path", ""),
+                field_content=vec_dict.get("field_content", ""),
+                created_at=timestamp,
+                metadata=metadata,
+            )
+            proto_vectors.append(vector)
+
+        # Update vectors in storage
+        if hasattr(storage, "update_agent_vectors"):
+            success = await storage.update_agent_vectors(agent_id, proto_vectors)
+
+            return Success(
+                {
+                    "success": success,
+                    "message": f"Updated {len(proto_vectors)} vectors for agent {agent_id}",
+                    "agent_id": agent_id,
+                    "vector_count": len(proto_vectors),
+                    "transport": "JSONRPC",
+                }
+            )
+        else:
+            return Error(
+                code=-32601,
+                message="Vector operations not supported by storage backend",
+            )
+
+    except Exception as e:
+        logger.error(f"Error updating agent vectors via JSON-RPC: {e}")
+        return Error(code=-32603, message=str(e))
+
+
+@method
+async def get_agent_vectors(agent_id: str) -> Result:
+    """Get all vectors for an agent via JSON-RPC.
+
+    Args:
+        agent_id: Unique agent identifier
+
+    Returns:
+        Success with agent vectors
+    """
+    try:
+        if hasattr(storage, "get_agent_vectors"):
+            vectors = await storage.get_agent_vectors(agent_id)
+
+            # Convert proto vectors to dict format
+            vector_dicts = []
+            for vector in vectors:
+                vec_dict = {
+                    "values": list(vector.values),
+                    "agent_id": vector.agent_id,
+                    "field_path": vector.field_path,
+                    "field_content": vector.field_content,
+                    "created_at": vector.created_at.ToDatetime().isoformat(),
+                }
+
+                # Add metadata if present
+                if vector.metadata:
+                    vec_dict["metadata"] = dict(vector.metadata)
+
+                vector_dicts.append(vec_dict)
+
+            return Success(
+                {
+                    "agent_id": agent_id,
+                    "vectors": vector_dicts,
+                    "count": len(vector_dicts),
+                    "transport": "JSONRPC",
+                }
+            )
+        else:
+            return Error(
+                code=-32601,
+                message="Vector operations not supported by storage backend",
+            )
+
+    except Exception as e:
+        logger.error(f"Error getting agent vectors via JSON-RPC: {e}")
+        return Error(code=-32603, message=str(e))
+
+
+@method
+async def get_vector_stats() -> Result:
+    """Get vector store statistics via JSON-RPC.
+
+    Returns:
+        Success with vector store statistics
+    """
+    try:
+        if hasattr(storage, "get_vector_stats"):
+            stats = storage.get_vector_stats()
+
+            return Success({"vector_stats": stats, "transport": "JSONRPC"})
+        else:
+            return Error(
+                code=-32601,
+                message="Vector operations not supported by storage backend",
+            )
+
+    except Exception as e:
+        logger.error(f"Error getting vector stats via JSON-RPC: {e}")
+        return Error(code=-32603, message=str(e))
+
+
 def get_jsonrpc_methods() -> list[str]:
     """Get list of available JSON-RPC methods for introspection."""
     return [
@@ -405,6 +584,9 @@ def get_jsonrpc_methods() -> list[str]:
         "ping_agent",
         "get_agent_card",
         "health_check",
+        "update_agent_vectors",
+        "get_agent_vectors",
+        "get_vector_stats",
         "system.listMethods",
         "list_methods",
     ]

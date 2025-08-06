@@ -177,7 +177,8 @@ def test_jsonrpc_search_agents():
         "jsonrpc": "2.0",
         "method": "search_agents",
         "params": {
-            "query": "translation"
+            "query": "translation",
+            "search_mode": "SEARCH_MODE_KEYWORD"
         },
         "id": 10
     }
@@ -197,7 +198,8 @@ def test_jsonrpc_search_agents():
         "method": "search_agents", 
         "params": {
             "query": "",
-            "skills": ["weather"]
+            "skills": ["weather"],
+            "search_mode": "SEARCH_MODE_KEYWORD"
         },
         "id": 11
     }

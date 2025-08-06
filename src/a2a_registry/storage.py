@@ -564,5 +564,24 @@ def get_storage_backend() -> StorageBackend:
         return InMemoryStorage()
 
 
-# Global storage instance
-storage = get_storage_backend()
+def get_vector_enhanced_storage() -> StorageBackend:
+    """Get vector-enhanced storage wrapper."""
+    try:
+        from .vector_enhanced_storage import VectorEnhancedStorage
+
+        backend = get_storage_backend()
+        vector_storage = VectorEnhancedStorage(backend)
+        logger.info("Using vector-enhanced storage with FAISS")
+        return vector_storage
+    except ImportError as e:
+        logger.warning(f"Vector search dependencies not available: {e}")
+        logger.info("Falling back to basic storage backend")
+        return get_storage_backend()
+    except Exception as e:
+        logger.error(f"Failed to initialize vector-enhanced storage: {e}")
+        logger.info("Falling back to basic storage backend")
+        return get_storage_backend()
+
+
+# Global storage instance (with vector enhancement if available)
+storage = get_vector_enhanced_storage()
