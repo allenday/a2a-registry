@@ -45,6 +45,7 @@ dependencies = [
     # Vector search dependencies
     "sentence-transformers>=2.2.0",
     "numpy>=1.21.0",
+    "faiss-cpu>=1.7.0",
 ]
 
 [project.optional-dependencies]
