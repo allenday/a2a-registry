@@ -8,7 +8,7 @@ from src.a2a_registry.proto.generated import a2a_pb2, registry_pb2
 
 def test_version():
     """Test that version is accessible."""
-    assert __version__ == "0.1.2"
+    assert __version__ == "0.1.3"
 
 
 def test_a2a_protocol_version():
