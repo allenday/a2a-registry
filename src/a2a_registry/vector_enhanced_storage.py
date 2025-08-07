@@ -66,7 +66,7 @@ class VectorEnhancedStorage(StorageBackend):
         return await self.backend.search_agents(query)
 
     async def search_agents_vector(
-        self, query: str, similarity_threshold: float = 0.7, max_results: int = 10
+        self, query: str, similarity_threshold: float = 0.5, max_results: int = 10
     ) -> list[tuple[AgentCard, float]]:
         """Search agents using vector similarity.
 
@@ -108,7 +108,7 @@ class VectorEnhancedStorage(StorageBackend):
         query: str = "",
         skills: list[str] | None = None,
         search_mode: str = "SEARCH_MODE_VECTOR",
-        similarity_threshold: float = 0.7,
+        similarity_threshold: float = 0.5,
         max_results: int = 10,
     ) -> list[tuple[AgentCard, float | None]]:
         """Search agents using hybrid approach per proto spec.

@@ -138,7 +138,7 @@ async def search_agents(
     query: str = "",
     skills: list[str] | None = None,
     search_mode: str = "SEARCH_MODE_VECTOR",
-    similarity_threshold: float = 0.7,
+    similarity_threshold: float = 0.5,
     max_results: int = 10,
 ) -> Result:
     """Search for agents via JSON-RPC with vector search support.
