@@ -46,10 +46,15 @@ jobs:
         echo "publish_to_pypi type: $(echo '${{ github.event.inputs.publish_to_pypi }}' | jq -R type)"
         echo "publish_to_testpypi type: $(echo '${{ github.event.inputs.publish_to_testpypi }}' | jq -R type)"
 
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
     - name: Validate version
       run: |
         # Check if version matches the input
-        CURRENT_VERSION=$(.venv/bin/python -c "from a2a_registry import __version__; print(__version__)")
+        CURRENT_VERSION=$(python -c "from a2a_registry import __version__; print(__version__)")
         if [ "$CURRENT_VERSION" != "${{ github.event.inputs.version }}" ]; then
           echo "Error: Version mismatch!"
           echo "Current version in code: $CURRENT_VERSION"
@@ -70,6 +75,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
 
     - name: Run comprehensive tests
       run: |
@@ -100,6 +110,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
 
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -172,6 +187,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
 
     - name: Download build artifacts
       uses: actions/download-artifact@v4
