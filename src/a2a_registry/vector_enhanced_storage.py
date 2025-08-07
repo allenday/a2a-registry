@@ -68,7 +68,7 @@ class VectorEnhancedStorage(StorageBackend):
     async def search_agents_vector(
         self, query: str, similarity_threshold: float = 0.5, max_results: int = 10
     ) -> list[tuple[AgentCard, float]]:
-        """Search agents using vector similarity.
+        """Search agents using vector similarity with information-theoretically sound aggregation.
 
         Args:
             query: Natural language search query
@@ -81,22 +81,51 @@ class VectorEnhancedStorage(StorageBackend):
         # Generate query vector
         query_vector = self.vector_generator.generate_query_vector(query)
 
-        # Search similar vectors
+        # Phase 1: Candidate generation - find all vectors above threshold
+        # Use a larger k to capture more candidate vectors
+        candidate_k = max_results * 10  # Expand search space for candidates
         similar_vectors = self.vector_store.search_similar_vectors(
-            query_vector, k=max_results, similarity_threshold=similarity_threshold
+            query_vector, k=candidate_k, similarity_threshold=similarity_threshold
         )
 
-        # Collect unique agents with best similarity scores
-        agent_scores: dict[str, float] = {}
-        for agent_id, _vector, score in similar_vectors:
-            if agent_id not in agent_scores or score > agent_scores[agent_id]:
-                agent_scores[agent_id] = score
+        # Phase 2: Agent profiling - collect all matches per agent
+        agent_vector_matches: dict[str, list[tuple[Vector, float]]] = {}
+        for agent_id, vector, score in similar_vectors:
+            if agent_id not in agent_vector_matches:
+                agent_vector_matches[agent_id] = []
+            agent_vector_matches[agent_id].append((vector, score))
 
-        # Fetch agent cards and return with scores
+        # Phase 3: Information-theoretic composite scoring
+        agent_composite_scores: dict[str, float] = {}
+        for agent_id, matches in agent_vector_matches.items():
+            if not matches:
+                continue
+                
+            # Extract scores for this agent
+            scores = [score for _vector, score in matches]
+            
+            # Composite scoring strategy: weighted combination
+            # - Top score (strongest signal): 60% weight
+            # - Mean of top 3 scores (consistency): 30% weight  
+            # - Coverage bonus (number of matches): 10% weight
+            
+            max_score = max(scores)
+            top_3_mean = sum(sorted(scores, reverse=True)[:3]) / min(3, len(scores))
+            coverage_bonus = min(len(scores) / 5.0, 1.0)  # Normalize to [0, 1]
+            
+            composite_score = (
+                0.6 * max_score + 
+                0.3 * top_3_mean + 
+                0.1 * coverage_bonus
+            )
+            
+            agent_composite_scores[agent_id] = composite_score
+
+        # Phase 4: Rank and return results
         results = []
         for agent_id, score in sorted(
-            agent_scores.items(), key=lambda x: x[1], reverse=True
-        ):
+            agent_composite_scores.items(), key=lambda x: x[1], reverse=True
+        )[:max_results]:
             agent_card = await self.get_agent(agent_id)
             if agent_card:
                 results.append((agent_card, score))
