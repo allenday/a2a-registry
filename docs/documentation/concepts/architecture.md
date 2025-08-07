@@ -6,7 +6,7 @@ The A2A Registry is a production-ready agent discovery platform implementing **A
 
 ### Project Status
 
-- **Version**: 0.1.1
+- **Version**: 0.1.4
 - **Quality Gates**:
   - Type Checking: 0 errors (down from 118)
   - Linting: 0 errors (down from 44)

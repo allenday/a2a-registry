@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 def update_version(version: str) -> None:
-    """Update version in __init__.py file."""
+    """Update version in __init__.py file and documentation files."""
+    # Update __init__.py
     init_file = Path("src/a2a_registry/__init__.py")
     
     if not init_file.exists():
@@ -30,6 +31,27 @@ def update_version(version: str) -> None:
     else:
         print(f"Error: Could not find __version__ in {init_file}")
         sys.exit(1)
+    
+    # Update documentation files with version references
+    docs_files = [
+        ("README.md", r'- \*\*Current Version\*\*: 0\.\d+\.\d+', f'- **Current Version**: {version}'),
+        ("docs/documentation/concepts/architecture.md", r'- \*\*Version\*\*: 0\.\d+\.\d+', f'- **Version**: {version}'),
+        ("docs/documentation/troubleshooting/logging.md", r'image: a2a-registry:v0\.\d+\.\d+', f'image: a2a-registry:v{version}'),
+        ("docs/documentation/troubleshooting/common-issues.md", r'- a2a-registry: 0\.\d+\.\d+', f'- a2a-registry: {version}'),
+    ]
+    
+    for file_path, pattern, replacement in docs_files:
+        doc_file = Path(file_path)
+        if doc_file.exists():
+            content = doc_file.read_text()
+            if re.search(pattern, content):
+                new_content = re.sub(pattern, replacement, content)
+                doc_file.write_text(new_content)
+                print(f"Updated version to {version} in {doc_file}")
+            else:
+                print(f"Warning: Could not find version pattern in {doc_file}")
+        else:
+            print(f"Warning: {doc_file} not found")
 
 
 def validate_version(version: str) -> bool:
