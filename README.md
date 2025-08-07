@@ -10,7 +10,7 @@
 A2A Registry is the definitive solution for agent discovery, registration, and management in distributed Agent-to-Agent (A2A) networks. Built on **A2A Protocol v0.3.0** and FastA2A standards, it provides a robust, scalable infrastructure for dynamic agent ecosystems.
 
 ### Version Information
-- **Current Version**: 0.1.4
+- **Current Version**: 0.1.5
 - **Protocol Version**: A2A Protocol v0.3.0
 - **Status**: Production-Ready
 

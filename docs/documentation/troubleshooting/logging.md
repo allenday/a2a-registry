@@ -579,7 +579,7 @@ spec:
     spec:
       containers:
       - name: a2a-registry
-        image: a2a-registry:v0.1.4
+        image: a2a-registry:v0.1.5
         ports:
         - containerPort: 8000
         

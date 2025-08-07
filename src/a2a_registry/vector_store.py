@@ -153,15 +153,32 @@ class FAISSVectorStore:
             if not agent_id:
                 continue
 
-            # Find the specific vector that matched
+            # Get agent vectors
             agent_vectors = self.agent_vectors.get(agent_id, [])
-            if vector_idx - self._get_agent_vector_start_idx(agent_id) < len(
-                agent_vectors
-            ):
-                matched_vector = agent_vectors[
-                    vector_idx - self._get_agent_vector_start_idx(agent_id)
-                ]
-                results.append((agent_id, matched_vector, float(similarity)))
+            if not agent_vectors:
+                continue
+
+            # Find the specific vector that matched - simplified logic
+            try:
+                start_idx = self._get_agent_vector_start_idx(agent_id)
+                local_vector_idx = vector_idx - start_idx
+
+                if 0 <= local_vector_idx < len(agent_vectors):
+                    matched_vector = agent_vectors[local_vector_idx]
+                    # Ensure similarity is a proper float
+                    similarity_score = float(similarity)
+                    results.append((agent_id, matched_vector, similarity_score))
+                else:
+                    # Fallback: use first vector if index calculation fails
+                    logger.warning(
+                        f"Vector index calculation failed for agent {agent_id}, using first vector"
+                    )
+                    matched_vector = agent_vectors[0]
+                    similarity_score = float(similarity)
+                    results.append((agent_id, matched_vector, similarity_score))
+            except Exception as e:
+                logger.error(f"Error processing vector match for agent {agent_id}: {e}")
+                continue
 
         return results
 

@@ -613,7 +613,7 @@ Example bug report template:
 **Environment:**
 - Python: 3.9.7
 - OS: Ubuntu 20.04
-- a2a-registry: 0.1.4
+- a2a-registry: 0.1.5
 
 **Issue:**
 Agent registration fails with validation error
