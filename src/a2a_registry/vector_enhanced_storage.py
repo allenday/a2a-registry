@@ -100,25 +100,21 @@ class VectorEnhancedStorage(StorageBackend):
         for agent_id, matches in agent_vector_matches.items():
             if not matches:
                 continue
-                
+
             # Extract scores for this agent
             scores = [score for _vector, score in matches]
-            
+
             # Composite scoring strategy: weighted combination
             # - Top score (strongest signal): 60% weight
-            # - Mean of top 3 scores (consistency): 30% weight  
+            # - Mean of top 3 scores (consistency): 30% weight
             # - Coverage bonus (number of matches): 10% weight
-            
+
             max_score = max(scores)
             top_3_mean = sum(sorted(scores, reverse=True)[:3]) / min(3, len(scores))
             coverage_bonus = min(len(scores) / 5.0, 1.0)  # Normalize to [0, 1]
-            
-            composite_score = (
-                0.6 * max_score + 
-                0.3 * top_3_mean + 
-                0.1 * coverage_bonus
-            )
-            
+
+            composite_score = 0.6 * max_score + 0.3 * top_3_mean + 0.1 * coverage_bonus
+
             agent_composite_scores[agent_id] = composite_score
 
         # Phase 4: Rank and return results
