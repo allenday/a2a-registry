@@ -4,8 +4,17 @@
 # Python and virtual environment
 PYTHON := python3
 VENV := .venv
-PYTHON_VENV := $(VENV)/bin/python
-PIP_VENV := $(VENV)/bin/pip
+
+# Detect if we're in CI (no .venv) or local development
+ifeq ($(wildcard $(VENV)),)
+  # CI environment - use system python
+  PYTHON_VENV := python
+  PIP_VENV := pip
+else
+  # Local development - use venv
+  PYTHON_VENV := $(VENV)/bin/python
+  PIP_VENV := $(VENV)/bin/pip
+endif
 
 # Directories
 SRC_DIR := src
