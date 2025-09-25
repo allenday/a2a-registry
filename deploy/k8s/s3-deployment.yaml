@@ -1,0 +1,186 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a2a-registry-s3
+  labels:
+    app: a2a-registry
+    storage: s3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: a2a-registry
+      storage: s3
+  template:
+    metadata:
+      labels:
+        app: a2a-registry
+        storage: s3
+    spec:
+      serviceAccountName: a2a-registry-sa
+      containers:
+      - name: a2a-registry
+        image: a2a-registry:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 50051
+          name: grpc
+        env:
+        # Storage configuration
+        - name: STORAGE_TYPE
+          value: "s3"
+        - name: S3_BUCKET_NAME
+          value: "my-a2a-registry-bucket"
+        - name: S3_PREFIX
+          value: "a2a-registry/"
+        - name: AWS_REGION
+          value: "us-east-1"
+        
+        # Application configuration
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: LOG_LEVEL
+          value: "INFO"
+        
+        # Security configuration
+        - name: A2A_REGISTRY_DEV_MODE
+          value: "false"
+        - name: A2A_REGISTRY_REQUIRE_EXTENSION_VERIFICATION
+          value: "true"
+        - name: A2A_REGISTRY_REQUIRE_DOMAIN_VERIFICATION
+          value: "true"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: a2a-registry-sa
+  annotations:
+    # For EKS with IAM roles for service accounts
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/A2ARegistryRole
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a2a-registry-s3
+  labels:
+    app: a2a-registry
+    storage: s3
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  - port: 50051
+    targetPort: 50051
+    protocol: TCP
+    name: grpc
+  selector:
+    app: a2a-registry
+    storage: s3
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: a2a-registry-s3
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - registry.example.com
+    secretName: a2a-registry-tls
+  rules:
+  - host: registry.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: a2a-registry-s3
+            port:
+              number: 8000
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: a2a-registry-s3-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: a2a-registry
+      storage: s3
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: a2a-registry-s3-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: a2a-registry-s3
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

@@ -58,19 +58,82 @@ a2a-registry serve
 
 ## Storage Configuration
 
-Currently, the A2A Registry uses in-memory storage by default. This means:
+The A2A Registry supports multiple storage backends for data persistence:
 
-- All data is lost when the server restarts
-- No persistent storage is required
-- Fast performance for development and testing
+### In-Memory Storage (Default)
 
-### Future Storage Options
+Uses in-memory storage with no persistence:
 
-Future versions will support additional storage backends:
+```bash
+export STORAGE_TYPE=memory
+a2a-registry serve
+```
 
-- **File-based storage** - JSON or SQLite files
-- **Database storage** - PostgreSQL, MySQL, etc.
-- **Redis storage** - For distributed setups
+**Characteristics:**
+- ✅ Fast performance
+- ❌ Data lost on restart
+- ✅ No setup required
+
+### File-Based Storage
+
+Stores data in JSON files on disk:
+
+```bash
+export STORAGE_TYPE=file
+export STORAGE_DATA_DIR=/data
+a2a-registry serve
+```
+
+**Characteristics:**
+- ✅ Persistent across restarts
+- ✅ Simple setup
+- ⚠️ Single-node only
+
+### S3 Storage
+
+Stores data in Amazon S3 for production deployments:
+
+```bash
+export STORAGE_TYPE=s3
+export S3_BUCKET_NAME=my-registry-bucket
+export S3_PREFIX=a2a-registry/
+export AWS_REGION=us-east-1
+a2a-registry serve
+```
+
+**Characteristics:**
+- ✅ Highly scalable and durable
+- ✅ Multi-region support
+- ✅ Built-in backup and versioning
+- ✅ Supports clustering
+
+**AWS Credentials:**
+Configure AWS credentials using one of:
+- IAM roles (recommended for EC2/EKS)
+- Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+- AWS credentials file (`~/.aws/credentials`)
+
+**Required S3 Permissions:**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject", 
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::my-registry-bucket",
+        "arn:aws:s3:::my-registry-bucket/*"
+      ]
+    }
+  ]
+}
+```
 
 ## Logging Configuration
 
