@@ -558,6 +558,17 @@ def get_storage_backend() -> StorageBackend:
     if storage_type == "file":
         logger.info(f"Using file storage backend with data directory: {data_dir}")
         return FileStorage(data_dir)
+    elif storage_type == "s3":
+        import os
+        bucket_name = os.getenv("S3_BUCKET_NAME")
+        if not bucket_name:
+            raise ValueError("S3_BUCKET_NAME environment variable is required for S3 storage")
+        
+        prefix = os.getenv("S3_PREFIX", "a2a-registry/")
+        logger.info(f"Using S3 storage backend with bucket: {bucket_name}, prefix: {prefix}")
+        
+        from .s3_storage import S3Storage
+        return S3Storage(bucket_name=bucket_name, prefix=prefix)
     else:
         logger.info("Using in-memory storage backend")
         return InMemoryStorage()

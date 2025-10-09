@@ -42,6 +42,10 @@ class RegistryConfig:
         # Storage configuration
         self.storage_type = os.getenv("STORAGE_TYPE", "memory").lower()
         self.storage_data_dir = os.getenv("STORAGE_DATA_DIR", "/data")
+        
+        # S3 storage configuration
+        self.s3_bucket_name = os.getenv("S3_BUCKET_NAME")
+        self.s3_prefix = os.getenv("S3_PREFIX", "a2a-registry/")
 
     @property
     def is_production_mode(self) -> bool:

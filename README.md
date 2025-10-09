@@ -20,6 +20,7 @@ A2A Registry is the definitive solution for agent discovery, registration, and m
 - High-Performance Architecture
 - Comprehensive Security Model
 - Flexible Extension System
+- Multiple Storage Backends (In-Memory, File, S3)
 
 ## Quick Start
 
